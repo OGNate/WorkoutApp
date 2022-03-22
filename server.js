@@ -17,7 +17,7 @@ mongoose.connect(mongodb_URI, {useNewUrlParser: true, useUnifiedTopology: true})
     .then((result) => app.listen(process.env.PORT))
     .catch((err) => console.log(err));
 
-router.post('/register', (req, res) => {
+app.post('/register', (req, res) => {
 
     User.findOne({ email: req.body.email }).then((user) =>{
         if(user){
