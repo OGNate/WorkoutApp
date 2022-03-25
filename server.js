@@ -17,6 +17,26 @@ mongoose.connect(mongodb_URI, {useNewUrlParser: true, useUnifiedTopology: true})
     .then((result) => app.listen(process.env.PORT))
     .catch((err) => console.log(err));
 
+app.post('/register', (req, res) => {
+
+    User.findOne({ email: req.body.email }).then((user) =>{
+        if(user){
+            // if email alread exist throw error
+            return res.status(400).json({ email: "email already exist"})
+        }
+        else{
+            const newUser = new User({
+                firstName: req.body.firstName,
+                lastName: req.body.lastName,
+                email: req.body.email,
+                password: req.body.password,
+            })
+            newUser.save()
+            return res.status(200).json({msg: newUser})
+        }
+    })
+})
+
 
 
 // Creates a 
