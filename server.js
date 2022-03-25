@@ -17,7 +17,8 @@ mongoose.connect(mongodb_URI, {useNewUrlParser: true, useUnifiedTopology: true})
     .then((result) => app.listen(process.env.PORT))
     .catch((err) => console.log(err));
 
-app.post('/register', (req, res) => {
+//Register API
+app.post('/api/register', (req, res) => {
 
     User.findOne({ email: req.body.email }).then((user) =>{
         if(user){
@@ -36,61 +37,9 @@ app.post('/register', (req, res) => {
         }
     })
 })
-
-
-
-// Creates a 
-app.post('/register', (req, res) => {
-
-    User.findOne({ email: req.body.email }).then((user) =>{
-        if(user){
-            // if email alread exist throw error
-            return res.status(400).json({ email: "email already exist"})
-        }
-        else{
-            const newUser = new User({
-                firstName: req.body.firstName,
-                lastName: req.body.lastName,
-                email: req.body.email,
-                password: req.body.password,
-            })
-            newUser.save()
-            return res.status(200).json({msg: newUser})
-        }
-    })
-})
-
-
-app.post('/api/login', async (req, res, next) => 
-{
-  // incoming: login, password
-  // outgoing: id, firstName, lastName, error
-	
- var error = '';
-
-  const { login, password } = req.body;
-
-  const db = client.db();
-  const results = await db.collection('Users').find({Login:login,Password:password}).toArray();
-
-  var id = -1;
-  var fn = '';
-  var ln = '';
-
-  if( results.length > 0 )
-  {
-    id = results[0].UserId;
-    fn = results[0].FirstName;
-    ln = results[0].LastName;
-  }
-
-  var ret = { id:id, firstName:fn, lastName:ln, error:''};
-  res.status(200).json(ret);
-});
-
 
 // Login API
-app.post('/login', async (req, res, next) => 
+app.post('/api/login', async (req, res, next) => 
 {
  
     User.findOne({email: req.body.email, password: req.body.password}).then((user) => {
