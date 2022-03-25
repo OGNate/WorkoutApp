@@ -78,29 +78,42 @@ app.get('/add-User', (req, res) => {
 
 })
 
-app.post('/api/login', async (req, res, next) => 
+app.post('/login', async (req, res, next) => 
 {
-  // incoming: login, password
-  // outgoing: id, firstName, lastName, error
-	
- var error = '';
+// incoming: Email, Password
+// outgoing: id, firstName, lastName, error
+        
+var error = '';
 
-  const { login, password } = req.body;
+const results = await User.find({ email: req.body.email, password: req.body.password });
 
-  const db = client.db();
-  const results = await db.collection('Users').find({Login:login,Password:password}).toArray();
+var id = -1;
+var fn = '';
+var ln = '';
 
-  var id = -1;
-  var fn = '';
-  var ln = '';
+var ret;
 
-  if( results.length > 0 )
-  {
-    id = results[0].UserId;
-    fn = results[0].FirstName;
-    ln = results[0].LastName;
-  }
+if( results.length > 0 )
+{
+    id = results[0].userID;
+    fn = results[0].firstName;
+    ln = results[0].lastName;
 
-  var ret = { id:id, firstName:fn, lastName:ln, error:''};
-  res.status(200).json(ret);
+    try
+    {
+        const token = require("./createJWT.js");
+        ret = token.createToken(fn, ln, id)
+    }
+    catch(e)
+    {
+        ret = {error:e.message};
+    }
+}
+else
+{
+    ret = {error:"Login/Passwod incorrect"};
+}
+
+//let ret = { id:id, firstName:fn, lastName:ln, error:''};
+return res.status(200).json(ret);
 });
