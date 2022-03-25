@@ -18,10 +18,12 @@ const newUser = new Schema({
         required: true
     },
 
+    /*
     userID: {
         type: mongoose.SchemaTypes.ObjectId,
         required: true
     },
+    */
 
     email: {
         type: String,
