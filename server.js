@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const mongoose = require('mongoose');
+const bcrypt = require("bcryptjs");
 
 const {
   User,
@@ -39,7 +40,7 @@ if (process.env.NODE_ENV === 'production') {
   });
 }
 
-app.post('/register', (req, res) => {
+app.post('/api/register', (req, res) => {
 
   User.findOne({
     email: req.body.email
@@ -48,7 +49,7 @@ app.post('/register', (req, res) => {
     if (user) {
 
       return res.status(400).json({
-        email: "email already exist"
+        email: "Email already exists"
       })
 
     } else {
@@ -60,7 +61,20 @@ app.post('/register', (req, res) => {
         password: req.body.password,
       })
 
-      newUser.save()
+      bcrypt.genSalt(10, (err, salt) => {
+        bcrypt.hash(newUser.password, salt, (err, hash) => {
+
+          if (err) throw err;
+
+          newUser.password = hash;
+
+          newUser
+            .save()
+            .then(user => res.json(user))
+            .catch(err => console.log(err));
+        });
+      });
+
       return res.status(200).json({
         msg: newUser
       })
@@ -68,60 +82,36 @@ app.post('/register', (req, res) => {
   })
 })
 
-
+// Login API
 app.post('/api/login', async (req, res, next) => {
 
-  // incoming: login, password
-  // outgoing: id, firstName, lastName, error
-
-  var error = '';
-
-  const {
-    login,
-    password
-  } = req.body;
-
-  const db = client.db();
-  const results = await db.collection('users').find({
-    Login: login,
-    Password: password
-  }).toArray();
-
-  var id = -1;
-  var fn = '';
-  var ln = '';
-
-  if (results.length > 0) {
-    id = results[0].UserId;
-    fn = results[0].FirstName;
-    ln = results[0].LastName;
-  }
-
-  var ret = {
-    id: id,
-    firstName: fn,
-    lastName: ln,
-    error: ''
-  };
-
-  res.status(200).json(ret);
-});
-
-// Login API
-app.post('/login', async (req, res, next) => {
-
   User.findOne({
-    email: req.body.email,
-    password: req.body.password
+    email: req.body.email
   }).then((user) => {
 
-    if (user)
-      return res.status(200).json({
-        message: "Valid"
-      });
+    if (!user) {
+      return res.status(404).json({ error: "No account found by email" });
+    }
 
-    return res.status(400).json({
-      error: "Invalid Credentials"
+    const password = req.body.password;
+
+    bcrypt.compare(password, user.password).then(isMatch => {
+
+      if (isMatch) {
+
+        const payload = {
+          id: user.id,
+          name: user.name
+        };
+
+        return res.status(200).json({ successs: true });
+
+      } else {
+
+        return res.status(400).json({
+          error: "Invalid email or password"
+        });
+      }
     });
   });
 });
