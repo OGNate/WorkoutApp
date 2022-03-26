@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const mongoose = require('mongoose');
+const bcrypt = require("bcryptjs");
 
 const {
   User,
@@ -12,7 +13,6 @@ const {
 require("dotenv").config();
 
 const path = require('path');
-const { ObjectId } = require('mongodb');
 const PORT = process.env.PORT || 5000;
 
 const app = express();
@@ -49,7 +49,7 @@ app.post('/api/register', (req, res) => {
     if (user) {
 
       return res.status(400).json({
-        email: "email already exist"
+        email: "Email already exists"
       })
 
     } else {
@@ -61,7 +61,20 @@ app.post('/api/register', (req, res) => {
         password: req.body.password,
       })
 
-      newUser.save()
+      bcrypt.genSalt(10, (err, salt) => {
+        bcrypt.hash(newUser.password, salt, (err, hash) => {
+
+          if (err) throw err;
+
+          newUser.password = hash;
+
+          newUser
+            .save()
+            .then(user => res.json(user))
+            .catch(err => console.log(err));
+        });
+      });
+
       return res.status(200).json({
         msg: newUser
       })
@@ -95,17 +108,32 @@ app.post('/Test', async (req, res, next) => {
 app.post('/api/login', async (req, res, next) => {
 
   User.findOne({
-    email: req.body.email,
-    password: req.body.password
+    email: req.body.email
   }).then((user) => {
 
-    if (user)
-      return res.status(200).json({
-        message: "Valid"
-      });
+    if (!user) {
+      return res.status(404).json({ error: "No account found by email" });
+    }
 
-    return res.status(400).json({
-      error: "Invalid Credentials"
+    const password = req.body.password;
+
+    bcrypt.compare(password, user.password).then(isMatch => {
+
+      if (isMatch) {
+
+        const payload = {
+          id: user.id,
+          name: user.name
+        };
+
+        return res.status(200).json({ successs: true });
+
+      } else {
+
+        return res.status(400).json({
+          error: "Invalid email or password"
+        });
+      }
     });
   });
 });
