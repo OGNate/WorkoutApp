@@ -29,6 +29,9 @@ const newUser = new Schema({
         type: String,
         required: true
     },  
+
+    isVerified: Boolean
+    
 }, {timestamps: true}, {collection: 'users'});
 
 
@@ -55,7 +58,7 @@ const workoutMetric = new Schema({
 
     // Keeps track of whos workoutmetrics this is
     userID: {
-        type: String,
+        type: mongoose.SchemaTypes.ObjectId,
         required: true
     },
 

@@ -78,6 +78,28 @@ app.post('/api/register', (req, res) => {
   })
 })
 
+// DELETE WHEN DONE
+// Shows how to find a user by their object ID
+app.post('/Test', async (req, res, next) => {
+    User.findById({
+        _id: ObjectId(req.body._id)
+    }).then((user) => {
+
+        if (user) {
+            console.log("Found User");
+            return res.status(200).json({
+                msg: user
+            });
+        }
+
+        console.log("invalid User");
+        return res.status(404).json({
+            msg: "Invalid User"
+        });
+    });
+});
+
+
 // Login API
 app.post('/api/login', async (req, res, next) => {
 
