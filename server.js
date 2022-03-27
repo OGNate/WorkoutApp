@@ -40,6 +40,8 @@ if (process.env.NODE_ENV === 'production') {
   });
 }
 
+
+//Register API
 app.post('/api/register', (req, res) => {
 
   User.findOne({
@@ -99,8 +101,7 @@ app.post('/api/test', async (req, res, next) => {
     });
 });
 
-
-// Login API
+//Login API
 app.post('/api/login', async (req, res, next) => {
 
   User.findOne({
@@ -122,7 +123,7 @@ app.post('/api/login', async (req, res, next) => {
           name: user.name
         };
 
-        return res.status(200).json({ successs: true });
+        return res.status(200).json({ success: true });
 
       } else {
 
@@ -132,6 +133,33 @@ app.post('/api/login', async (req, res, next) => {
       }
     });
   });
+});
+
+//addBodyMetrics API
+app.post('/api/addBodyMetrics', async (req, res, next) => {
+
+  User.findById({
+    _id: ObjectId(req.body._id)
+}).then((user) => {
+
+  if (!user) {
+    return res.status(404).json({ error: "User does not exist. Re-check User ID" });
+  }
+
+  else {
+
+    const newBodyMetrics = new workoutMets({
+      gender: req.body.gender,
+      weight: req.body.weight,
+      height_feet: req.body.height_feet,
+      height_inches: req.body.height_inches,
+      age: req.body.age,
+    })
+  
+    newBodyMetrics.save();
+    return res.status(200).json(newBodyMetrics);
+  }
+});
 });
 
 app.use((req, res, next) => {
