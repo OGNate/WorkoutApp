@@ -163,6 +163,27 @@ app.post('/api/addBodyMetrics', async (req, res, next) => {
 });
 });
 
+//updateBodyMetrics API
+app.post('/api/updateBodyMetrics', async (req, res, next) => {
+  //Accepts user id, gender, weight, height in feet, height in inches, and age
+  //Returns newly created workoutMetrics document
+  
+    var newMetrics = {$set: req};
+    workoutMets.updateOne({
+      userID: ObjectId(req.body._id)
+  }, newMetrics).then((workoutmets) => {
+  
+    if (!workoutmets) {
+      return res.status(404).json({ error: "User's metrics do not exist. Re-check User ID." });
+    }
+  
+    else {
+      console.log("Update successful.");
+      return res.status(200).json({msg: "Metrics Successfully Updated."});
+    }
+  });
+});
+
 app.use((req, res, next) => {
 
   res.setHeader('Access-Control-Allow-Origin', '*');
