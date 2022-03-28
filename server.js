@@ -149,6 +149,7 @@ app.post('/api/addBodyMetrics', async (req, res, next) => {
   else {
 
     const newBodyMetrics = new workoutMets({
+      userID: ObjectId(req.body._id).toString(),
       gender: req.body.gender,
       weight: req.body.weight,
       height_feet: req.body.height_feet,
