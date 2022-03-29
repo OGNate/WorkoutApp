@@ -14,8 +14,8 @@ require("dotenv").config();
 
 const path = require('path');
 const { ObjectId } = require('mongodb');
-const PORT = process.env.PORT || 5000;
 
+const PORT = process.env.PORT || 5000;
 const app = express();
 
 app.set('port', PORT);
@@ -84,7 +84,7 @@ app.post('/api/register', (req, res) => {
 // DELETE WHEN DONE
 // Shows how to find a user by their object ID
 app.post('/api/test', async (req, res, next) => {
-	/*
+  /*
     User.findById({
         _id: ObjectId(req.body._id)
     }).then((user) => {
@@ -102,39 +102,55 @@ app.post('/api/test', async (req, res, next) => {
         });
     });
 	*/
-    
 
-    User.findById({_id: ObjectId(req.body._id)}).then((user) => {
-		if (!user) {
-			console.log("User does not exist");
-			return res.status(300).json({
-				msg: "_id not found"
-			});
-		}
 
-		workoutMets.findOne({userID: ObjectId(req.body._id)}).then((workout) => {
-			if(workout) {
-				console.log("Workouts have already been initialized for this user");	
-				return res.status(300).json({
-					msg: "Workouts have already been initialized for this user"
-				});
-			}
+  User.findById({
 
-			const newWorkoutData = new workoutMets({
-				userID: ObjectId(req.body._id),
-				workouts: {
-					benchpress: {
-						currentWeight: 200
-					}
-				}
-			});
+    _id: ObjectId(req.body._id)
 
-			newWorkoutData.save();
-			return res.status(200).json({
-				msg: "Works fine"
-			});
-		});
+  }).then((user) => {
+
+    if (!user) {
+
+      console.log("User does not exist");
+
+      return res.status(300).json({
+        msg: "_id not found"
+      });
+    }
+
+    workoutMets.findOne({
+
+      userID: ObjectId(req.body._id)
+
+    }).then((workout) => {
+
+      if (workout) {
+
+        console.log("Workouts have already been initialized for this user");
+        
+        return res.status(300).json({
+          msg: "Workouts have already been initialized for this user"
+        });
+      }
+
+      const newWorkoutData = new workoutMets({
+
+        userID: ObjectId(req.body._id),
+
+        workouts: {
+          benchpress: {
+            currentWeight: 200
+          }
+        }
+      });
+
+      newWorkoutData.save();
+      return res.status(200).json({
+        msg: "Works fine"
+      });
     });
+  });
 });
 
 //Login API
@@ -145,7 +161,9 @@ app.post('/api/login', async (req, res, next) => {
   }).then((user) => {
 
     if (!user) {
-      return res.status(404).json({ error: "No account found by email" });
+      return res.status(404).json({
+        error: "No account found by email"
+      });
     }
 
     const password = req.body.password;
@@ -159,7 +177,9 @@ app.post('/api/login', async (req, res, next) => {
           name: user.name
         };
 
-        return res.status(200).json({ success: true });
+        return res.status(200).json({
+          success: true
+        });
 
       } else {
 
@@ -176,46 +196,56 @@ app.post('/api/addBodyMetrics', async (req, res, next) => {
 
   User.findById({
     _id: ObjectId(req.body._id)
-}).then((user) => {
+  }).then((user) => {
 
-  if (!user) {
-    return res.status(404).json({ error: "User does not exist. Re-check User ID" });
-  }
+    if (!user) {
+      return res.status(404).json({
+        error: "User does not exist. Re-check User ID"
+      });
+    } else {
 
-  else {
+      const newBodyMetrics = new workoutMets({
+        userID: ObjectId(req.body._id).toString(),
+        gender: req.body.gender,
+        weight: req.body.weight,
+        height_feet: req.body.height_feet,
+        height_inches: req.body.height_inches,
+        age: req.body.age,
+      })
 
-    const newBodyMetrics = new workoutMets({
-      userID: ObjectId(req.body._id).toString(),
-      gender: req.body.gender,
-      weight: req.body.weight,
-      height_feet: req.body.height_feet,
-      height_inches: req.body.height_inches,
-      age: req.body.age,
-    })
-  
-    newBodyMetrics.save();
-    return res.status(200).json(newBodyMetrics);
-  }
-});
+      newBodyMetrics.save();
+      return res.status(200).json(newBodyMetrics);
+    }
+  });
 });
 
 //updateBodyMetrics API
 app.post('/api/updateBodyMetrics', async (req, res, next) => {
   //Accepts user id, gender, weight, height in feet, height in inches, and age
   //Returns newly created workoutMetrics document
-  
-    var newMetrics = {$set: req};
-    workoutMets.updateOne({
-      userID: ObjectId(req.body._id)
+
+  var newMetrics = {
+    $set: req
+  };
+  workoutMets.updateOne({
+
+    userID: ObjectId(req.body._id)
+
   }, newMetrics).then((workoutmets) => {
-  
+
     if (!workoutmets) {
-      return res.status(404).json({ error: "User's metrics do not exist. Re-check User ID." });
-    }
-  
-    else {
+
+      return res.status(404).json({
+        error: "User's metrics do not exist. Re-check User ID."
+      });
+
+    } else {
+
       console.log("Update successful.");
-      return res.status(200).json({msg: "Metrics Successfully Updated."});
+
+      return res.status(200).json({
+        msg: "Metrics Successfully Updated."
+      });
     }
   });
 });
