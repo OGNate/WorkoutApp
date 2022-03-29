@@ -1,22 +1,24 @@
 import React, { useState } from "react";
 import axios from "axios";
 
-function Login() {
+function Register() {
 
   var bp = require("./Path.js");
   // var storage = require("../tokenStorage.js");
 
-  var loginEmail, loginPassword;
+  var newFirstName, newLastName, newEmail, newPassword;
 
   const [message, setMessage] = useState("");
 
-  const attemptLogin = async (event) => {
-    
+  const attemptRegistration = async (event) => {
+
     event.preventDefault();
 
     var obj = {
-      email: loginEmail.value,
-      password: loginPassword.value,
+      firstName: newFirstName.value,
+      lastName: newLastName.value,
+      email: newEmail.value,
+      password: newPassword.value,
     };
 
     var js = JSON.stringify(obj);
@@ -24,7 +26,7 @@ function Login() {
     var config = {
       
       method: "POST",
-      url: bp.buildPath("api/login"),
+      url: bp.buildPath("api/register"),
 
       headers: {
         "Content-Type": "application/json",
@@ -38,7 +40,7 @@ function Login() {
       var res = response.data;
 
       if (res.error) {
-        setMessage("Invalid email or password");
+        setMessage("Account already exists under given email");
         
       } else {
 
@@ -61,7 +63,7 @@ function Login() {
 
         // localStorage.setItem("user_data", JSON.stringify(user));
 
-        window.location.href = "/dashboard";
+        window.location.href = "/verify-account";
       }
 
     }).catch(function (error) {
@@ -71,23 +73,26 @@ function Login() {
 
   return (
 
-    <div id="loginDiv">
+    <div id="registerDiv">
 
-      <form onSubmit={attemptLogin}>
+      <form onSubmit={attemptRegistration}>
 
-        <input type="text" id="loginName" placeholder="Email Address" ref={(c) => loginEmail = c}  /><br />
-        <input type="password" id="loginPassword" placeholder="Password" ref={(c) => loginPassword = c} /><br />
+        <input type="text" id="newFirstName" placeholder="First Name" ref={(c) => newFirstName = c}  /><br />
+        <input type="text" id="newLastName" placeholder="Last Name" ref={(c) => newLastName = c}  /><br />
 
-        <input type="submit" id="loginButton" value = "Login" onClick={attemptLogin} />
+        <input type="text" id="newEmail" placeholder="Email Address" ref={(c) => newEmail = c}  /><br />
+        <input type="password" id="newPassword" placeholder="Password" ref={(c) => newPassword = c} /><br />
+
+        <input type="submit" id="registerButton" value = "Login" onClick={attemptRegistration} />
 
         <span id="loginResult">{message}</span>
 
       </form>
 
-      <span>Don't have an account? <a href="/register">Create one!</a></span>
+      <span>Already have an account? <a href="/">Login instead</a>.</span>
 
    </div>
   );
 };
 
-export default Login;
+export default Register;

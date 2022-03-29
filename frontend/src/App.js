@@ -3,6 +3,8 @@ import { BrowserRouter as Router, Route, Redirect, Switch } from 'react-router-d
 import './App.css';
 
 import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
+import VerifyAccountPage from './pages/VerifyAccountPage';
 import DashboardPage from './pages/DashboardPage';
 
 function App() {
@@ -16,6 +18,14 @@ function App() {
           <LoginPage />
         </Route>
 
+        <Route path="/register" exact>
+          <RegisterPage />
+        </Route>
+
+        <Route path="/verify-account" exact>
+          <VerifyAccountPage />
+        </Route>
+
         <Route path="/dashboard" exact>
           <DashboardPage />
         </Route>
@@ -24,7 +34,6 @@ function App() {
 
       </Switch>  
     </Router>
-
   );
 }
 
