@@ -84,6 +84,7 @@ app.post('/api/register', (req, res) => {
 // DELETE WHEN DONE
 // Shows how to find a user by their object ID
 app.post('/api/test', async (req, res, next) => {
+	/*
     User.findById({
         _id: ObjectId(req.body._id)
     }).then((user) => {
@@ -100,6 +101,7 @@ app.post('/api/test', async (req, res, next) => {
             msg: "Invalid User"
         });
     });
+	*/
     
 
     User.findById({_id: ObjectId(req.body._id)}).then((user) => {
