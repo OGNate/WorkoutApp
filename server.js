@@ -41,6 +41,8 @@ if (process.env.NODE_ENV === 'production') {
   });
 }
 
+
+//Register API
 app.post('/api/register', (req, res) => {
 
   User.findOne({
@@ -81,8 +83,7 @@ app.post('/api/register', (req, res) => {
 
 // DELETE WHEN DONE
 // Shows how to find a user by their object ID
-app.post('/Test', async (req, res, next) => {
-  /*
+app.post('/api/test', async (req, res, next) => {
     User.findById({
         _id: ObjectId(req.body._id)
     }).then((user) => {
@@ -99,7 +100,7 @@ app.post('/Test', async (req, res, next) => {
             msg: "Invalid User"
         });
     });
-    */
+    
 
     User.findById({_id: ObjectId(req.body._id)}).then((user) => {
 		if (!user) {
@@ -134,8 +135,7 @@ app.post('/Test', async (req, res, next) => {
     });
 });
 
-
-// Login API
+//Login API
 app.post('/api/login', async (req, res, next) => {
 
   User.findOne({
@@ -157,7 +157,7 @@ app.post('/api/login', async (req, res, next) => {
           name: user.name
         };
 
-        return res.status(200).json({ successs: true });
+        return res.status(200).json({ success: true });
 
       } else {
 
@@ -166,6 +166,55 @@ app.post('/api/login', async (req, res, next) => {
         });
       }
     });
+  });
+});
+
+//addBodyMetrics API
+app.post('/api/addBodyMetrics', async (req, res, next) => {
+
+  User.findById({
+    _id: ObjectId(req.body._id)
+}).then((user) => {
+
+  if (!user) {
+    return res.status(404).json({ error: "User does not exist. Re-check User ID" });
+  }
+
+  else {
+
+    const newBodyMetrics = new workoutMets({
+      userID: ObjectId(req.body._id).toString(),
+      gender: req.body.gender,
+      weight: req.body.weight,
+      height_feet: req.body.height_feet,
+      height_inches: req.body.height_inches,
+      age: req.body.age,
+    })
+  
+    newBodyMetrics.save();
+    return res.status(200).json(newBodyMetrics);
+  }
+});
+});
+
+//updateBodyMetrics API
+app.post('/api/updateBodyMetrics', async (req, res, next) => {
+  //Accepts user id, gender, weight, height in feet, height in inches, and age
+  //Returns newly created workoutMetrics document
+  
+    var newMetrics = {$set: req};
+    workoutMets.updateOne({
+      userID: ObjectId(req.body._id)
+  }, newMetrics).then((workoutmets) => {
+  
+    if (!workoutmets) {
+      return res.status(404).json({ error: "User's metrics do not exist. Re-check User ID." });
+    }
+  
+    else {
+      console.log("Update successful.");
+      return res.status(200).json({msg: "Metrics Successfully Updated."});
+    }
   });
 });
 

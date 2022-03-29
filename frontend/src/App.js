@@ -7,17 +7,7 @@ function App() {
   return (
 
     <div>
-
-      <form>
-
-        <label> Name:
-          <input type="text" name="name" />
-        </label>
-
-        <input type="submit" value="Submit" />
-
-      </form>
-
+      <h1>Landing Page</h1>
     </div>
   );
 }
