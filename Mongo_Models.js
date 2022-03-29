@@ -18,13 +18,6 @@ const newUser = new Schema({
         required: true
     },
 
-    /*
-    userID: {
-        type: mongoose.SchemaTypes.ObjectId,
-        required: true
-    },
-    */
-
     email: {
         type: String,
         required: true
@@ -34,27 +27,105 @@ const newUser = new Schema({
     
 }, {timestamps: true}, {collection: 'users'});
 
-
-// Used in the workoutMetrics to hold the entire workouts schema
-const workoutExcercises = new Schema({
+// Contains the schema for the current workouts in the applications program.
+const WorkoutExcercises = new Schema({
+    
     benchpress: {
-        max: Number,
-        presses: [Number]
+        hasData: {
+            type: Boolean,
+            default: false
+        },
+
+        currentWeight: {
+            type: Number,
+            min: 0,
+            default: 0
+        },
+
+        currentReps: {
+            type: Number,
+            min: 0,
+            default: 0
+        },
+
+        currentSets: {
+            type: Number,
+            min: 0,
+            default: 0
+        },
+
+        currentDuration: {
+            type: Number,
+            min: 0,
+            default: 0
+        }
     },
 
     deadlift: {
-        max: Number,
-        presses: [Number]
+        hasData: {
+            type: Boolean,
+            default: false
+        },
+
+        currentWeight: {
+            type: Number,
+            min: 0,
+            default: 0
+        },
+
+        currentReps: {
+            type: Number,
+            min: 0,
+            default: 0
+        },
+
+        currentSets: {
+            type: Number,
+            min: 0,
+            default: 0
+        },
+
+        currentDuration: {
+            type: Number,
+            min: 0,
+            default: 0
+        }
     },
 
-    Squat: {
-        max: Number,
-        presses: [Number]
+    squat: {
+        hasData: {
+            type: Boolean,
+            default: false
+        },
+
+        currentWeight: {
+            type: Number,
+            min: 0,
+            default: 0
+        },
+
+        currentReps: {
+            type: Number,
+            min: 0,
+            default: 0
+        },
+
+        currentSets: {
+            type: Number,
+            min: 0,
+            default: 0
+        },
+
+        currentDuration: {
+            type: Number,
+            min: 0,
+            default: 0
+        }
     }
 });
 
 // Creates the workoutmetrics schema for mongodb
-const workoutMetric = new Schema({
+const WorkoutData = new Schema({
 
     // Keeps track of whos workoutmetrics this is
     userID: {
@@ -62,23 +133,13 @@ const workoutMetric = new Schema({
         required: true
     },
 
-    gender: {
-        type: Number, // 1 for Male, 0 for Female
-        required: false
-    },
+    workouts: WorkoutExcercises,    // See workoutExcercises above for schema
 
-    weight: {
-        type: Number, 
-        required: false
-    },  
-
-    workouts: workoutExcercises,    // See workoutExcercises above for schema
-    caloriesBurned: Number
 }, {timestamps: true}, {collection: 'workoutmetrics'});
 
 // Creates models for both schemas
 const User = mongoose.model('users', newUser);
-const workoutMets = mongoose.model('workoutmetrics', workoutMetric);
+const workoutMets = mongoose.model('workoutmetrics', WorkoutData);
 
 // Exports both modules
 module.exports = {User, workoutMets};

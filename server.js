@@ -13,6 +13,7 @@ const {
 require("dotenv").config();
 
 const path = require('path');
+const { ObjectId } = require('mongodb');
 const PORT = process.env.PORT || 5000;
 
 const app = express();
@@ -70,14 +71,10 @@ app.post('/api/register', (req, res) => {
 
           newUser
             .save()
-            .then(user => res.json(user))
+            .then(user => res.status(200).json(user))
             .catch(err => console.log(err));
         });
       });
-
-      return res.status(200).json({
-        msg: newUser
-      })
     }
   })
 })
@@ -85,6 +82,7 @@ app.post('/api/register', (req, res) => {
 // DELETE WHEN DONE
 // Shows how to find a user by their object ID
 app.post('/Test', async (req, res, next) => {
+  /*
     User.findById({
         _id: ObjectId(req.body._id)
     }).then((user) => {
@@ -100,6 +98,39 @@ app.post('/Test', async (req, res, next) => {
         return res.status(404).json({
             msg: "Invalid User"
         });
+    });
+    */
+
+    User.findById({_id: ObjectId(req.body._id)}).then((user) => {
+		if (!user) {
+			console.log("User does not exist");
+			return res.status(300).json({
+				msg: "_id not found"
+			});
+		}
+
+		workoutMets.findOne({userID: ObjectId(req.body._id)}).then((workout) => {
+			if(workout) {
+				console.log("Workouts have already been initialized for this user");	
+				return res.status(300).json({
+					msg: "Workouts have already been initialized for this user"
+				});
+			}
+
+			const newWorkoutData = new workoutMets({
+				userID: ObjectId(req.body._id),
+				workouts: {
+					benchpress: {
+						currentWeight: 200
+					}
+				}
+			});
+
+			newWorkoutData.save();
+			return res.status(200).json({
+				msg: "Works fine"
+			});
+		});
     });
 });
 
