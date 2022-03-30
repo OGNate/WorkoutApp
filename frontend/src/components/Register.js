@@ -83,7 +83,7 @@ function Register() {
         <input type="text" id="newEmail" placeholder="Email Address" ref={(c) => newEmail = c}  /><br />
         <input type="password" id="newPassword" placeholder="Password" ref={(c) => newPassword = c} /><br />
 
-        <input type="submit" id="registerButton" value = "Login" onClick={attemptRegistration} />
+        <input type="submit" id="registerButton" value = "Register" onClick={attemptRegistration} />
 
         <span id="loginResult">{message}</span>
 
