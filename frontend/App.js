@@ -10,13 +10,11 @@ const RootStack = createNativeStackNavigator();
 
 export default function App() {
   return (
-    <RegisterScreen />
-    // <NavigationContainer>
-    //   <RootStack.Navigator initialRouteName="Launch">
-    //     <RootStack.Screen name="Launch" component={LaunchScreen} />
-    //     <RootStack.Screen name="Login" component={LoginScreen} />
-    //     <RootStack.Screen name="Home" component={HomeScreen} />
-    //   </RootStack.Navigator>
-    // </NavigationContainer>
+    // <RegisterScreen />
+    <NavigationContainer>
+      <RootStack.Navigator initialRouteName="Launch">
+        <RootStack.Screen name="Login" component={LoginScreen} />
+      </RootStack.Navigator>
+    </NavigationContainer>
   );
 }
