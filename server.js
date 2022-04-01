@@ -2,7 +2,9 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const mongoose = require('mongoose');
-const bcrypt = require("bcryptjs");
+const bcrypt = require('bcryptjs');
+const Validator = require('validator');
+const isEmpty = require('is-empty');
 
 const {
   User,
@@ -45,40 +47,84 @@ if (process.env.NODE_ENV === 'production') {
 //Register API
 app.post('/api/register', (req, res) => {
 
-  User.findOne({
-    email: req.body.email
-  }).then((user) => {
+  let errors = {};
 
-    if (user) {
+  var firstNameArg = !isEmpty(req.body.firstName) ? req.body.firstName : "";
+  var lastNameArg = !isEmpty(req.body.lastName) ? req.body.lastName : "";
+  var emailArg = !isEmpty(req.body.email) ? req.body.email : "";
+  var passwordArg = !isEmpty(req.body.password) ? req.body.password : "";
+  var password2Arg = !isEmpty(req.body.password2) ? req.body.password2 : "";
 
-      return res.status(400).json({
-        email: "Email already exists"
-      })
+  if (Validator.isEmpty(firstNameArg)) {
+    errors.firstName = "First name field is required";
+  }
 
-    } else {
+  if (Validator.isEmpty(lastNameArg)) {
+    errors.lastName = "Last name field is required";
+  }
 
-      const newUser = new User({
-        firstName: req.body.firstName,
-        lastName: req.body.lastName,
-        email: req.body.email,
-        password: req.body.password,
-      })
+  if (Validator.isEmpty(emailArg)) {
+    errors.email = "Email field is required";
+  } else if (!Validator.isEmail(emailArg)) {
+    errors.email = "Email is invalid";
+  }
 
-      bcrypt.genSalt(10, (err, salt) => {
-        bcrypt.hash(newUser.password, salt, (err, hash) => {
+  if (Validator.isEmpty(passwordArg)) {
+    errors.password = "Password field is required";
+  }
 
-          if (err) throw err;
+  if (Validator.isEmpty(password2Arg)) {
+    errors.password = "Confirm password field is required";
+  }
 
-          newUser.password = hash;
+  if (!Validator.equals(passwordArg, password2Arg)) {
+    errors.password2 = "Passwords do not match";
+  }
 
-          newUser
-            .save()
-            .then(user => res.status(200).json(user))
-            .catch(err => console.log(err));
+  if (!Validator.isLength(passwordArg, { min: 8 })) {
+    errors.password = "Password must be at least 8 characters";
+  }
+
+  if (!isEmpty(errors)) {
+    return res.status(400).json(errors);
+
+  } else {
+
+    User.findOne({
+      email: req.body.email
+    }).then((user) => {
+
+      if (user) {
+
+        return res.status(400).json({
+          email: "Email already exists"
+        })
+
+      } else {
+
+        const newUser = new User({
+          firstName: req.body.firstName,
+          lastName: req.body.lastName,
+          email: req.body.email,
+          password: req.body.password,
+        })
+
+        bcrypt.genSalt(10, (err, salt) => {
+          bcrypt.hash(newUser.password, salt, (err, hash) => {
+
+            if (err) throw err;
+
+            newUser.password = hash;
+
+            newUser
+              .save()
+              .then(user => res.status(200).json(user))
+              .catch(err => console.log(err));
+          });
         });
-      });
-    }
-  })
+      }
+    })
+  }
 })
 
 // DELETE WHEN DONE
@@ -155,11 +201,29 @@ app.post('/api/test', async (req, res, next) => {
 //Login API
 app.post('/api/login', async (req, res, next) => {
 
+  var emailArg = !isEmpty(req.body.email) ? req.body.email : "";
+  var passwordArg = !isEmpty(req.body.password) ? req.body.password : "";
+
+  if (Validator.isEmpty(emailArg)) {
+    errors.email = "Email field is required";
+  } else if (!Validator.isEmail(emailArg)) {
+    errors.email = "Email is invalid";
+  }
+
+  if (Validator.isEmpty(passwordArg)) {
+    errors.password = "Password field is required";
+  }
+
+  if (!isEmpty(errors)) {
+    return res.status(400).json(errors);
+  }
+
   User.findOne({
     email: req.body.email
   }).then((user) => {
 
     if (!user) {
+
       return res.status(404).json({
         error: "No account found by email"
       });
@@ -183,7 +247,7 @@ app.post('/api/login', async (req, res, next) => {
       } else {
 
         return res.status(400).json({
-          error: "Invalid email or password"
+          error: "Invalid password"
         });
       }
     });
