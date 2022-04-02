@@ -4,10 +4,16 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 const bcrypt = require("bcryptjs");
 
-const {
-  User,
-  workoutMets
-} = require('./Mongo_Models');
+// Imports all the mongoose schemas from the "schemas" folder
+const User = require("./schemas/userSchema");
+const userSession = require("./schemas/userSessionsSchema");
+const workoutFormat = require("./schemas/workoutSchema");
+
+
+// Planning on getting rid of metrics such as weight, height, and gender right now. 
+//const {TESTUser, workoutMets} = require('./Mongo_Models');
+//const {User, WorkoutMets} = require('./Mongo_Models');
+
 
 // Allows us to access the .env file
 require("dotenv").config();
@@ -136,6 +142,28 @@ app.post('/api/test', async (req, res, next) => {
 		});
     });
 });
+
+// TESTING ONLY, DELETE WHEN DONE
+// Used to insert all our excercises into the database for easy recall later
+app.post('/Test', async (req, res, next) => {
+
+	const newWorkout = new workoutFormat({
+		excerciseID: req.body.excerciseID,
+		name: req.body.name,
+		bodyPart: req.body.bodyPart,
+		equipment: req.body.equipment,
+		workoutType: req.body.workoutType,
+		hasReps: req.body.hasReps,
+		hasWeight: req.body.hasWeight,
+		hasSets: req.body.hasSets,
+		hasTime: req.body.hasTime,
+		hasDistance: req.body.hasDistance
+	});
+
+	newWorkout.save();
+	return res.status(200).json({msg: "Successfully added workoutformat to database"});
+});
+
 
 //Login API
 app.post('/api/login', async (req, res, next) => {

@@ -47,7 +47,7 @@ const WorkoutExcercises = new Schema({
             min: 0,
             default: 0
         },
-
+ 
         currentSets: {
             type: Number,
             min: 0,
@@ -124,12 +124,52 @@ const WorkoutExcercises = new Schema({
     }
 });
 
+const TEST2 = new Schema({
+    benchpress: {
+
+    }
+});
+
+const TEST = new Schema({
+    userID: {
+        type: mongoose.SchemaType.ObjectId,
+        required: true
+    },
+
+    sessionName: String,
+    bodyPart: [String],
+    equipment: [String],
+    workoutType: [String],
+
+    hasReps: {
+        type: Boolean,
+        default: false
+    },
+
+    hasWeight: {
+        type: Boolean,
+        default: false
+    },
+
+    hasTime: {
+        type: Boolean,
+        default: false
+    },
+
+    hasDistance: {
+        type: Boolean,
+        default: false
+    },
+});
+
+
+
 // Creates the workoutmetrics schema for mongodb
 const WorkoutData = new Schema({
 
     // Keeps track of whos workoutmetrics this is
     userID: {
-        type: mongoose.SchemaTypes.ObjectId,
+        type: mongoose.SchemaType.ObjectId,
         required: true
     },
 
