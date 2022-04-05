@@ -226,7 +226,7 @@ app.post('/Test', async (req, res, next) => {
 });
 
 
-//Login API
+//login API
 app.post('/api/login', async (req, res, next) => {
 
   var emailArg = !isEmpty(req.body.email) ? req.body.email : "";
@@ -282,62 +282,298 @@ app.post('/api/login', async (req, res, next) => {
   });
 });
 
-//addBodyMetrics API
-app.post('/api/addBodyMetrics', async (req, res, next) => {
+//addSession API
+app.post('/api/addSession', async (req, res, next) => {
 
-  User.findById({
-    _id: ObjectId(req.body._id)
-  }).then((user) => {
+  //Incoming: userID, sessionName 
+  //Outgoing: error
+  userSession.findOne({
+    userID: ObjectId(req.body.userID),
+    sessionName: req.body.sessionName
+  }).then((session) => {
 
-    if (!user) {
+    if (session) {
       return res.status(404).json({
-        error: "User does not exist. Re-check User ID"
+        error: "Session name already exists. Try another one."
       });
     } else {
 
-      const newBodyMetrics = new workoutMets({
-        userID: ObjectId(req.body._id).toString(),
-        gender: req.body.gender,
-        weight: req.body.weight,
-        height_feet: req.body.height_feet,
-        height_inches: req.body.height_inches,
-        age: req.body.age,
-      })
+      const newWorkoutSession = new userSession({
+        userID: ObjectId(req.body.userID),
+        sessionName: req.body.sessionName,
+        isEmpty: true
+      });
 
-      newBodyMetrics.save();
-      return res.status(200).json(newBodyMetrics);
+      newWorkoutSession.save();
+      return res.status(200).json(newWorkoutSession);
     }
   });
 });
 
-//updateBodyMetrics API
-app.post('/api/updateBodyMetrics', async (req, res, next) => {
-  //Accepts user id, gender, weight, height in feet, height in inches, and age
-  //Returns newly created workoutMetrics document
+//updateSession API
+app.post('/api/updateSession', async (req, res, next) => {
+  //Incoming: userID, oldName, newName
+  //Outgoing: result
 
-  var newMetrics = {
-    $set: req
-  };
-  workoutMets.updateOne({
+  var error = '';
+  userSession.updateMany({
+    userID: ObjectId(req.body.userID),
+    sessionName: req.body.oldName
+  }, {
+    sessionName: req.body.newName
+  }).then((result) => {
+    return res.status(200).json(result);
+  });
+});
 
-    userID: ObjectId(req.body._id)
+//displaySessions API
+app.post('/api/displaySessions', async (req, res, next) => {
 
-  }, newMetrics).then((workoutmets) => {
+  //Incoming: userID
+  //Outgoing: sessions[], error
 
-    if (!workoutmets) {
+  userSession.find({
+    userID: ObjectId(req.body.userID),
+  }).then((results) => {
 
+    if (!results) {
       return res.status(404).json({
-        error: "User's metrics do not exist. Re-check User ID."
+        error: "No sessions found for this user."
       });
 
     } else {
+      var ret = [];
+      for( var i=0; i<results.length; i++ )
+      {
+        if (ret.includes(results[i].sessionName)) {
+          continue;
+        }
+        ret.push( results[i].sessionName );
+      }
 
-      console.log("Update successful.");
+      return res.status(200).json({sessions: ret, error: ""});
+    }
 
-      return res.status(200).json({
-        msg: "Metrics Successfully Updated."
+  });
+});
+
+//deleteSession API
+app.post('/api/deleteSession', async (req, res, next) => {
+
+  //Incoming: userID, sessionName 
+  //Outgoing: error
+  userSession.findOne({
+    userID: ObjectId(req.body.userID),
+    sessionName: req.body.sessionName
+  }).then((session) => {
+
+    if (!session) {
+      return res.status(404).json({
+        error: "Session does not exist."
+      });
+  }
+  });
+
+  userSession.deleteMany({
+    userID: ObjectId(req.body.userID),
+    sessionName: req.body.sessionName
+  }).then((result) => {
+
+    return res.status(200).json(result);
+
+  });
+});
+
+//searchWorkout API
+app.post('/api/searchWorkout', async (req, res, next) => {
+
+  //Incoming: query
+  //Outgoing: results[], error
+
+  var error = '';
+  var _search = req.body.query.trim();
+  workoutFormat.find({
+    name: { $regex: _search + '.*', $options: 'r' }
+  }).then((results) => {
+
+    if (!results) {
+      return res.status(404).json({
+        error: "No workouts matched the description. Please try again."
+      });
+
+    } else {
+      var ret = [];
+      for( var i=0; i<results.length; i++ )
+      {
+        ret.push( results[i].name );
+      }
+      return res.status(200).json({results: ret, error: error});
+    }
+
+  });
+});
+
+//updateWorkout API
+app.post('/api/updateWorkout', async (req, res, next) => {
+  //Incoming: sessionID, exerciseName, reps, weight, time, distance, sets
+  //Outgoing: error
+
+  var error = '';
+  userSession.updateOne({
+    _id: ObjectId(req.body.sessionID)
+  }, {
+    exerciseName: req.body.exerciseName,
+    reps: req.body.reps,
+    weight: req.body.weight,
+    time: req.body.time,
+    distance: req.body.distance,
+    sets: req.body.sets,
+  }).then((result) => {
+    return res.status(200).json(result);
+  });
+});
+
+//selectWorkout API
+app.post('/api/selectWorkout', async (req, res, next) => {
+  //Incoming: exerciseName
+  //Outgoing: hasReps, hasWeight, hasTime, hasDistance
+
+  var error = '';
+  workoutFormat.findOne({
+    name: req.body.exerciseName
+  }).then((workout) => {
+
+    if (!workout) {
+      return res.status(404).json({
+        error: "No workouts matched the description. Please try again."
       });
     }
+
+    else {
+      return res.status(200).json({
+        hasReps: workout.hasReps,
+        hasWeight: workout.hasWeight,
+        hasTime: workout.hasTime,
+        hasDistance: workout.hasDistance
+      });
+    }
+  });
+});
+
+//addWorkout API
+app.post('/api/addWorkout', async (req, res, next) => {
+  //Incoming: userID, sessionName, exerciseName, reps, weight, time, distance, sets
+  //Outgoing: error
+
+  var error = "";
+
+  //const { userId, card, jwtToken } = req.body;
+
+  userSession.findOne({
+    userID: ObjectId(req.body.userID),
+    sessionName: req.body.sessionName,
+  }).then((session) => {
+
+    if (!session) {
+      return res.status(404).json({
+        error: "Session doesn't exist."
+      });
+    } 
+
+    else {
+
+      userSession.deleteMany({
+        userID: ObjectId(req.body.userID),
+        sessionName: req.body.sessionName,
+        isEmpty: true
+      }).then((result) => {
+      });
+
+      const newWorkoutSession = new userSession({
+        userID: ObjectId(req.body.userID),
+        sessionName: req.body.sessionName,
+        exerciseName: req.body.exerciseName,
+        reps: req.body.reps,
+        weight: req.body.weight,
+        time: req.body.time,
+        distance: req.body.distance,
+        sets: req.body.sets,
+        isEmpty: false
+      });
+
+      newWorkoutSession.save();
+      return res.status(200).json(newWorkoutSession);
+    }
+  });
+});
+
+//displayWorkouts API
+app.post('/api/displayWorkouts', async (req, res, next) => {
+
+  //Incoming: userID, sessionName
+  //Outgoing: workouts[], error
+
+  userSession.find({
+    userID: ObjectId(req.body.userID),
+    sessionName: req.body.sessionName
+  }).then((results) => {
+
+    if (!results) {
+      return res.status(404).json({
+        error: "No sessions matched the description. Please try again."
+      });
+
+    } else {
+      var ret = [];
+      for( var i=0; i<results.length; i++ )
+      {
+        ret.push( results[i] );
+      }
+
+      if (ret[0].isEmpty == true) {
+        return res.status(200).json({
+          error: "The session is empty."
+        })
+      }
+
+      return res.status(200).json({workouts: ret, error: ""});
+    }
+
+  });
+});
+
+//deleteWorkout API
+app.post('/api/deleteWorkout', async (req, res, next) => {
+
+  //Incoming: sessionID, sessionName, userID
+  //Outgoing: error
+
+  userSession.findOneAndDelete({
+    _id: ObjectId(req.body.sessionID)
+  }).then((session) => {
+
+    if (!session) {
+      return res.status(404).json({
+        error: "Session does not exist."
+      });
+  }
+
+  userSession.findOne({
+    userID: ObjectId(req.body.userID),
+    sessionName: req.body.sessionName
+  }).then((session) => {
+
+    if(!session) {
+      const newWorkoutSession = new userSession({
+        userID: ObjectId(req.body.userID),
+        sessionName: req.body.sessionName,
+        isEmpty: true
+      });
+      newWorkoutSession.save();
+    }
+  });
+
+  return res.status(200).json({error: ""});
   });
 });
 
