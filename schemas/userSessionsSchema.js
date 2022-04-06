@@ -9,19 +9,29 @@ const userSessions = new Schema({
         required: true
     },
 
+    /*
     // Ties the workouts to a single session using this ID
     sessionID: {
         type: mongoose.SchemaTypes.ObjectId,
         required: true
     },
+    */
 
     // The name for the session
     sessionName: {
         type: String,
-        required: true,
+        required: true
     },
 
-    excerciseID: Number,
+    isEmpty: {
+        type: Boolean,
+        required: true
+    },
+
+    exerciseName: {
+        type: String,
+        default: ""
+    },
 
     weight: {
         type: Number,
@@ -43,7 +53,7 @@ const userSessions = new Schema({
         default: -1
     },
 
-    duration: {
+    distance: {
         type: Number,
         default: -1
     },

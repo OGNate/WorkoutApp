@@ -4,10 +4,12 @@ const Schema = mongoose.Schema;
 const workoutsFormat = new Schema({
 
     // A specific excercise ID that is used to get a certain workout and its parameters
+    /*
     excerciseID: {
         type: Number,
         required: false
     },
+    */
 
     name: {
         type: String,
@@ -35,11 +37,6 @@ const workoutsFormat = new Schema({
     },
 
     hasWeight: {
-        type: Boolean,
-        default: false
-    },
-
-    hasSets: {
         type: Boolean,
         default: false
     },
