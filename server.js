@@ -509,8 +509,8 @@ app.post('/api/addWorkout', async (req, res, next) => {
   });
 });
 
-//displayWorkouts API
-app.post('/api/displayWorkouts', async (req, res, next) => {
+//displaySessionWorkouts API
+app.post('/api/displaySessionWorkouts', async (req, res, next) => {
 
   //Incoming: userID, sessionName
   //Outgoing: workouts[], error
