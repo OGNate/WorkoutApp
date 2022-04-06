@@ -1,5 +1,7 @@
-import React, { useState } from "react";
 import axios from "axios";
+import React, { useState } from "react";
+import Button from 'react-bootstrap/Button';
+import Form from 'react-bootstrap/Form';
 
 function Login() {
 
@@ -71,22 +73,23 @@ function Login() {
 
   return (
 
-    <div id="loginDiv">
+    <Form onSubmit={attemptLogin}>
 
-      <form onSubmit={attemptLogin}>
+      <Form.Group className="mb-3" controlId="formEmail">
+        <Form.Label>Email address</Form.Label>
+        <Form.Control type="email" placeholder="Email address" ref={(c) => loginEmail = c} />
+      </Form.Group>
 
-        <input type="text" id="loginName" placeholder="Email Address" ref={(c) => loginEmail = c}  /><br />
-        <input type="password" id="loginPassword" placeholder="Password" ref={(c) => loginPassword = c} /><br />
+      <Form.Group className="mb-3" controlId="formPassword">
+        <Form.Label>Password</Form.Label>
+        <Form.Control type="password" placeholder="Password" ref={(c) => loginPassword = c} />
+      </Form.Group>
 
-        <input type="submit" id="loginButton" value = "Login" onClick={attemptLogin} />
+      <Button variant="primary" type="submit">
+        Login
+      </Button>
 
-        <span id="loginResult">{message}</span>
-
-      </form>
-
-      <span>Don't have an account? <a href="/register">Create one!</a></span>
-
-   </div>
+    </Form>
   );
 };
 

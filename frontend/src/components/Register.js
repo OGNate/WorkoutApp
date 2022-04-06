@@ -1,12 +1,14 @@
-import React, { useState } from "react";
 import axios from "axios";
+import React, { useState } from "react";
+import Button from 'react-bootstrap/Button';
+import Form from 'react-bootstrap/Form';
 
 function Register() {
 
   var bp = require("./Path.js");
   // var storage = require("../tokenStorage.js");
 
-  var newFirstName, newLastName, newEmail, newPassword;
+  var newFirstName, newLastName, newEmail, newPassword, newPassword2;
 
   const [message, setMessage] = useState("");
 
@@ -19,6 +21,7 @@ function Register() {
       lastName: newLastName.value,
       email: newEmail.value,
       password: newPassword.value,
+      password2: newPassword2.value,
     };
 
     var js = JSON.stringify(obj);
@@ -73,25 +76,37 @@ function Register() {
 
   return (
 
-    <div id="registerDiv">
+    <Form onSubmit={attemptRegistration}>
 
-      <form onSubmit={attemptRegistration}>
+      <Form.Group className="mb-3" controlId="formName">
 
-        <input type="text" id="newFirstName" placeholder="First Name" ref={(c) => newFirstName = c}  /><br />
-        <input type="text" id="newLastName" placeholder="Last Name" ref={(c) => newLastName = c}  /><br />
+        <Form.Label>First Name</Form.Label>
+        <Form.Control type="text" placeholder="John" ref={(c) => newFirstName = c} />
+        
+        <Form.Label>Last Name</Form.Label>
+        <Form.Control type="text" placeholder="Doe" ref={(c) => newLastName = c} />
+      
+      </Form.Group>
 
-        <input type="text" id="newEmail" placeholder="Email Address" ref={(c) => newEmail = c}  /><br />
-        <input type="password" id="newPassword" placeholder="Password" ref={(c) => newPassword = c} /><br />
+      <Form.Group className="mb-3" controlId="formEmail">
+        <Form.Label>Email Address</Form.Label>
+        <Form.Control type="email" placeholder="Email address" ref={(c) => newEmail = c} />
+      </Form.Group>
 
-        <input type="submit" id="registerButton" value = "Register" onClick={attemptRegistration} />
+      <Form.Group className="mb-3" controlId="formPassword">
 
-        <span id="loginResult">{message}</span>
+        <Form.Label>Password</Form.Label>
+        <Form.Control type="password" placeholder="Password" ref={(c) => newPassword = c} />
+        
+        <Form.Label>Confirm Password</Form.Label>
+        <Form.Control type="password" placeholder="Confirm password" ref={(c) => newPassword2 = c} />
+      </Form.Group>
 
-      </form>
+      <Button variant="primary" type="submit">
+        Register
+      </Button>
 
-      <span>Already have an account? <a href="/">Login instead</a>.</span>
-
-   </div>
+    </Form>
   );
 };
 

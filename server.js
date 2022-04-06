@@ -227,6 +227,8 @@ app.post('/Test', async (req, res, next) => {
 //login API
 app.post('/api/login', async (req, res, next) => {
 
+  errors = {};
+
   var emailArg = !isEmpty(req.body.email) ? req.body.email : "";
   var passwordArg = !isEmpty(req.body.password) ? req.body.password : "";
 
@@ -505,8 +507,8 @@ app.post('/api/addWorkout', async (req, res, next) => {
   });
 });
 
-//displayWorkouts API
-app.post('/api/displayWorkouts', async (req, res, next) => {
+//displaySessionWorkouts API
+app.post('/api/displaySessionWorkouts', async (req, res, next) => {
 
   //Incoming: userID, sessionName
   //Outgoing: workouts[], error
