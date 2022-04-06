@@ -10,7 +10,7 @@ function Register() {
 
   var newFirstName, newLastName, newEmail, newPassword, newPassword2;
 
-  const [message, setMessage] = useState("");
+  const [setMessage] = useState("");
 
   const attemptRegistration = async (event) => {
 

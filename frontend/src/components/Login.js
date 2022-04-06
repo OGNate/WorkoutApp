@@ -10,7 +10,7 @@ function Login() {
 
   var loginEmail, loginPassword;
 
-  const [message, setMessage] = useState("");
+  const [setMessage] = useState("");
 
   const attemptLogin = async (event) => {
     
