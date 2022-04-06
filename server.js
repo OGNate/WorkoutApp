@@ -229,6 +229,8 @@ app.post('/Test', async (req, res, next) => {
 //login API
 app.post('/api/login', async (req, res, next) => {
 
+  errors = {};
+
   var emailArg = !isEmpty(req.body.email) ? req.body.email : "";
   var passwordArg = !isEmpty(req.body.password) ? req.body.password : "";
 

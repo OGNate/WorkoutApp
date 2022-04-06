@@ -1,11 +1,12 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Redirect, Switch } from 'react-router-dom';
+import { BrowserRouter as Router, Redirect, Route, Switch } from 'react-router-dom';
 import './App.css';
-
+import DashboardPage from './pages/DashboardPage';
+import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import VerifyAccountPage from './pages/VerifyAccountPage';
-import DashboardPage from './pages/DashboardPage';
+
 
 function App() {
 
@@ -14,7 +15,11 @@ function App() {
     <Router >
       <Switch>
 
-        <Route path="/" exact>
+      <Route path="/" exact>
+          <LandingPage />
+        </Route>
+
+        <Route path="/login" exact>
           <LoginPage />
         </Route>
 
