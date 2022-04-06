@@ -209,14 +209,12 @@ app.post('/api/test', async (req, res, next) => {
 app.post('/Test', async (req, res, next) => {
 
 	const newWorkout = new workoutFormat({
-		excerciseID: req.body.excerciseID,
 		name: req.body.name,
 		bodyPart: req.body.bodyPart,
 		equipment: req.body.equipment,
 		workoutType: req.body.workoutType,
 		hasReps: req.body.hasReps,
 		hasWeight: req.body.hasWeight,
-		hasSets: req.body.hasSets,
 		hasTime: req.body.hasTime,
 		hasDistance: req.body.hasDistance
 	});
