@@ -1,12 +1,15 @@
 import React from 'react';
 import { BrowserRouter as Router, Redirect, Route, Switch } from 'react-router-dom';
 import './App.css';
-import DashboardPage from './pages/DashboardPage';
+import ExercisePage from './pages/ExercisePage';
+import HistoryPage from './pages/HistoryPage';
+import HomePage from './pages/HomePage';
 import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
+import ProfilePage from './pages/ProfilePage';
 import RegisterPage from './pages/RegisterPage';
 import VerifyAccountPage from './pages/VerifyAccountPage';
-
+import WorkoutPage from './pages/WorkoutPage';
 
 function App() {
 
@@ -31,8 +34,24 @@ function App() {
           <VerifyAccountPage />
         </Route>
 
-        <Route path="/dashboard" exact>
-          <DashboardPage />
+        <Route path="/home" exact>
+          <HomePage />
+        </Route>
+
+        <Route path="/history" exact>
+          <HistoryPage />
+        </Route>
+
+        <Route path="/workout" exact>
+          <WorkoutPage />
+        </Route>
+
+        <Route path="/exercises" exact>
+          <ExercisePage />
+        </Route>
+
+        <Route path="/profile" exact>
+          <ProfilePage />
         </Route>
 
         <Redirect to="/" />

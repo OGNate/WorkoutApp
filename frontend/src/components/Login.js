@@ -63,7 +63,7 @@ function Login() {
 
         // localStorage.setItem("user_data", JSON.stringify(user));
 
-        window.location.href = "/dashboard";
+        window.location.href = "/home";
       }
 
     }).catch(function (error) {
