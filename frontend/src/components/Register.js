@@ -76,7 +76,7 @@ function Register() {
 
   return (
 
-    <Form noValidate validated={validated} onSubmit={attemptRegistration}>
+    <Form onSubmit={attemptRegistration}>
 
       <Form.Group className="mb-3" controlId="formName">
 
