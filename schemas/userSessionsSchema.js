@@ -57,6 +57,11 @@ const userSessions = new Schema({
         type: Number,
         default: -1
     },
+    
+    bodyPart: {
+        type: [String],
+        default: []
+    },
 
     isCompleted: {
         type: Boolean,
