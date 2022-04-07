@@ -11,6 +11,8 @@ var token = require('./createJWT.js');
 const User = require("./schemas/userSchema");
 const userSession = require("./schemas/userSessionsSchema");
 const workoutFormat = require("./schemas/workoutSchema");
+const userStats = require("./schemas/statSchema")
+const userHistory = require("./schemas/historySchema")
 
 
 // Planning on getting rid of metrics such as weight, height, and gender right now. 
@@ -132,6 +134,13 @@ app.post('/api/register', (req, res) => {
               .catch(err => console.log(err));
           });
         });
+
+        // Create a new initialized stats page for the new user
+        const newStat = new userStats({
+          userID: ObjectId(req.body.userID),
+        });
+      
+        newStat.save();
       }
     })
   }
@@ -212,19 +221,17 @@ app.post('/api/test', async (req, res, next) => {
 // Used to insert all our excercises into the database for easy recall later
 app.post('/Test', async (req, res, next) => {
 
-	const newWorkout = new workoutFormat({
-		name: req.body.name,
-		bodyPart: req.body.bodyPart,
-		equipment: req.body.equipment,
-		workoutType: req.body.workoutType,
-		hasReps: req.body.hasReps,
-		hasWeight: req.body.hasWeight,
-		hasTime: req.body.hasTime,
-		hasDistance: req.body.hasDistance
-	});
+  const newUserHistory = new userHistory({
+    userID: ObjectId(req.body.userID),
+    sessionName: req.body.sessionName,
+    workoutName: req.body.workoutName,
+    weight: req.body.weight,
+    reps: req.body.reps,
+    sets: req.body.sets
+  })
 
-	newWorkout.save();
-	return res.status(200).json({msg: "Successfully added workoutformat to database"});
+	newUserHistory.save();
+	return res.status(200).json({msg: "Successfully added user history to database"});
 });
 
 
