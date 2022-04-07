@@ -404,11 +404,10 @@ app.post('/api/searchWorkout', async (req, res, next) => {
       });
 
     } else {
+
       var ret = [];
-      for( var i=0; i<results.length; i++ )
-      {
-        ret.push( results[i].name );
-      }
+      ret.push(results);
+
       return res.status(200).json({results: ret, error: error});
     }
 

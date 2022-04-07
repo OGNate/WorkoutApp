@@ -1,7 +1,6 @@
 import React from 'react';
 import GlobalNavigation from '../components/GlobalNavigation';
 
-
 const HistoryPage = () => {
 
   return (
