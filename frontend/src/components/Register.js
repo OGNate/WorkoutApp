@@ -76,12 +76,18 @@ function Register() {
 
   return (
 
-    <Form onSubmit={attemptRegistration}>
+    <Form noValidate validated={validated} onSubmit={attemptRegistration}>
 
       <Form.Group className="mb-3" controlId="formName">
 
         <Form.Label>First Name</Form.Label>
-        <Form.Control type="text" placeholder="John" ref={(c) => newFirstName = c} />
+
+        <Form.Control
+          required
+          type="text" 
+          placeholder="John" 
+          ref={(c) => newFirstName = c} 
+        />
         
         <Form.Label>Last Name</Form.Label>
         <Form.Control type="text" placeholder="Doe" ref={(c) => newLastName = c} />
