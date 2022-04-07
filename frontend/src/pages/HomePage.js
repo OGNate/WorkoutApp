@@ -1,4 +1,5 @@
 import React from 'react';
+import DisplayedName from '../components/DisplayedName';
 import GlobalNavigation from '../components/GlobalNavigation';
 
 const HomePage = () => {
@@ -6,7 +7,7 @@ const HomePage = () => {
   return (
     <>
       <GlobalNavigation />
-      <h1>Hello</h1>
+      <DisplayedName />
     </>
   );
 };
