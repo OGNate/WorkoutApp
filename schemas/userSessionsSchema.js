@@ -8,15 +8,7 @@ const userSessions = new Schema({
         type: mongoose.SchemaTypes.ObjectId,
         required: true
     },
-
-    /*
-    // Ties the workouts to a single session using this ID
-    sessionID: {
-        type: mongoose.SchemaTypes.ObjectId,
-        required: true
-    },
-    */
-
+    
     // The name for the session
     sessionName: {
         type: String,
