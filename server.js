@@ -1296,6 +1296,10 @@ app.post('/api/searchByEquipment', async (req, res, next) => {
   });
 });
 
+app.post('/api/displayUserStats', async (req, res, next) => {
+	
+});
+
 
 app.use((req, res, next) => {
 
