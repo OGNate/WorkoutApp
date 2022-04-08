@@ -1,8 +1,8 @@
 import React from 'react';
-
 import GlobalNavigation from '../components/GlobalNavigation';
 
-const DashboardPage = () => {
+
+const ProfilePage = () => {
 
   return (
 
@@ -10,10 +10,10 @@ const DashboardPage = () => {
 
       <GlobalNavigation />
 
-      <h1>Dashboard</h1>
+      <h1>Profile</h1>
       
     </div>
   );
 };
 
-export default DashboardPage;
+export default ProfilePage;

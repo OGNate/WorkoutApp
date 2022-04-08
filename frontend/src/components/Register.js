@@ -6,11 +6,11 @@ import Form from 'react-bootstrap/Form';
 function Register() {
 
   var bp = require("./Path.js");
-  // var storage = require("../tokenStorage.js");
+  var storage = require("../tokenStorage.js");
 
   var newFirstName, newLastName, newEmail, newPassword, newPassword2;
 
-  const [message, setMessage] = useState("");
+  const [setMessage] = useState("");
 
   const attemptRegistration = async (event) => {
 
@@ -47,24 +47,24 @@ function Register() {
         
       } else {
 
-        // storage.storeToken(res);
-        // var jwt = require("jsonwebtoken");
+        storage.storeToken(res);
+        var jwt = require("jsonwebtoken");
 
-        // var ud = jwt.decode(storage.retrieveToken(), { 
-        //   complete: true 
-        // });
+        var ud = jwt.decode(storage.retrieveToken(), { 
+          complete: true 
+        });
 
-        // var userId = ud.payload.userId;
-        // var firstName = ud.payload.firstName;
-        // var lastName = ud.payload.lastName;
+        var userId = ud.payload.userId;
+        var firstName = ud.payload.firstName;
+        var lastName = ud.payload.lastName;
 
-        // var user = { 
-        //   firstName: firstName, 
-        //   lastName: lastName, 
-        //   id: userId 
-        // };
+        var user = { 
+          firstName: firstName, 
+          lastName: lastName, 
+          id: userId 
+        };
 
-        // localStorage.setItem("user_data", JSON.stringify(user));
+        localStorage.setItem("user_data", JSON.stringify(user));
 
         window.location.href = "/verify-account";
       }
@@ -81,7 +81,13 @@ function Register() {
       <Form.Group className="mb-3" controlId="formName">
 
         <Form.Label>First Name</Form.Label>
-        <Form.Control type="text" placeholder="John" ref={(c) => newFirstName = c} />
+
+        <Form.Control
+          required
+          type="text" 
+          placeholder="John" 
+          ref={(c) => newFirstName = c} 
+        />
         
         <Form.Label>Last Name</Form.Label>
         <Form.Control type="text" placeholder="Doe" ref={(c) => newLastName = c} />

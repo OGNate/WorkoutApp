@@ -1,43 +1,63 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import { BrowserRouter as Router, Redirect, Route, Switch } from 'react-router-dom';
 import './App.css';
-import DashboardPage from './pages/DashboardPage';
 import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import VerifyAccountPage from './pages/VerifyAccountPage';
-
+import PrivateRoute from './routes/PrivateRoute';
+import ProtectedRoutes from './routes/ProtectedRoutes'; //Authenticated routes
+import PublicRoute from './routes/PublicRoute';
+import tokenStorage from './tokenStorage';
 
 function App() {
+  
+  const isAuthenticated = tokenStorage.retrieveToken();
 
   return (
 
     <Router >
-      <Switch>
+      <Suspense fallback={<h1>Loading...</h1>}>
 
-      <Route path="/" exact>
-          <LandingPage />
-        </Route>
+        <Switch>
 
-        <Route path="/login" exact>
-          <LoginPage />
-        </Route>
+          <Route path="/" exact>
+            <LandingPage />
+          </Route>
 
-        <Route path="/register" exact>
-          <RegisterPage />
-        </Route>
+          <PublicRoute
+            path="/login"
+            isAuthenticated={isAuthenticated}
+          >
+            <LoginPage />
+          </PublicRoute>
 
-        <Route path="/verify-account" exact>
-          <VerifyAccountPage />
-        </Route>
+          <PublicRoute
+            path="/register"
+            isAuthenticated={isAuthenticated}
+          >
+            <RegisterPage />
+          </PublicRoute>
 
-        <Route path="/dashboard" exact>
-          <DashboardPage />
-        </Route>
+          <PublicRoute
+            path="/verify-account"
+            isAuthenticated={isAuthenticated}
+          >
+            <VerifyAccountPage />
+          </PublicRoute>
 
-        <Redirect to="/" />
+          <PrivateRoute
+            path="/"
+            isAuthenticated={isAuthenticated}
+          >
+            <ProtectedRoutes />
+          </PrivateRoute>
 
-      </Switch>  
+          <Redirect to="/" />
+
+        </Switch>
+
+      </Suspense>
     </Router>
   );
 }

@@ -28,7 +28,7 @@ _createToken = function(fn, ln, id) {
                     '365d'
     */
 
-    let ret = {
+    var ret = {
       accessToken: accessToken,
       fn: fn,
       ln: ln,

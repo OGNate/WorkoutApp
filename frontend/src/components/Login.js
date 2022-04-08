@@ -6,11 +6,11 @@ import Form from 'react-bootstrap/Form';
 function Login() {
 
   var bp = require("./Path.js");
-  // var storage = require("../tokenStorage.js");
+  var storage = require("../tokenStorage.js");
 
   var loginEmail, loginPassword;
 
-  const [message, setMessage] = useState("");
+  const [setMessage] = useState("");
 
   const attemptLogin = async (event) => {
     
@@ -44,26 +44,24 @@ function Login() {
         
       } else {
 
-        // storage.storeToken(res);
-        // var jwt = require("jsonwebtoken");
+        storage.storeToken(res);
+        var jwt = require("jsonwebtoken");
 
-        // var ud = jwt.decode(storage.retrieveToken(), { 
-        //   complete: true 
-        // });
+        var ud = jwt.decode(storage.retrieveToken(), { 
+          complete: true 
+        });
 
-        // var userId = ud.payload.userId;
-        // var firstName = ud.payload.firstName;
-        // var lastName = ud.payload.lastName;
+        var firstName = ud.payload.firstName;
+        var lastName = ud.payload.lastName;
 
-        // var user = { 
-        //   firstName: firstName, 
-        //   lastName: lastName, 
-        //   id: userId 
-        // };
+        var user = { 
+          firstName: firstName, 
+          lastName: lastName
+        };
 
-        // localStorage.setItem("user_data", JSON.stringify(user));
+        localStorage.setItem("user_data", JSON.stringify(user));
 
-        window.location.href = "/dashboard";
+        window.location.href = "/home";
       }
 
     }).catch(function (error) {

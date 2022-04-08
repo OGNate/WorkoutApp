@@ -49,6 +49,11 @@ const userSessions = new Schema({
         type: Number,
         default: -1
     },
+    
+    bodyPart: {
+        type: [String],
+        default: []
+    },
 
     bodyPart: {
         type: [String],
