@@ -11,6 +11,8 @@ var token = require('./createJWT.js');
 const User = require("./schemas/userSchema");
 const userSession = require("./schemas/userSessionsSchema");
 const workoutFormat = require("./schemas/workoutSchema");
+const userStats = require("./schemas/statSchema")
+const userHistory = require("./schemas/historySchema")
 
 
 // Planning on getting rid of metrics such as weight, height, and gender right now. 
@@ -132,6 +134,13 @@ app.post('/api/register', (req, res) => {
               .catch(err => console.log(err));
           });
         });
+
+        // Create a new initialized stats page for the new user
+        const newStat = new userStats({
+			userID: newUser._id
+		});
+
+        newStat.save();
       }
     })
   }
@@ -223,8 +232,8 @@ app.post('/Test', async (req, res, next) => {
 		hasDistance: req.body.hasDistance
 	});
 
-	newWorkout.save();
-	return res.status(200).json({msg: "Successfully added workoutformat to database"});
+	newUserHistory.save();
+	return res.status(200).json({msg: "Successfully added user history to database"});
 });
 
 
@@ -232,10 +241,10 @@ app.post('/Test', async (req, res, next) => {
 app.post('/api/login', async (req, res, next) => {
 
   //Incoming: email, password
-  //Outgoing: jwtToken, error
-  
-  let errors = {};
-  
+  //Outgoing: acessToken, fn, ln, id, error
+
+  let errors = {}
+
   var emailArg = !isEmpty(req.body.email) ? req.body.email : "";
   var passwordArg = !isEmpty(req.body.password) ? req.body.password : "";
 
@@ -279,6 +288,12 @@ app.post('/api/login', async (req, res, next) => {
         {
           ret = {error:e.message};
         }
+
+        const payload = {
+          id: user._id,
+          firstName: user.firstName,
+          lastName: user.lastName
+        };
 
         return res.status(200).json({ret});
 
@@ -332,6 +347,17 @@ app.post('/api/addSession', async (req, res, next) => {
         isEmpty: true
       })
       newWorkoutSession.save();
+
+      var refreshedToken = null;
+      try
+      {
+        refreshedToken = token.refresh(jwtToken);
+      }
+      catch(e)
+      {
+        console.log(e.message);
+      }
+      return res.status(200).json({error: error, jwtToken: refreshedToken});
     }   
   });
   }
@@ -339,17 +365,6 @@ app.post('/api/addSession', async (req, res, next) => {
   {
     error = e.toString();
   }
-
-  var refreshedToken = null;
-  try
-  {
-    refreshedToken = token.refresh(jwtToken);
-  }
-  catch(e)
-  {
-    console.log(e.message);
-  }
-  return res.status(200).json({error: error, jwtToken: refreshedToken});
 });
 
 //updateSession API
@@ -432,7 +447,7 @@ app.post('/api/displaySessions', async (req, res, next) => {
     userID: ObjectId(req.body.userID),
   }).then((results) => {
 
-    if (!results) {
+    if (!results.length) {
       return res.status(404).json({
         error: "No sessions found for this user."
       });
@@ -488,18 +503,6 @@ app.post('/api/deleteSession', async (req, res, next) => {
     console.log(e.message);
   }
 
-  userSession.findOne({
-    userID: ObjectId(req.body.userID),
-    sessionName: req.body.sessionName
-  }).then((session) => {
-
-    if (!session) {
-      return res.status(404).json({
-        error: "Session does not exist."
-      });
-  }
-  });
-
   try
   {
   userSession.deleteMany({
@@ -554,7 +557,7 @@ app.post('/api/searchWorkout', async (req, res, next) => {
     name: { $regex: _search + '.*', $options: 'i' }
   }).then((results) => {
 
-    if (!results) {
+    if (!results.length) {
       return res.status(404).json({
         error: "No workouts matched the description. Please try again."
       });
@@ -692,6 +695,17 @@ app.post('/api/addWorkout', async (req, res, next) => {
         isEmpty: false
       });
       newWorkoutSession.save();
+
+      var refreshedToken = null;
+      try
+      {
+        refreshedToken = token.refresh(jwtToken);
+      }
+      catch(e)
+      {
+        console.log(e.message);
+      }
+      return res.status(200).json({error: error, jwtToken: refreshedToken});
     }
   });
   }
@@ -699,17 +713,6 @@ app.post('/api/addWorkout', async (req, res, next) => {
   {
     error = e.toString();
   }
-
-  var refreshedToken = null;
-  try
-  {
-    refreshedToken = token.refresh(jwtToken);
-  }
-  catch(e)
-  {
-    console.log(e.message);
-  }
-  return res.status(200).json({error: error, jwtToken: refreshedToken});
 });
 
 //displaySessionWorkouts API
@@ -741,7 +744,7 @@ app.post('/api/displaySessionWorkouts', async (req, res, next) => {
     sessionName: req.body.sessionName
   }).then((results) => {
 
-    if (!results) {
+    if (!results.length) {
       return res.status(404).json({
         error: "No sessions matched the description. Please try again."
       });
@@ -801,12 +804,6 @@ app.post('/api/deleteWorkout', async (req, res, next) => {
     _id: ObjectId(req.body.sessionID)
   }).then((session) => {
 
-    if (!session) {
-      return res.status(404).json({
-        error: "Session does not exist."
-      });
-  }
-
   userSession.findOne({
     userID: ObjectId(req.body.userID),
     sessionName: req.body.sessionName
@@ -825,7 +822,7 @@ app.post('/api/deleteWorkout', async (req, res, next) => {
   }
   catch (e)
   {
-    error = e.toString();
+    console.log(e.message);
   }
 
   var refreshedToken = null;
@@ -866,7 +863,7 @@ app.post('/api/displayAllWorkouts', async (req, res, next) => {
 
   workoutFormat.find({}).then((results) => {
 
-    if (!results) {
+    if (!results.length) {
       return res.status(404).json({
         error: "Workout database is empty!"
       });
@@ -917,7 +914,7 @@ app.post('/api/displayAllBodyParts', async (req, res, next) => {
 
   workoutFormat.find({}).then((results) => {
 
-    if (!results) {
+    if (!results.length) {
       return res.status(404).json({
         error: "Workout database is empty!"
       });
@@ -934,19 +931,19 @@ app.post('/api/displayAllBodyParts', async (req, res, next) => {
           ret.push( results[i].bodyPart[j] );
         }
       }
+
+      var refreshedToken = null;
+      try
+      {
+        refreshedToken = token.refresh(jwtToken);
+      }
+      catch(e)
+      {
+        console.log(e.message);
+      }
       return res.status(200).json({results: ret, error: error, jwtToken: refreshedToken});
     }
   });
-
-  var refreshedToken = null;
-  try
-  {
-    refreshedToken = token.refresh(jwtToken);
-  }
-  catch(e)
-  {
-    console.log(e.message);
-  }
 });
 
 //displayAllWorkoutTypes API
@@ -975,7 +972,7 @@ app.post('/api/displayAllWorkoutTypes', async (req, res, next) => {
 
   workoutFormat.find({}).then((results) => {
 
-    if (!results) {
+    if (!results.length) {
       return res.status(404).json({
         error: "Workout database is empty!"
       });
@@ -989,19 +986,19 @@ app.post('/api/displayAllWorkoutTypes', async (req, res, next) => {
         }
         ret.push( results[i].workoutType );
       }
+
+      var refreshedToken = null;
+      try
+      {
+        refreshedToken = token.refresh(jwtToken);
+      }
+      catch(e)
+      {
+        console.log(e.message);
+      }
       return res.status(200).json({results: ret, error: error, jwtToken: refreshedToken});
     }
   });
-
-  var refreshedToken = null;
-  try
-  {
-    refreshedToken = token.refresh(jwtToken);
-  }
-  catch(e)
-  {
-    console.log(e.message);
-  }
 });
 
 //displayAllEquipment API
@@ -1030,7 +1027,7 @@ app.post('/api/displayAllEquipment', async (req, res, next) => {
 
   workoutFormat.find({}).then((results) => {
 
-    if (!results) {
+    if (!results.length) {
       return res.status(404).json({
         error: "Workout database is empty!"
       });
@@ -1090,7 +1087,7 @@ app.post('/api/searchByBodyPart', async (req, res, next) => {
     bodyPart: req.body.bodyPart
   }).then((results) => {
 
-    if (!results) {
+    if (!results.length) {
       return res.status(404).json({
         error: "No workout found for body part!"
       });
@@ -1143,9 +1140,9 @@ app.post('/api/searchByWorkoutType', async (req, res, next) => {
     workoutType: req.body.workoutType
   }).then((results) => {
 
-    if (!results) {
+    if (!results.length) {
       return res.status(404).json({
-        error: "No workout found for body part!"
+        error: "No workout found for workout type!"
       });
 
     } else {
@@ -1196,9 +1193,9 @@ app.post('/api/searchByEquipment', async (req, res, next) => {
     equipment: req.body.equipment
   }).then((results) => {
 
-    if (!results) {
+    if (!results.length) {
       return res.status(404).json({
-        error: "No workout found for body part!"
+        error: "No workout found for equipment!"
       });
 
     } else {
@@ -1221,10 +1218,11 @@ app.post('/api/searchByEquipment', async (req, res, next) => {
   });
 });
 
-//finishWorkoutAndUpdateHistory API
-app.post('/api/finishWorkoutAndUpdateHistory', async (req, res, next) => {
+//finishWorkout API
+//Also updates userStats and userHistory
+app.post('/api/finishWorkout', async (req, res, next) => {
 
-  //Incoming: userID, sessionID, sessionName
+  //Incoming: userID, sessionID, sessionName, exerciseName, weight, reps, sets, time, distance
   //Outgoing: sessionCompleted, error, jwtToken
 
   const jwtToken = req.body.jwtToken;
@@ -1246,20 +1244,48 @@ app.post('/api/finishWorkoutAndUpdateHistory', async (req, res, next) => {
 
   try
   {
-  userSession.updateOne({
+  userSession.findOneAndUpdate({
     _id: ObjectId(req.body.sessionID)
   }, {
     isCompleted: true
-  }).then((result) => {
+  }, {
+    new: true}).then((result) => {
 
-    userStats.updateOne({
-      userId: req.body.userID
+    //Create new user history entry
+    const newUserHistory = new userHistory({
+      userID: req.body.userID,
+      sessionName: req.body.sessionName,
+      workoutName: req.body.exerciseName,
+      weight: req.body.weight,
+      reps: req.body.reps,
+      sets: req.body.sets,
+      distance: req.body.distance,
+      time: req.body.time,
+      completedAt: result.updatedAt
+    });
+    newUserHistory.save();
+
+    //Update Stats
+    var totalWeight = (req.body.weight != -1) ? req.body.weight : 0;
+    var totalReps = (req.body.reps != -1) ? req.body.reps : 0;
+    var totalSets = (req.body.sets != -1) ? req.body.sets : 0;
+    var totalDistance = (req.body.distance != -1) ? req.body.distance : 0;
+    var totalTime = (req.body.time != -1) ? req.body.time : 0;
+
+    userStats.findOneAndUpdate({
+      userID: ObjectId(req.body.userID)
     }, {
-      
-    }).then((update_result) => {
-      
+      $inc : {
+        totalWeight: totalWeight,
+        totalReps: totalReps,
+        totalSets: totalSets,
+        totalDistance: totalDistance,
+        totalTime: totalTime
+      }
+    }).then((stats) => {
     });
 
+    //Check to see if session is finished
     userSession.find({
       userID: ObjectId(req.body.userID),
       sessionName: req.body.sessionName
@@ -1292,6 +1318,140 @@ app.post('/api/finishWorkoutAndUpdateHistory', async (req, res, next) => {
   {
     console.log(e.message);
   }
+});
+
+//displayUserHistory API
+app.post('/api/displayUserHistory', async (req, res, next) => {
+
+  //Incoming: userID, jwtToken
+  //Outgoing: userHistory[], error, jwtToken
+
+  const jwtToken = req.body.jwtToken;
+  var ret = [];
+  var error = "";
+
+  try
+  {
+    if( token.isExpired(jwtToken))
+    {
+      var r = {error:'The JWT is no longer valid', jwtToken: ''};
+      res.status(200).json(r);
+      return;
+    }
+  }
+  catch(e)
+  {
+    console.log(e.message);
+  }
+
+  try
+  {
+  userHistory.find({
+    userID: ObjectId(req.body.userID),
+  }).then((results) => {
+
+    if (!results.length) {
+      return res.status(404).json({
+        error: "No user history found for this user."
+      });
+
+    } else {
+      for( var i=0; i<results.length; i++ )
+      {
+        if (ret.includes(results[i])) {
+          continue;
+        }
+        ret.push( results[i] );
+      }
+
+      var refreshedToken = null;
+      try
+      {
+        refreshedToken = token.refresh(jwtToken);
+      }
+      catch(e)
+      {
+        console.log(e.message);
+      }
+      return res.status(200).json({userHistory: ret, error: error, jwtToken: refreshedToken});
+    }
+  });
+  }
+  catch (e) 
+  {
+    console.log(e.message);
+  }
+});
+
+// -----------------------------------------------------------------------------------------------------------------------------------
+// JSON Params:
+//		jwtToken: A given Java Web Token (JWT) passed onto the json.
+//		userID: A userID passed on to identify which user we will be displaying the stats of.
+// Returns:
+//		Returns a json of the user's stats, and empty error message, and a refreshed JWT token.
+//
+app.post('/api/displayUserStats', async (req, res, next) => {
+	
+	//Incoming: userID, jwtToken
+	//Outgoing: userStats, error, jwtToken
+
+	const jwtToken = req.body.jwtToken;
+	var ret = [];
+	var error = "";
+	
+	// Checks to see if the given Java Web Token is expired, if so it returns an error message and exits.
+	try {
+		if(token.isExpired(jwtToken)) {
+			var r = {error: "The JWT is no longer valid", jwtToken: ""};
+			res.status(420).json(r);
+			return;
+		}
+	} 
+	catch(error) {
+		console.log(error.message);
+		return res.status(420).json({error: error.message});
+	}
+
+	try {
+
+		// Finds the stats for the given userID
+		userStats.find({userID: ObjectId(req.body.userID)}).then((result) => {
+			
+			// If there are no stats in with the given userID, return a error message
+			if (!result.length) {
+				return res.status(420).json({error: "Stats for given user do not exist, check userID again"});
+			}
+
+			// If there are more than one user with the same userID, an error will be thrown.
+			if (result.length != 1) {
+				return res.status(420).json({error: "Multiple users with the same userID"});
+			}
+
+			// Creates a new JWT token
+			var refreshedToken = null;
+
+			try {
+
+				// Gets a refreshed JWT token
+				refreshedToken = token.refresh(jwtToken);
+			}
+			catch(error) {
+				console.log(error.message);
+				return res.status(420).json({error: error.message});
+			}
+
+			// Returns a 200 status (meaning everything works). Returns a json of the users stats, the error message (should be nothing), and the refreshed JWT token.
+			return res.status(200).json({
+				userStats: result,
+				error: error,
+				jwtToken: refreshedToken
+			});
+		});
+	}
+	catch(error) {
+		console.log(error.message);
+		return res.status(420).json({error: error.message});
+	}
 });
 
 app.use((req, res, next) => {
