@@ -9,8 +9,6 @@ function DisplayedName() {
   var firstName = ud.firstName;
   var lastName = ud.lastName;
 
-  console.log(ud);
-
   const doLogout = event => {
     event.preventDefault();
     tokenStorage.removeToken();
