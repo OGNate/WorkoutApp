@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Redirect, Route, Switch } from 'react-router-dom';
+import { BrowserRouter, Switch } from 'react-router-dom';
 import './App.css';
 import ExercisePage from './pages/ExercisePage';
 import HistoryPage from './pages/HistoryPage';
@@ -10,54 +10,29 @@ import ProfilePage from './pages/ProfilePage';
 import RegisterPage from './pages/RegisterPage';
 import VerifyAccountPage from './pages/VerifyAccountPage';
 import WorkoutPage from './pages/WorkoutPage';
+import PrivateRoute from './routes/PrivateRoute';
+import PublicRoute from './routes/PublicRoute';
 
 function App() {
 
   return (
 
-    <Router >
+    <BrowserRouter>
       <Switch>
 
-      <Route path="/" exact>
-          <LandingPage />
-        </Route>
+        <PublicRoute restricted={false} component={LandingPage} path="/" exact />
+        <PublicRoute restricted={true} component={LoginPage} path="/login" exact />
+        <PublicRoute restricted={true} component={RegisterPage} path="/register" exact />
+        <PublicRoute restricted={true} component={VerifyAccountPage} path="/verify-account" exact />
 
-        <Route path="/login" exact>
-          <LoginPage />
-        </Route>
+        <PrivateRoute component={HomePage} path="/home" exact />
+        <PrivateRoute component={HistoryPage} path="/history" exact />
+        <PrivateRoute component={WorkoutPage} path="/workout" exact />
+        <PrivateRoute component={ExercisePage} path="/exercises" exact />
+        <PrivateRoute component={ProfilePage} path="/profile" exact />
 
-        <Route path="/register" exact>
-          <RegisterPage />
-        </Route>
-
-        <Route path="/verify-account" exact>
-          <VerifyAccountPage />
-        </Route>
-
-        <Route path="/home" exact>
-          <HomePage />
-        </Route>
-
-        <Route path="/history" exact>
-          <HistoryPage />
-        </Route>
-
-        <Route path="/workout" exact>
-          <WorkoutPage />
-        </Route>
-
-        <Route path="/exercises" exact>
-          <ExercisePage />
-        </Route>
-
-        <Route path="/profile" exact>
-          <ProfilePage />
-        </Route>
-
-        <Redirect to="/" />
-
-      </Switch>  
-    </Router>
+      </Switch>
+    </BrowserRouter>
   );
 }
 

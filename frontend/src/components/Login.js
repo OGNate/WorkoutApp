@@ -6,7 +6,7 @@ import Form from 'react-bootstrap/Form';
 function Login() {
 
   var bp = require("./Path.js");
-  // var storage = require("../tokenStorage.js");
+  var storage = require("../tokenStorage.js");
 
   var loginEmail, loginPassword;
 
@@ -37,31 +37,26 @@ function Login() {
 
     axios(config).then(function (response) {
 
-      var res = response.data;
+      var res = response.data.ret;
 
       if (res.error) {
         setMessage("Invalid email or password");
         
       } else {
 
-        // storage.storeToken(res);
-        // var jwt = require("jsonwebtoken");
+        storage.storeToken(res);
+        var jwt = require("jsonwebtoken");
 
-        // var ud = jwt.decode(storage.retrieveToken(), { 
-        //   complete: true 
-        // });
+        var ud = jwt.decode(storage.retrieveToken(), { 
+          complete: true 
+        });
 
-        // var userId = ud.payload.userId;
-        // var firstName = ud.payload.firstName;
-        // var lastName = ud.payload.lastName;
+        var user = {
+          firstName: ud.payload.firstName, 
+          lastName: ud.payload.lastName
+        };
 
-        // var user = { 
-        //   firstName: firstName, 
-        //   lastName: lastName, 
-        //   id: userId 
-        // };
-
-        // localStorage.setItem("user_data", JSON.stringify(user));
+        localStorage.setItem("user_data", JSON.stringify(user));
 
         window.location.href = "/home";
       }

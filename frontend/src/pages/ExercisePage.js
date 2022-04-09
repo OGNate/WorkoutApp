@@ -1,6 +1,6 @@
 import React from 'react';
+import Exercises from '../components/Exercises';
 import GlobalNavigation from '../components/GlobalNavigation';
-
 
 const ExercisePage = () => {
 
@@ -11,6 +11,7 @@ const ExercisePage = () => {
       <GlobalNavigation />
 
       <h1>Exercises</h1>
+      <Exercises></Exercises>
       
     </div>
   );
