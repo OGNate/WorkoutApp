@@ -6,13 +6,18 @@ const bcrypt = require('bcryptjs');
 const Validator = require('validator');
 const isEmpty = require('is-empty');
 var token = require('./createJWT.js');
+const sgMail = require('@sendgrid/mail')
+const crypto = require('crypto');
+const sendEmail = require("./email");
+require("dotenv").config();
 
 // Imports all the mongoose schemas from the "schemas" folder
 const User = require("./schemas/userSchema");
 const userSession = require("./schemas/userSessionsSchema");
 const workoutFormat = require("./schemas/workoutSchema");
-const userStats = require("./schemas/statSchema")
-const userHistory = require("./schemas/historySchema")
+const userStats = require("./schemas/statSchema");
+const userHistory = require("./schemas/historySchema");
+const emailToken = require("./schemas/emailToken");
 
 
 // Planning on getting rid of metrics such as weight, height, and gender right now. 
@@ -20,11 +25,12 @@ const userHistory = require("./schemas/historySchema")
 //const {User, WorkoutMets} = require('./Mongo_Models');
 
 
-// Allows us to access the .env file
-require("dotenv").config();
+// Sets the Send Grid API KEY
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 const path = require('path');
 const { ObjectId } = require('mongodb');
+const { TokenExpiredError } = require('jsonwebtoken');
 
 const PORT = process.env.PORT || 5000;
 const app = express();
@@ -54,7 +60,7 @@ if (process.env.NODE_ENV === 'production') {
 
 
 //Register API
-app.post('/api/register', (req, res) => {
+app.post('/api/register', async (req, res) => {
 
   //Incoming: firstName, lastName, email, password, password2
   //Outgoing: errors
@@ -102,6 +108,33 @@ app.post('/api/register', (req, res) => {
 
   } else {
 
+      const user = await User.findOne({email: req.body.email});
+      if(user) return res.status(420).json({email: "Email already exists"});
+
+      const newUser = await new User({
+        firstName: req.body.firstName,
+        lastName: req.body.lastName,
+        email: req.body.email,
+        password: req.body.password,
+        isVerified: false,
+      });
+
+      bcrypt.genSalt(10, (err, salt) => {
+        bcrypt.hash(newUser.password, salt, (err, hash) => {
+
+          if (err) throw err;
+
+          newUser.password = hash;
+          
+          newUser
+            .save()
+            //.then(user => /*res.status(200).json(user) console.log("Hashed password"))
+            //.catch(err => console.log(err));
+
+          
+        });
+      });
+    /*
     User.findOne({
       email: req.body.email
     }).then((user) => {
@@ -119,103 +152,81 @@ app.post('/api/register', (req, res) => {
           lastName: req.body.lastName,
           email: req.body.email,
           password: req.body.password,
-        })
+          isVerified: false,
+        });
 
+        // Hashes the password
         bcrypt.genSalt(10, (err, salt) => {
           bcrypt.hash(newUser.password, salt, (err, hash) => {
 
             if (err) throw err;
 
             newUser.password = hash;
-
+            
             newUser
               .save()
-              .then(user => res.status(200).json(user))
+              .then(user => /*res.status(200).json(user) console.log("Hashed password"))
               .catch(err => console.log(err));
+
+            
           });
         });
 
+        */
+
+        try {
+          // Creates an 
+          const _emailToken = await new emailToken({
+            userID: newUser._id,
+            token: crypto.randomBytes(32).toString("hex")
+          }).save()
+
+          const message = `${process.env.BASE_URL}/user/verify/${newUser._id}/${_emailToken.token}`;
+          console.log(message);
+          sendEmail(newUser.email, "Verify Email", message);
+
+          res.send("Email sent to your account, please verify");
+        }
+        catch(error) {
+          return res.status(420).send("Error occured HERE");
+        }
+
         // Create a new initialized stats page for the new user
         const newStat = new userStats({
-			userID: newUser._id
-		});
+			    userID: newUser._id
+		    });
 
         newStat.save();
+        return res.status(200).json({msg: "Works with register"});
       }
-    })
-  }
-})
-
-// DELETE WHEN DONE
-// Shows how to find a user by their object ID
-app.post('/api/test', async (req, res, next) => {
-  /*
-    User.findById({
-        _id: ObjectId(req.body._id)
-    }).then((user) => {
-
-        if (user) {
-            console.log("Found User");
-            return res.status(200).json({
-                msg: user
-            });
-        }
-
-        console.log("invalid User");
-        return res.status(404).json({
-            msg: "Invalid User"
-        });
-    });
-	*/
-
-  User.findById({
-
-    _id: ObjectId(req.body._id)
-
-  }).then((user) => {
-
-    if (!user) {
-
-      console.log("User does not exist");
-
-      return res.status(300).json({
-        msg: "_id not found"
-      });
-    }
-
-    workoutMets.findOne({
-
-      userID: ObjectId(req.body._id)
-
-    }).then((workout) => {
-
-      if (workout) {
-
-        console.log("Workouts have already been initialized for this user");
-        
-        return res.status(300).json({
-          msg: "Workouts have already been initialized for this user"
-        });
-      }
-
-      const newWorkoutData = new workoutMets({
-
-        userID: ObjectId(req.body._id),
-
-        workouts: {
-          benchpress: {
-            currentWeight: 200
-          }
-        }
-      });
-
-      newWorkoutData.save();
-      return res.status(200).json({
-        msg: "Works fine"
-      });
-    });
-  });
 });
+
+app.get("/user/verify/:id/:token", async (req, res) => {
+  try {
+      // FInds the user
+      const user = await User.findOne({_id: req.params.id});
+      if(!user) {
+        console.log("invalid link");
+        return res.status(420).send("invalid link");
+      }  
+
+      const token = await emailToken.findOne({userID: user._id, token: req.params.token});
+      if(!token) {
+        console.log("Invalid Link");
+        return res.status(420).send("Invalid Link");
+      } 
+
+      await User.updateOne({_id: user._id, isVerified: true});
+      await emailToken.findByIdAndRemove(token._id);
+      
+      console.log("Email Verified Successfully");
+      res.status(200).send("Email Verified Successfully");
+  } catch (error) {
+      console.log("Error occured in /verify/:id/:token");
+      res.status(404).send("Error occured in /verify/:id/:token");
+  }
+});
+
 
 // TESTING ONLY, DELETE WHEN DONE
 // Used to insert all our excercises into the database for easy recall later

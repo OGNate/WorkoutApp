@@ -23,7 +23,11 @@ const newUser = new Schema({
         required: true
     },  
 
-    isVerified: Boolean
+    isVerified: {
+        type: Boolean,
+        default: false,
+        required: true,
+    }
     
 }, {timestamps: true}, {collection: 'users'});
 
