@@ -6,8 +6,8 @@ function DisplayedName() {
   var _ud = localStorage.getItem('user_data');
   var ud = JSON.parse(_ud);
 
-  var firstName = ud.firstName;
-  var lastName = ud.lastName;
+  //var firstName = ud.firstName;
+  //var lastName = ud.lastName;
 
   const doLogout = event => {
     event.preventDefault();
@@ -17,7 +17,6 @@ function DisplayedName() {
 
   return(
    <div id="loggedInDiv">
-    <span id="userName">Name: {firstName} {lastName}</span><br />
     <button type="button" id="logoutButton" className="buttons" 
       onClick={doLogout}> Log Out </button>
    </div>
