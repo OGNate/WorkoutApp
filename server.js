@@ -6,6 +6,9 @@ const bcrypt = require('bcryptjs');
 const Validator = require('validator');
 const isEmpty = require('is-empty');
 var token = require('./createJWT.js');
+const crypto = require('crypto');
+const sendEmail = require('./email.js');
+require('dotenv').config();
 
 // Imports all the mongoose schemas from the "schemas" folder
 const User = require("./schemas/userSchema");
@@ -13,6 +16,7 @@ const userSession = require("./schemas/userSessionsSchema");
 const workoutFormat = require("./schemas/workoutSchema");
 const userStats = require("./schemas/statSchema")
 const userHistory = require("./schemas/historySchema")
+const emailToken = require("./schemas/emailToken");
 
 
 // Planning on getting rid of metrics such as weight, height, and gender right now. 
@@ -20,11 +24,9 @@ const userHistory = require("./schemas/historySchema")
 //const {User, WorkoutMets} = require('./Mongo_Models');
 
 
-// Allows us to access the .env file
-require("dotenv").config();
-
 const path = require('path');
 const { ObjectId } = require('mongodb');
+const { TokenExpiredError } = require('jsonwebtoken');
 
 const PORT = process.env.PORT || 5000;
 const app = express();
@@ -53,8 +55,12 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 
+/*
 //Register API
-app.post('/api/register', (req, res) => {
+app.post('/api/register', async (req, res) => {
+
+  //Incoming: firstName, lastName, email, password, password2
+  //Outgoing: errors
 
   //Incoming: firstName, lastName, email, password, password2
   //Outgoing: errors
@@ -102,6 +108,33 @@ app.post('/api/register', (req, res) => {
 
   } else {
 
+      const user = await User.findOne({email: req.body.email});
+      if(user) return res.status(420).json({email: "Email already exists"});
+
+      const newUser = await new User({
+        firstName: req.body.firstName,
+        lastName: req.body.lastName,
+        email: req.body.email,
+        password: req.body.password,
+        isVerified: false,
+      });
+
+      bcrypt.genSalt(10, (err, salt) => {
+        bcrypt.hash(newUser.password, salt, (err, hash) => {
+
+          if (err) throw err;
+
+          newUser.password = hash;
+          
+          newUser
+            .save()
+            //.then(user => /*res.status(200).json(user) console.log("Hashed password"))
+            //.catch(err => console.log(err));
+
+          
+        });
+      });
+    /*
     User.findOne({
       email: req.body.email
     }).then((user) => {
@@ -119,19 +152,23 @@ app.post('/api/register', (req, res) => {
           lastName: req.body.lastName,
           email: req.body.email,
           password: req.body.password,
-        })
+          isVerified: false,
+        });
 
+        // Hashes the password
         bcrypt.genSalt(10, (err, salt) => {
           bcrypt.hash(newUser.password, salt, (err, hash) => {
 
             if (err) throw err;
 
             newUser.password = hash;
-
+            
             newUser
               .save()
-              .then(user => res.status(200).json(user))
+              .then(user => /*res.status(200).json(user) console.log("Hashed password"))
               .catch(err => console.log(err));
+
+            
           });
         });
 
@@ -146,76 +183,142 @@ app.post('/api/register', (req, res) => {
   }
 })
 
-// DELETE WHEN DONE
-// Shows how to find a user by their object ID
-app.post('/api/test', async (req, res, next) => {
-  /*
-    User.findById({
-        _id: ObjectId(req.body._id)
-    }).then((user) => {
-
-        if (user) {
-            console.log("Found User");
-            return res.status(200).json({
-                msg: user
-            });
-        }
-
-        console.log("invalid User");
-        return res.status(404).json({
-            msg: "Invalid User"
-        });
-    });
-	*/
-
-  User.findById({
-
-    _id: ObjectId(req.body._id)
-
-  }).then((user) => {
-
-    if (!user) {
-
-      console.log("User does not exist");
-
-      return res.status(300).json({
-        msg: "_id not found"
-      });
-    }
-
-    workoutMets.findOne({
-
-      userID: ObjectId(req.body._id)
-
-    }).then((workout) => {
-
-      if (workout) {
-
-        console.log("Workouts have already been initialized for this user");
         
-        return res.status(300).json({
-          msg: "Workouts have already been initialized for this user"
-        });
-      }
 
-      const newWorkoutData = new workoutMets({
+        try {
+          // Creates an 
+          const _emailToken = await new emailToken({
+            userID: newUser._id,
+            token: crypto.randomBytes(32).toString("hex")
+          }).save()
 
-        userID: ObjectId(req.body._id),
+          const message = `${process.env.BASE_URL}/user/verify/${newUser._id}/${_emailToken.token}`;
+          console.log(message);
+          sendEmail(newUser.email, "Verify Email", message);
 
-        workouts: {
-          benchpress: {
-            currentWeight: 200
-          }
+          res.send("Email sent to your account, please verify");
         }
-      });
+        catch(error) {
+          return res.status(420).send("Error occured HERE");
+        }
 
-      newWorkoutData.save();
-      return res.status(200).json({
-        msg: "Works fine"
-      });
-    });
-  });
+        // Create a new initialized stats page for the new user
+        const newStat = new userStats({
+			    userID: newUser._id
+		    });
+
+        newStat.save();
+        return res.status(200).json({msg: "Works with register"});
+      }
 });
+
+*/
+
+app.post('/api/register', async(req, res) => {
+	//Incoming: firstName, lastName, email, password, password2
+  //Outgoing: errors
+
+  //Incoming: firstName, lastName, email, password, password2
+  //Outgoing: errors
+
+  let errors = {};
+
+  var firstNameArg = !isEmpty(req.body.firstName) ? req.body.firstName : "";
+  var lastNameArg = !isEmpty(req.body.lastName) ? req.body.lastName : "";
+  var emailArg = !isEmpty(req.body.email) ? req.body.email : "";
+  var passwordArg = !isEmpty(req.body.password) ? req.body.password : "";
+  var password2Arg = !isEmpty(req.body.password2) ? req.body.password2 : "";
+
+  if (Validator.isEmpty(firstNameArg)) {
+    errors.firstName = "First name field is required";
+  }
+
+  if (Validator.isEmpty(lastNameArg)) {
+    errors.lastName = "Last name field is required";
+  }
+
+  if (Validator.isEmpty(emailArg)) {
+    errors.email = "Email field is required";
+  } else if (!Validator.isEmail(emailArg)) {
+    errors.email = "Email is invalid";
+  }
+
+  if (Validator.isEmpty(passwordArg)) {
+    errors.password = "Password field is required";
+  }
+
+  if (Validator.isEmpty(password2Arg)) {
+    errors.password = "Confirm password field is required";
+  }
+
+  if (!Validator.equals(passwordArg, password2Arg)) {
+    errors.password2 = "Passwords do not match";
+  }
+
+  if (!Validator.isLength(passwordArg, { min: 8 })) {
+    errors.password = "Password must be at least 8 characters";
+  }
+
+  if (!isEmpty(errors)) {
+    return res.status(400).json(errors);
+  }
+
+  const checkUserEmail = await User.findOne({email: req.body.email});
+  if(checkUserEmail) return res.status(420).json({error: "Email Already Exists"});
+
+  const newUser = new User({
+	firstName: req.body.firstName,
+	lastName: req.body.lastName,
+	email: req.body.email,
+	password: req.body.password,
+	isVerified: false,
+  });
+
+  bcrypt.genSalt(10, (err, salt) => {
+	bcrypt.hash(newUser.password, salt, (err, hash) => {
+	  if (err) throw err;
+
+	  newUser.password = hash;
+      newUser.save();
+	});
+  });
+
+  // Saves the newUser information
+  //await newUser.save();
+
+  // Creates an email verification token
+  const emailVerificationToken = new emailToken({
+	  userID: newUser._id,
+	  token: crypto.randomBytes(32).toString('hex')
+  });
+
+  emailVerificationToken.save();
+
+  // Sends a verification email to verify the email
+  sendEmail(newUser._id, newUser.email, emailVerificationToken.token);
+  
+  res.redirect('/');
+
+});
+
+
+app.post("/emailVerification/:userID/:uniqueEmailToken", async (req, res) => {
+        const checkUser = await User.findOne({_id: req.params.userID});
+        if(!checkUser) return res.status(420).json({error: "Error at checking userID in server.js email verificaiton"});
+
+        const checkEmailToken = await emailToken.findOne({userID: req.params.userID, token: req.params.uniqueEmailToken});
+        if(!checkEmailToken) return res.status(420).json({error: "Either user or emailToken does not exist"});
+
+        // Verifies the new user and saves the user.
+        checkUser.isVerified = true;
+        await checkUser.save();
+        
+        // Redirects to the home page
+        res.redirect('/');
+
+
+});
+
 
 // TESTING ONLY, DELETE WHEN DONE
 // Used to insert all our excercises into the database for easy recall later
@@ -347,6 +450,17 @@ app.post('/api/addSession', async (req, res, next) => {
         isEmpty: true
       })
       newWorkoutSession.save();
+
+      var refreshedToken = null;
+      try
+      {
+        refreshedToken = token.refresh(jwtToken);
+      }
+      catch(e)
+      {
+        console.log(e.message);
+      }
+      return res.status(200).json({error: error, jwtToken: refreshedToken});
     }   
   });
   }
@@ -354,17 +468,6 @@ app.post('/api/addSession', async (req, res, next) => {
   {
     error = e.toString();
   }
-
-  var refreshedToken = null;
-  try
-  {
-    refreshedToken = token.refresh(jwtToken);
-  }
-  catch(e)
-  {
-    console.log(e.message);
-  }
-  return res.status(200).json({error: error, jwtToken: refreshedToken});
 });
 
 //updateSession API
@@ -447,7 +550,7 @@ app.post('/api/displaySessions', async (req, res, next) => {
     userID: ObjectId(req.body.userID),
   }).then((results) => {
 
-    if (!results) {
+    if (!results.length) {
       return res.status(404).json({
         error: "No sessions found for this user."
       });
@@ -503,18 +606,6 @@ app.post('/api/deleteSession', async (req, res, next) => {
     console.log(e.message);
   }
 
-  userSession.findOne({
-    userID: ObjectId(req.body.userID),
-    sessionName: req.body.sessionName
-  }).then((session) => {
-
-    if (!session) {
-      return res.status(404).json({
-        error: "Session does not exist."
-      });
-  }
-  });
-
   try
   {
   userSession.deleteMany({
@@ -569,7 +660,7 @@ app.post('/api/searchWorkout', async (req, res, next) => {
     name: { $regex: _search + '.*', $options: 'i' }
   }).then((results) => {
 
-    if (!results) {
+    if (!results.length) {
       return res.status(404).json({
         error: "No workouts matched the description. Please try again."
       });
@@ -707,6 +798,17 @@ app.post('/api/addWorkout', async (req, res, next) => {
         isEmpty: false
       });
       newWorkoutSession.save();
+
+      var refreshedToken = null;
+      try
+      {
+        refreshedToken = token.refresh(jwtToken);
+      }
+      catch(e)
+      {
+        console.log(e.message);
+      }
+      return res.status(200).json({error: error, jwtToken: refreshedToken});
     }
   });
   }
@@ -714,17 +816,6 @@ app.post('/api/addWorkout', async (req, res, next) => {
   {
     error = e.toString();
   }
-
-  var refreshedToken = null;
-  try
-  {
-    refreshedToken = token.refresh(jwtToken);
-  }
-  catch(e)
-  {
-    console.log(e.message);
-  }
-  return res.status(200).json({error: error, jwtToken: refreshedToken});
 });
 
 //displaySessionWorkouts API
@@ -756,7 +847,7 @@ app.post('/api/displaySessionWorkouts', async (req, res, next) => {
     sessionName: req.body.sessionName
   }).then((results) => {
 
-    if (!results) {
+    if (!results.length) {
       return res.status(404).json({
         error: "No sessions matched the description. Please try again."
       });
@@ -816,12 +907,6 @@ app.post('/api/deleteWorkout', async (req, res, next) => {
     _id: ObjectId(req.body.sessionID)
   }).then((session) => {
 
-    if (!session) {
-      return res.status(404).json({
-        error: "Session does not exist."
-      });
-  }
-
   userSession.findOne({
     userID: ObjectId(req.body.userID),
     sessionName: req.body.sessionName
@@ -840,7 +925,7 @@ app.post('/api/deleteWorkout', async (req, res, next) => {
   }
   catch (e)
   {
-    error = e.toString();
+    console.log(e.message);
   }
 
   var refreshedToken = null;
@@ -881,7 +966,7 @@ app.post('/api/displayAllWorkouts', async (req, res, next) => {
 
   workoutFormat.find({}).then((results) => {
 
-    if (!results) {
+    if (!results.length) {
       return res.status(404).json({
         error: "Workout database is empty!"
       });
@@ -904,6 +989,572 @@ app.post('/api/displayAllWorkouts', async (req, res, next) => {
       return res.status(200).json({results: ret, error: error, jwtToken: refreshedToken});
     }
   });
+});
+
+//displayAllBodyParts API
+app.post('/api/displayAllBodyParts', async (req, res, next) => {
+
+  //Incoming: jwtToken
+  //Outgoing: results[], error, jwtToken
+
+  const jwtToken = req.body.jwtToken;
+  var error = '';
+  var ret = [];
+
+  try
+  {
+    if( token.isExpired(jwtToken))
+    {
+      var r = {error:'The JWT is no longer valid', jwtToken: ''};
+      res.status(200).json(r);
+      return;
+    }
+  }
+  catch(e)
+  {
+    console.log(e.message);
+  }
+
+  workoutFormat.find({}).then((results) => {
+
+    if (!results.length) {
+      return res.status(404).json({
+        error: "Workout database is empty!"
+      });
+
+    } else {
+      for( var i=0; i<results.length; i++ )
+      {
+        for( var j=0; j<results[i].bodyPart.length; j++)
+        {
+          if (ret.includes(results[i].bodyPart[j]))
+          {
+            continue;
+          }
+          ret.push( results[i].bodyPart[j] );
+        }
+      }
+
+      var refreshedToken = null;
+      try
+      {
+        refreshedToken = token.refresh(jwtToken);
+      }
+      catch(e)
+      {
+        console.log(e.message);
+      }
+      return res.status(200).json({results: ret, error: error, jwtToken: refreshedToken});
+    }
+  });
+});
+
+//displayAllWorkoutTypes API
+app.post('/api/displayAllWorkoutTypes', async (req, res, next) => {
+
+  //Incoming: jwtToken
+  //Outgoing: results[], error, jwtToken
+
+  const jwtToken = req.body.jwtToken;
+  var error = '';
+  var ret = [];
+
+  try
+  {
+    if( token.isExpired(jwtToken))
+    {
+      var r = {error:'The JWT is no longer valid', jwtToken: ''};
+      res.status(200).json(r);
+      return;
+    }
+  }
+  catch(e)
+  {
+    console.log(e.message);
+  }
+
+  workoutFormat.find({}).then((results) => {
+
+    if (!results.length) {
+      return res.status(404).json({
+        error: "Workout database is empty!"
+      });
+
+    } else {
+      for( var i=0; i<results.length; i++ )
+      {
+        if (ret.includes(results[i].workoutType))
+        {
+          continue;
+        }
+        ret.push( results[i].workoutType );
+      }
+
+      var refreshedToken = null;
+      try
+      {
+        refreshedToken = token.refresh(jwtToken);
+      }
+      catch(e)
+      {
+        console.log(e.message);
+      }
+      return res.status(200).json({results: ret, error: error, jwtToken: refreshedToken});
+    }
+  });
+});
+
+//displayAllEquipment API
+app.post('/api/displayAllEquipment', async (req, res, next) => {
+
+  //Incoming: jwtToken
+  //Outgoing: results[], error, jwtToken
+
+  const jwtToken = req.body.jwtToken;
+  var error = '';
+  var ret = [];
+
+  try
+  {
+    if( token.isExpired(jwtToken))
+    {
+      var r = {error:'The JWT is no longer valid', jwtToken: ''};
+      res.status(200).json(r);
+      return;
+    }
+  }
+  catch(e)
+  {
+    console.log(e.message);
+  }
+
+  workoutFormat.find({}).then((results) => {
+
+    if (!results.length) {
+      return res.status(404).json({
+        error: "Workout database is empty!"
+      });
+
+    } else {
+      for( var i=0; i<results.length; i++ )
+      {
+        for( var j=0; j<results[i].equipment.length; j++)
+        {
+          if (ret.includes(results[i].equipment[j]))
+          {
+            continue;
+          }
+          ret.push( results[i].equipment[j] );
+        }
+      }
+
+      var refreshedToken = null;
+      try
+      {
+        refreshedToken = token.refresh(jwtToken);
+      }
+      catch(e)
+      {
+        console.log(e.message);
+      }
+      return res.status(200).json({results: ret, error: error, jwtToken: refreshedToken});
+    }
+  });
+});
+
+//searchByBodyPart API
+app.post('/api/searchByBodyPart', async (req, res, next) => {
+
+  //Incoming: bodyPart, jwtToken
+  //Outgoing: results[], error, jwtToken
+
+  const jwtToken = req.body.jwtToken;
+  var error = '';
+  var ret = [];
+
+  try
+  {
+    if( token.isExpired(jwtToken))
+    {
+      var r = {error:'The JWT is no longer valid', jwtToken: ''};
+      res.status(200).json(r);
+      return;
+    }
+  }
+  catch(e)
+  {
+    console.log(e.message);
+  }
+
+  workoutFormat.find({
+    bodyPart: req.body.bodyPart
+  }).then((results) => {
+
+    if (!results.length) {
+      return res.status(404).json({
+        error: "No workout found for body part!"
+      });
+
+    } else {
+      for( var i=0; i<results.length; i++ )
+      {
+        ret.push( results[i] );
+      }
+
+      var refreshedToken = null;
+      try
+      {
+        refreshedToken = token.refresh(jwtToken);
+      }
+      catch(e)
+      {
+        console.log(e.message);
+      }
+      return res.status(200).json({results: ret, error: error, jwtToken: refreshedToken});
+    }
+  });
+});
+
+//searchByWorkoutType API
+app.post('/api/searchByWorkoutType', async (req, res, next) => {
+
+  //Incoming: workoutType, jwtToken
+  //Outgoing: results[], error, jwtToken
+
+  const jwtToken = req.body.jwtToken;
+  var error = '';
+  var ret = [];
+
+  try
+  {
+    if( token.isExpired(jwtToken))
+    {
+      var r = {error:'The JWT is no longer valid', jwtToken: ''};
+      res.status(200).json(r);
+      return;
+    }
+  }
+  catch(e)
+  {
+    console.log(e.message);
+  }
+
+  workoutFormat.find({
+    workoutType: req.body.workoutType
+  }).then((results) => {
+
+    if (!results.length) {
+      return res.status(404).json({
+        error: "No workout found for workout type!"
+      });
+
+    } else {
+      for( var i=0; i<results.length; i++ )
+      {
+        ret.push( results[i] );
+      }
+
+      var refreshedToken = null;
+      try
+      {
+        refreshedToken = token.refresh(jwtToken);
+      }
+      catch(e)
+      {
+        console.log(e.message);
+      }
+      return res.status(200).json({results: ret, error: error, jwtToken: refreshedToken});
+    }
+  });
+});
+
+//searchByEquipment API
+app.post('/api/searchByEquipment', async (req, res, next) => {
+
+  //Incoming: equipment, jwtToken
+  //Outgoing: results[], error, jwtToken
+
+  const jwtToken = req.body.jwtToken;
+  var error = '';
+  var ret = [];
+
+  try
+  {
+    if( token.isExpired(jwtToken))
+    {
+      var r = {error:'The JWT is no longer valid', jwtToken: ''};
+      res.status(200).json(r);
+      return;
+    }
+  }
+  catch(e)
+  {
+    console.log(e.message);
+  }
+
+  workoutFormat.find({
+    equipment: req.body.equipment
+  }).then((results) => {
+
+    if (!results.length) {
+      return res.status(404).json({
+        error: "No workout found for equipment!"
+      });
+
+    } else {
+      for( var i=0; i<results.length; i++ )
+      {
+        ret.push( results[i] );
+      }
+
+      var refreshedToken = null;
+      try
+      {
+        refreshedToken = token.refresh(jwtToken);
+      }
+      catch(e)
+      {
+        console.log(e.message);
+      }
+      return res.status(200).json({results: ret, error: error, jwtToken: refreshedToken});
+    }
+  });
+});
+
+//finishWorkout API
+//Also updates userStats and userHistory
+app.post('/api/finishWorkout', async (req, res, next) => {
+
+  //Incoming: userID, sessionID, sessionName, exerciseName, weight, reps, sets, time, distance
+  //Outgoing: sessionCompleted, error, jwtToken
+
+  const jwtToken = req.body.jwtToken;
+  var error = '';
+
+  try
+  {
+    if( token.isExpired(jwtToken))
+    {
+      var r = {error:'The JWT is no longer valid', jwtToken: ''};
+      res.status(200).json(r);
+      return;
+    }
+  }
+  catch(e)
+  {
+    console.log(e.message);
+  }
+
+  try
+  {
+  userSession.findOneAndUpdate({
+    _id: ObjectId(req.body.sessionID)
+  }, {
+    isCompleted: true
+  }, {
+    new: true}).then((result) => {
+
+    //Create new user history entry
+    const newUserHistory = new userHistory({
+      userID: req.body.userID,
+      sessionName: req.body.sessionName,
+      workoutName: req.body.exerciseName,
+      weight: req.body.weight,
+      reps: req.body.reps,
+      sets: req.body.sets,
+      distance: req.body.distance,
+      time: req.body.time,
+      completedAt: result.updatedAt
+    });
+    newUserHistory.save();
+
+    //Update Stats
+    var totalWeight = (req.body.weight != -1) ? req.body.weight : 0;
+    var totalReps = (req.body.reps != -1) ? req.body.reps : 0;
+    var totalSets = (req.body.sets != -1) ? req.body.sets : 0;
+    var totalDistance = (req.body.distance != -1) ? req.body.distance : 0;
+    var totalTime = (req.body.time != -1) ? req.body.time : 0;
+
+    userStats.findOneAndUpdate({
+      userID: ObjectId(req.body.userID)
+    }, {
+      $inc : {
+        totalWeight: totalWeight,
+        totalReps: totalReps,
+        totalSets: totalSets,
+        totalDistance: totalDistance,
+        totalTime: totalTime
+      }
+    }).then((stats) => {
+    });
+
+    //Check to see if session is finished
+    userSession.find({
+      userID: ObjectId(req.body.userID),
+      sessionName: req.body.sessionName
+    }).then((results) => {
+
+      var sessionCompleted = true;
+      for (var i=0; i<results.length; i++)
+      {
+        if(results[i].isCompleted == false)
+        {
+          sessionCompleted = false;
+          break;
+        }
+      }
+
+      var refreshedToken = null;
+      try
+      {
+        refreshedToken = token.refresh(jwtToken);
+      }
+      catch(e)
+      {
+        console.log(e.message);
+      }
+      return res.status(200).json({sessionCompleted: sessionCompleted, error: error, jwtToken: refreshedToken});
+    });
+  });
+  }
+  catch (e)
+  {
+    console.log(e.message);
+  }
+});
+
+//displayUserHistory API
+app.post('/api/displayUserHistory', async (req, res, next) => {
+
+  //Incoming: userID, jwtToken
+  //Outgoing: userHistory[], error, jwtToken
+
+  const jwtToken = req.body.jwtToken;
+  var ret = [];
+  var error = "";
+
+  try
+  {
+    if( token.isExpired(jwtToken))
+    {
+      var r = {error:'The JWT is no longer valid', jwtToken: ''};
+      res.status(200).json(r);
+      return;
+    }
+  }
+  catch(e)
+  {
+    console.log(e.message);
+  }
+
+  try
+  {
+  userHistory.find({
+    userID: ObjectId(req.body.userID),
+  }).then((results) => {
+
+    if (!results.length) {
+      return res.status(404).json({
+        error: "No user history found for this user."
+      });
+
+    } else {
+      for( var i=0; i<results.length; i++ )
+      {
+        if (ret.includes(results[i])) {
+          continue;
+        }
+        ret.push( results[i] );
+      }
+
+      var refreshedToken = null;
+      try
+      {
+        refreshedToken = token.refresh(jwtToken);
+      }
+      catch(e)
+      {
+        console.log(e.message);
+      }
+      return res.status(200).json({userHistory: ret, error: error, jwtToken: refreshedToken});
+    }
+  });
+  }
+  catch (e) 
+  {
+    console.log(e.message);
+  }
+});
+
+// -----------------------------------------------------------------------------------------------------------------------------------
+// JSON Params:
+//		jwtToken: A given Java Web Token (JWT) passed onto the json.
+//		userID: A userID passed on to identify which user we will be displaying the stats of.
+// Returns:
+//		Returns a json of the user's stats, and empty error message, and a refreshed JWT token.
+//
+app.post('/api/displayUserStats', async (req, res, next) => {
+	
+	//Incoming: userID, jwtToken
+	//Outgoing: userStats, error, jwtToken
+
+	const jwtToken = req.body.jwtToken;
+	var ret = [];
+	var error = "";
+	
+	// Checks to see if the given Java Web Token is expired, if so it returns an error message and exits.
+	try {
+		if(token.isExpired(jwtToken)) {
+			var r = {error: "The JWT is no longer valid", jwtToken: ""};
+			res.status(420).json(r);
+			return;
+		}
+	} 
+	catch(error) {
+		console.log(error.message);
+		return res.status(420).json({error: error.message});
+	}
+
+	try {
+
+		// Finds the stats for the given userID
+		userStats.find({userID: ObjectId(req.body.userID)}).then((result) => {
+			
+			// If there are no stats in with the given userID, return a error message
+			if (!result.length) {
+				return res.status(420).json({error: "Stats for given user do not exist, check userID again"});
+			}
+
+			// If there are more than one user with the same userID, an error will be thrown.
+			if (result.length != 1) {
+				return res.status(420).json({error: "Multiple users with the same userID"});
+			}
+
+			// Creates a new JWT token
+			var refreshedToken = null;
+
+			try {
+
+				// Gets a refreshed JWT token
+				refreshedToken = token.refresh(jwtToken);
+			}
+			catch(error) {
+				console.log(error.message);
+				return res.status(420).json({error: error.message});
+			}
+
+			// Returns a 200 status (meaning everything works). Returns a json of the users stats, the error message (should be nothing), and the refreshed JWT token.
+			return res.status(200).json({
+				userStats: result,
+				error: error,
+				jwtToken: refreshedToken
+			});
+		});
+	}
+	catch(error) {
+		console.log(error.message);
+		return res.status(420).json({error: error.message});
+	}
 });
 
 //displayAllBodyParts API
@@ -1236,11 +1887,10 @@ app.post('/api/searchByEquipment', async (req, res, next) => {
   });
 });
 
-//finishWorkout API
-//Also updates userStats and userHistory
-app.post('/api/finishWorkout', async (req, res, next) => {
+//finishWorkoutAndUpdateHistory API
+app.post('/api/finishWorkoutAndUpdateHistory', async (req, res, next) => {
 
-  //Incoming: userID, sessionID, sessionName, exerciseName, weight, reps, sets, time, distance
+  //Incoming: userID, sessionID, sessionName
   //Outgoing: sessionCompleted, error, jwtToken
 
   const jwtToken = req.body.jwtToken;
@@ -1262,48 +1912,20 @@ app.post('/api/finishWorkout', async (req, res, next) => {
 
   try
   {
-  userSession.findOneAndUpdate({
+  userSession.updateOne({
     _id: ObjectId(req.body.sessionID)
   }, {
     isCompleted: true
-  }, {
-    new: true}).then((result) => {
+  }).then((result) => {
 
-    //Create new user history entry
-    const newUserHistory = new userHistory({
-      userID: req.body.userID,
-      sessionName: req.body.sessionName,
-      workoutName: req.body.exerciseName,
-      weight: req.body.weight,
-      reps: req.body.reps,
-      sets: req.body.sets,
-      distance: req.body.distance,
-      time: req.body.time,
-      completedAt: result.updatedAt
-    });
-    newUserHistory.save();
-
-    //Update Stats
-    var totalWeight = (req.body.weight != -1) ? req.body.weight : 0;
-    var totalReps = (req.body.reps != -1) ? req.body.reps : 0;
-    var totalSets = (req.body.sets != -1) ? req.body.sets : 0;
-    var totalDistance = (req.body.distance != -1) ? req.body.distance : 0;
-    var totalTime = (req.body.time != -1) ? req.body.time : 0;
-
-    userStats.findOneAndUpdate({
-      userID: ObjectId(req.body.userID)
+    userStats.updateOne({
+      userId: req.body.userID
     }, {
-      $inc : {
-        totalWeight: totalWeight,
-        totalReps: totalReps,
-        totalSets: totalSets,
-        totalDistance: totalDistance,
-        totalTime: totalTime
-      }
-    }).then((stats) => {
+      
+    }).then((update_result) => {
+      
     });
 
-    //Check to see if session is finished
     userSession.find({
       userID: ObjectId(req.body.userID),
       sessionName: req.body.sessionName
@@ -1338,16 +1960,17 @@ app.post('/api/finishWorkout', async (req, res, next) => {
   }
 });
 
-//displayUserHistory API
-app.post('/api/displayUserHistory', async (req, res, next) => {
+//displayAllBodyParts API
+app.post('/api/displayAllBodyParts', async (req, res, next) => {
 
-  //Incoming: userID, jwtToken
-  //Outgoing: userHistory[], error, jwtToken
+  //Incoming: jwtToken
+  //Outgoing: results[], error, jwtToken
 
   const jwtToken = req.body.jwtToken;
+  var error = '';
   var ret = [];
-  var error = "";
 
+  /*
   try
   {
     if( token.isExpired(jwtToken))
@@ -1361,27 +1984,152 @@ app.post('/api/displayUserHistory', async (req, res, next) => {
   {
     console.log(e.message);
   }
+  */
 
-  try
-  {
-  userHistory.find({
-    userID: ObjectId(req.body.userID),
-  }).then((results) => {
+  workoutFormat.find({}).then((results) => {
 
     if (!results) {
       return res.status(404).json({
-        error: "No user history found for this user."
+        error: "Workout database is empty!"
       });
 
     } else {
       for( var i=0; i<results.length; i++ )
       {
-        if (ret.includes(results[i])) {
+        for( var j=0; j<results[i].bodyPart.length; j++)
+        {
+          if (ret.includes(results[i].bodyPart[j]))
+          {
+            continue;
+          }
+          ret.push( results[i].bodyPart[j] );
+        }
+      }
+      return res.status(200).json({results: ret, error: error/*, jwtToken: refreshedToken*/});
+    }
+  });
+
+  /*
+  var refreshedToken = null;
+  try
+  {
+    refreshedToken = token.refresh(jwtToken);
+  }
+  catch(e)
+  {
+    console.log(e.message);
+  }
+  */
+  //return res.status(200).json({results: ret, error: error, jwtToken: refreshedToken});
+});
+
+//displayAllWorkoutTypes API
+app.post('/api/displayAllWorkoutTypes', async (req, res, next) => {
+
+  //Incoming: jwtToken
+  //Outgoing: results[], error, jwtToken
+
+  const jwtToken = req.body.jwtToken;
+  var error = '';
+  var ret = [];
+
+  /*
+  try
+  {
+    if( token.isExpired(jwtToken))
+    {
+      var r = {error:'The JWT is no longer valid', jwtToken: ''};
+      res.status(200).json(r);
+      return;
+    }
+  }
+  catch(e)
+  {
+    console.log(e.message);
+  }
+  */
+
+  workoutFormat.find({}).then((results) => {
+
+    if (!results) {
+      return res.status(404).json({
+        error: "Workout database is empty!"
+      });
+
+    } else {
+      for( var i=0; i<results.length; i++ )
+      {
+        if (ret.includes(results[i].workoutType))
+        {
           continue;
         }
-        ret.push( results[i] );
+        ret.push( results[i].workoutType );
+      }
+      return res.status(200).json({results: ret, error: error/*, jwtToken: refreshedToken*/});
+    }
+  });
+
+  /*
+  var refreshedToken = null;
+  try
+  {
+    refreshedToken = token.refresh(jwtToken);
+  }
+  catch(e)
+  {
+    console.log(e.message);
+  }
+  */
+  //return res.status(200).json({results: ret, error: error/*, jwtToken: refreshedToken*/});
+});
+
+//displayAllEquipment API
+app.post('/api/displayAllEquipment', async (req, res, next) => {
+
+  //Incoming: jwtToken
+  //Outgoing: results[], error, jwtToken
+
+  const jwtToken = req.body.jwtToken;
+  var error = '';
+  var ret = [];
+
+  /*
+  try
+  {
+    if( token.isExpired(jwtToken))
+    {
+      var r = {error:'The JWT is no longer valid', jwtToken: ''};
+      res.status(200).json(r);
+      return;
+    }
+  }
+  catch(e)
+  {
+    console.log(e.message);
+  }
+  */
+
+  workoutFormat.find({}).then((results) => {
+
+    if (!results) {
+      return res.status(404).json({
+        error: "Workout database is empty!"
+      });
+
+    } else {
+      for( var i=0; i<results.length; i++ )
+      {
+        for( var j=0; j<results[i].equipment.length; j++)
+        {
+          if (ret.includes(results[i].equipment[j]))
+          {
+            continue;
+          }
+          ret.push( results[i].equipment[j] );
+        }
       }
 
+      /*
       var refreshedToken = null;
       try
       {
@@ -1391,14 +2139,181 @@ app.post('/api/displayUserHistory', async (req, res, next) => {
       {
         console.log(e.message);
       }
-      return res.status(200).json({userHistory: ret, error: error, jwtToken: refreshedToken});
+      */
+      return res.status(200).json({results: ret, error: error/*, jwtToken: refreshedToken*/});
     }
   });
+});
+
+//searchByBodyPart API
+app.post('/api/searchByBodyPart', async (req, res, next) => {
+
+  //Incoming: bodyPart, jwtToken
+  //Outgoing: results[], error, jwtToken
+
+  const jwtToken = req.body.jwtToken;
+  var error = '';
+  var ret = [];
+
+  /*
+  try
+  {
+    if( token.isExpired(jwtToken))
+    {
+      var r = {error:'The JWT is no longer valid', jwtToken: ''};
+      res.status(200).json(r);
+      return;
+    }
   }
-  catch (e) 
+  catch(e)
   {
     console.log(e.message);
   }
+  */
+
+  workoutFormat.find({
+    bodyPart: req.body.bodyPart
+  }).then((results) => {
+
+    if (!results) {
+      return res.status(404).json({
+        error: "No workout found for body part!"
+      });
+
+    } else {
+      for( var i=0; i<results.length; i++ )
+      {
+        ret.push( results[i] );
+      }
+
+      /*
+      var refreshedToken = null;
+      try
+      {
+        refreshedToken = token.refresh(jwtToken);
+      }
+      catch(e)
+      {
+        console.log(e.message);
+      }
+      */
+      return res.status(200).json({results: ret, error: error/*, jwtToken: refreshedToken*/});
+    }
+  });
+});
+
+//searchByWorkoutType API
+app.post('/api/searchByWorkoutType', async (req, res, next) => {
+
+  //Incoming: workoutType, jwtToken
+  //Outgoing: results[], error, jwtToken
+
+  const jwtToken = req.body.jwtToken;
+  var error = '';
+  var ret = [];
+
+  /*
+  try
+  {
+    if( token.isExpired(jwtToken))
+    {
+      var r = {error:'The JWT is no longer valid', jwtToken: ''};
+      res.status(200).json(r);
+      return;
+    }
+  }
+  catch(e)
+  {
+    console.log(e.message);
+  }
+  */
+
+  workoutFormat.find({
+    workoutType: req.body.workoutType
+  }).then((results) => {
+
+    if (!results) {
+      return res.status(404).json({
+        error: "No workout found for body part!"
+      });
+
+    } else {
+      for( var i=0; i<results.length; i++ )
+      {
+        ret.push( results[i] );
+      }
+
+      /*
+      var refreshedToken = null;
+      try
+      {
+        refreshedToken = token.refresh(jwtToken);
+      }
+      catch(e)
+      {
+        console.log(e.message);
+      }
+      */
+      return res.status(200).json({results: ret, error: error/*, jwtToken: refreshedToken*/});
+    }
+  });
+});
+
+//searchByEquipment API
+app.post('/api/searchByEquipment', async (req, res, next) => {
+
+  //Incoming: equipment, jwtToken
+  //Outgoing: results[], error, jwtToken
+
+  const jwtToken = req.body.jwtToken;
+  var error = '';
+  var ret = [];
+
+  /*
+  try
+  {
+    if( token.isExpired(jwtToken))
+    {
+      var r = {error:'The JWT is no longer valid', jwtToken: ''};
+      res.status(200).json(r);
+      return;
+    }
+  }
+  catch(e)
+  {
+    console.log(e.message);
+  }
+  */
+
+  workoutFormat.find({
+    equipment: req.body.equipment
+  }).then((results) => {
+
+    if (!results) {
+      return res.status(404).json({
+        error: "No workout found for body part!"
+      });
+
+    } else {
+      for( var i=0; i<results.length; i++ )
+      {
+        ret.push( results[i] );
+      }
+
+      /*
+      var refreshedToken = null;
+      try
+      {
+        refreshedToken = token.refresh(jwtToken);
+      }
+      catch(e)
+      {
+        console.log(e.message);
+      }
+      */
+      return res.status(200).json({results: ret, error: error/*, jwtToken: refreshedToken*/});
+    }
+  });
 });
 
 // -----------------------------------------------------------------------------------------------------------------------------------
@@ -1409,9 +2324,6 @@ app.post('/api/displayUserHistory', async (req, res, next) => {
 //		Returns a json of the user's stats, and empty error message, and a refreshed JWT token.
 //
 app.post('/api/displayUserStats', async (req, res, next) => {
-	
-	//Incoming: userID, jwtToken
-	//Outgoing: userStats, error, jwtToken
 	const jwtToken = req.body.jwtToken;
 	var ret = [];
 	var error = "";
@@ -1459,7 +2371,7 @@ app.post('/api/displayUserStats', async (req, res, next) => {
 
 			// Returns a 200 status (meaning everything works). Returns a json of the users stats, the error message (should be nothing), and the refreshed JWT token.
 			return res.status(200).json({
-				userStats: result,
+				userStat: result,
 				error: error,
 				jwtToken: refreshedToken
 			});
@@ -1470,6 +2382,7 @@ app.post('/api/displayUserStats', async (req, res, next) => {
 		return res.status(420).json({error: error.message});
 	}
 });
+
 
 app.use((req, res, next) => {
 

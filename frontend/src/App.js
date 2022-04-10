@@ -1,11 +1,11 @@
 import React from 'react';
 import { BrowserRouter, Switch } from 'react-router-dom';
 import './App.css';
+import LandingPage from './pages/LandingPage';
 import ExercisePage from './pages/ExercisePage';
 import HistoryPage from './pages/HistoryPage';
-import HomePage from './pages/HomePage';
-import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
+import HomePage from './pages/HomePage'
 import ProfilePage from './pages/ProfilePage';
 import RegisterPage from './pages/RegisterPage';
 import VerifyAccountPage from './pages/VerifyAccountPage';
