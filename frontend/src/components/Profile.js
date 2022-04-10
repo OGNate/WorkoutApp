@@ -2,7 +2,7 @@ import axios from "axios";
 import React, { useState } from "react";
 import tokenStorage from '../tokenStorage';
 
-function Exercises() {
+function Profile() {
 
   const [exercises2, setExercises2] = useState();
   const [response, setResponse] = useState("");
@@ -18,7 +18,7 @@ function Exercises() {
   var config = {
     
     method: "POST",
-    url: bp.buildPath("api/displayAllWorkouts"),
+    url: bp.buildPath("api/displayAllBodyParts"),
 
     headers: {
       "Content-Type": "application/json",
@@ -42,4 +42,4 @@ function Exercises() {
   );
 };
 
-export default Exercises;
+export default Profile;

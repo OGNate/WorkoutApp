@@ -1,64 +1,38 @@
-import React, { Suspense } from 'react';
-import { BrowserRouter as Router, Redirect, Route, Switch } from 'react-router-dom';
+import React from 'react';
+import { BrowserRouter, Switch } from 'react-router-dom';
 import './App.css';
 import LandingPage from './pages/LandingPage';
+import ExercisePage from './pages/ExercisePage';
+import HistoryPage from './pages/HistoryPage';
 import LoginPage from './pages/LoginPage';
+import HomePage from './pages/HomePage'
+import ProfilePage from './pages/ProfilePage';
 import RegisterPage from './pages/RegisterPage';
 import VerifyAccountPage from './pages/VerifyAccountPage';
+import WorkoutPage from './pages/WorkoutPage';
 import PrivateRoute from './routes/PrivateRoute';
-import ProtectedRoutes from './routes/ProtectedRoutes'; //Authenticated routes
 import PublicRoute from './routes/PublicRoute';
-import tokenStorage from './tokenStorage';
 
 function App() {
-  
-  const isAuthenticated = tokenStorage.retrieveToken();
 
   return (
 
-    <Router >
-      <Suspense fallback={<h1>Loading...</h1>}>
+    <BrowserRouter>
+      <Switch>
 
-        <Switch>
+        <PublicRoute restricted={false} component={LandingPage} path="/" exact />
+        <PublicRoute restricted={true} component={LoginPage} path="/login" exact />
+        <PublicRoute restricted={true} component={RegisterPage} path="/register" exact />
+        <PublicRoute restricted={true} component={VerifyAccountPage} path="/verify-account" exact />
 
-          <Route path="/" exact>
-            <LandingPage />
-          </Route>
+        <PrivateRoute component={HomePage} path="/home" exact />
+        <PrivateRoute component={HistoryPage} path="/history" exact />
+        <PrivateRoute component={WorkoutPage} path="/workout" exact />
+        <PrivateRoute component={ExercisePage} path="/exercises" exact />
+        <PrivateRoute component={ProfilePage} path="/profile" exact />
 
-          <PublicRoute
-            path="/login"
-            isAuthenticated={isAuthenticated}
-          >
-            <LoginPage />
-          </PublicRoute>
-
-          <PublicRoute
-            path="/register"
-            isAuthenticated={isAuthenticated}
-          >
-            <RegisterPage />
-          </PublicRoute>
-
-          <PublicRoute
-            path="/verify-account"
-            isAuthenticated={isAuthenticated}
-          >
-            <VerifyAccountPage />
-          </PublicRoute>
-
-          <PrivateRoute
-            path="/"
-            isAuthenticated={isAuthenticated}
-          >
-            <ProtectedRoutes />
-          </PrivateRoute>
-
-          <Redirect to="/" />
-
-        </Switch>
-
-      </Suspense>
-    </Router>
+      </Switch>
+    </BrowserRouter>
   );
 }
 

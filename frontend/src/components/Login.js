@@ -37,7 +37,7 @@ function Login() {
 
     axios(config).then(function (response) {
 
-      var res = response.data;
+      var res = response.data.ret;
 
       if (res.error) {
         setMessage("Invalid email or password");
@@ -51,12 +51,9 @@ function Login() {
           complete: true 
         });
 
-        var firstName = ud.payload.firstName;
-        var lastName = ud.payload.lastName;
-
-        var user = { 
-          firstName: firstName, 
-          lastName: lastName
+        var user = {
+          firstName: ud.payload.firstName, 
+          lastName: ud.payload.lastName
         };
 
         localStorage.setItem("user_data", JSON.stringify(user));

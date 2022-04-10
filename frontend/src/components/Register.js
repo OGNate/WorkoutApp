@@ -54,9 +54,9 @@ function Register() {
           complete: true 
         });
 
-        var userId = ud.payload.userId;
-        var firstName = ud.payload.firstName;
-        var lastName = ud.payload.lastName;
+        var userId = ud.userId;
+        var firstName = ud.firstName;
+        var lastName = ud.lastName;
 
         var user = { 
           firstName: firstName, 
