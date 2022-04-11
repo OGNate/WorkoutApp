@@ -17,6 +17,7 @@ const workoutFormat = require("./schemas/workoutSchema");
 const userStats = require("./schemas/statSchema")
 const userHistory = require("./schemas/historySchema")
 const emailToken = require("./schemas/emailToken");
+const passwordReset = require("./schemas/passwordResetSchema");
 
 
 // Planning on getting rid of metrics such as weight, height, and gender right now. 
@@ -55,168 +56,9 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 
-/*
-//Register API
-app.post('/api/register', async (req, res) => {
 
-  //Incoming: firstName, lastName, email, password, password2
-  //Outgoing: errors
-
-  //Incoming: firstName, lastName, email, password, password2
-  //Outgoing: errors
-
-  let errors = {};
-
-  var firstNameArg = !isEmpty(req.body.firstName) ? req.body.firstName : "";
-  var lastNameArg = !isEmpty(req.body.lastName) ? req.body.lastName : "";
-  var emailArg = !isEmpty(req.body.email) ? req.body.email : "";
-  var passwordArg = !isEmpty(req.body.password) ? req.body.password : "";
-  var password2Arg = !isEmpty(req.body.password2) ? req.body.password2 : "";
-
-  if (Validator.isEmpty(firstNameArg)) {
-    errors.firstName = "First name field is required";
-  }
-
-  if (Validator.isEmpty(lastNameArg)) {
-    errors.lastName = "Last name field is required";
-  }
-
-  if (Validator.isEmpty(emailArg)) {
-    errors.email = "Email field is required";
-  } else if (!Validator.isEmail(emailArg)) {
-    errors.email = "Email is invalid";
-  }
-
-  if (Validator.isEmpty(passwordArg)) {
-    errors.password = "Password field is required";
-  }
-
-  if (Validator.isEmpty(password2Arg)) {
-    errors.password = "Confirm password field is required";
-  }
-
-  if (!Validator.equals(passwordArg, password2Arg)) {
-    errors.password2 = "Passwords do not match";
-  }
-
-  if (!Validator.isLength(passwordArg, { min: 8 })) {
-    errors.password = "Password must be at least 8 characters";
-  }
-
-  if (!isEmpty(errors)) {
-    return res.status(400).json(errors);
-
-  } else {
-
-      const user = await User.findOne({email: req.body.email});
-      if(user) return res.status(420).json({email: "Email already exists"});
-
-      const newUser = await new User({
-        firstName: req.body.firstName,
-        lastName: req.body.lastName,
-        email: req.body.email,
-        password: req.body.password,
-        isVerified: false,
-      });
-
-      bcrypt.genSalt(10, (err, salt) => {
-        bcrypt.hash(newUser.password, salt, (err, hash) => {
-
-          if (err) throw err;
-
-          newUser.password = hash;
-          
-          newUser
-            .save()
-            //.then(user => /*res.status(200).json(user) console.log("Hashed password"))
-            //.catch(err => console.log(err));
-
-          
-        });
-      });
-    /*
-    User.findOne({
-      email: req.body.email
-    }).then((user) => {
-
-      if (user) {
-
-        return res.status(400).json({
-          email: "Email already exists"
-        })
-
-      } else {
-
-        const newUser = new User({
-          firstName: req.body.firstName,
-          lastName: req.body.lastName,
-          email: req.body.email,
-          password: req.body.password,
-          isVerified: false,
-        });
-
-        // Hashes the password
-        bcrypt.genSalt(10, (err, salt) => {
-          bcrypt.hash(newUser.password, salt, (err, hash) => {
-
-            if (err) throw err;
-
-            newUser.password = hash;
-            
-            newUser
-              .save()
-              .then(user => /*res.status(200).json(user) console.log("Hashed password"))
-              .catch(err => console.log(err));
-
-            
-          });
-        });
-
-        // Create a new initialized stats page for the new user
-        const newStat = new userStats({
-			userID: newUser._id
-		});
-
-        newStat.save();
-      }
-    })
-  }
-})
-
-        
-
-        try {
-          // Creates an 
-          const _emailToken = await new emailToken({
-            userID: newUser._id,
-            token: crypto.randomBytes(32).toString("hex")
-          }).save()
-
-          const message = `${process.env.BASE_URL}/user/verify/${newUser._id}/${_emailToken.token}`;
-          console.log(message);
-          sendEmail(newUser.email, "Verify Email", message);
-
-          res.send("Email sent to your account, please verify");
-        }
-        catch(error) {
-          return res.status(420).send("Error occured HERE");
-        }
-
-        // Create a new initialized stats page for the new user
-        const newStat = new userStats({
-			    userID: newUser._id
-		    });
-
-        newStat.save();
-        return res.status(200).json({msg: "Works with register"});
-      }
-});
-
-*/
 
 app.post('/api/register', async(req, res) => {
-	//Incoming: firstName, lastName, email, password, password2
-  //Outgoing: errors
 
   //Incoming: firstName, lastName, email, password, password2
   //Outgoing: errors
@@ -267,24 +109,22 @@ app.post('/api/register', async(req, res) => {
   if(checkUserEmail) return res.status(420).json({error: "Email Already Exists"});
 
   const newUser = new User({
-	firstName: req.body.firstName,
-	lastName: req.body.lastName,
-	email: req.body.email,
-	password: req.body.password,
-	isVerified: false,
+    firstName: req.body.firstName,
+    lastName: req.body.lastName,
+    email: req.body.email,
+    password: req.body.password,
+    isVerified: false,
   });
 
   bcrypt.genSalt(10, (err, salt) => {
-	bcrypt.hash(newUser.password, salt, (err, hash) => {
-	  if (err) throw err;
+    bcrypt.hash(newUser.password, salt, (err, hash) => {
+      if (err) throw err;
 
-	  newUser.password = hash;
+      newUser.password = hash;
       newUser.save();
-	});
+    });
   });
 
-  // Saves the newUser information
-  //await newUser.save();
 
   // Creates an email verification token
   const emailVerificationToken = new emailToken({
@@ -292,30 +132,90 @@ app.post('/api/register', async(req, res) => {
 	  token: crypto.randomBytes(32).toString('hex')
   });
 
-  emailVerificationToken.save();
+  await emailVerificationToken.save();
 
   // Sends a verification email to verify the email
   sendEmail(newUser._id, newUser.email, emailVerificationToken.token);
-  
+
+  // DELETE WHEN DONE
   res.redirect('/');
 
 });
 
+// -------------------------------------------------------------------------------------------------------------------------------------------------
+// Verifies the email of the registered user
+app.get("/emailVerification/:userID/:uniqueEmailToken", async (req, res) => {
 
-app.post("/emailVerification/:userID/:uniqueEmailToken", async (req, res) => {
-        const checkUser = await User.findOne({_id: req.params.userID});
-        if(!checkUser) return res.status(420).json({error: "Error at checking userID in server.js email verificaiton"});
+  const checkUser = await User.findOne({_id: req.params.userID});
+  if(!checkUser) return res.status(420).json({error: "Error at checking userID in server.js email verificaiton"});
 
-        const checkEmailToken = await emailToken.findOne({userID: req.params.userID, token: req.params.uniqueEmailToken});
-        if(!checkEmailToken) return res.status(420).json({error: "Either user or emailToken does not exist"});
+  const checkEmailToken = await emailToken.findOne({userID: req.params.userID, token: req.params.uniqueEmailToken});
+  if(!checkEmailToken) return res.status(420).json({error: "emailToken does not exist"});
 
-        // Verifies the new user and saves the user.
-        checkUser.isVerified = true;
-        await checkUser.save();
-        
-        // Redirects to the home page
-        res.redirect('/');
+  // Changes isVerified classification for the user to true.
+  checkUser.isVerified = true;
+  await checkUser.save();
 
+  // Deletes the email token from emailToken collection
+  await emailToken.deleteOne({userID: ObjectId(req.params.userID), token: req.params.uniqueEmailToken});
+
+  // Creates a stat history for the new user
+  const newStat = new userStats({
+    userID: req.params.userID
+  });
+
+  await newStat.save();
+  
+  console.log(`${checkUser.email} is now verified`);
+
+  // DELETE WHEN DONE, supposed to redirect to login page
+  res.redirect('/');
+});
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+// NOT DONE YET, STILL WORKING
+// Takes in:
+//      email
+//      redirectURL
+app.post("/api/requestPasswordReset", async(req, res) => {
+    const {email, redirectURL} = req.body;
+
+    User
+        .find({email})
+        .then((data) => {
+            
+            // User Exists
+            if(data.length) {
+
+                // Checks if passed email is verified
+                if(!data[0].isVerified) {
+                    res.json({
+                        status: "FAILED",
+                        in: "/api/requestPasswordReset",
+                        message: "Email hasn't been verified yet. Check your email"
+                    });
+
+                } else {
+                    sendPasswordResetEmail(data[0], redirectURL, res);
+                }
+
+
+            } else {
+                res.json({
+                    status: "FAILED",
+                    in: "/api/requestPasswordReset",
+                    message: "No account with the supplied email exists"
+                });
+            }
+        })
+        .catch((error) => {
+            console.log(error);
+            res.json({
+                status: "FAILED",
+                in: "/api/requestPasswordReset",
+                message: "An error occured while checking if user exists in /api/requestPasswordReset"
+            });
+        });
 
 });
 
@@ -370,9 +270,14 @@ app.post('/api/login', async (req, res, next) => {
   }).then((user) => {
 
     if (!user) {
-
       return res.status(404).json({
         error: "No account belongs to that email."
+      });
+    }
+
+    if(user.isVerified == false) {
+      return res.status(420).json({
+        error: "Account is not verified, please check email for verification email"
       });
     }
 
