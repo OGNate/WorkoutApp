@@ -7,7 +7,8 @@ const Validator = require('validator');
 const isEmpty = require('is-empty');
 var token = require('./createJWT.js');
 const crypto = require('crypto');
-const sendEmail = require('./email.js');
+const sendVerificationEmail = require('./emailUtils/email.js');
+const sendPasswordResetEmail = require('./emailUtils/sendPasswordReset.js');
 require('dotenv').config();
 
 // Imports all the mongoose schemas from the "schemas" folder
@@ -17,7 +18,7 @@ const workoutFormat = require("./schemas/workoutSchema");
 const userStats = require("./schemas/statSchema")
 const userHistory = require("./schemas/historySchema")
 const emailToken = require("./schemas/emailToken");
-const passwordReset = require("./schemas/passwordResetSchema");
+const passwordReset = require("./schemas/passwordResetToken");
 
 
 // Planning on getting rid of metrics such as weight, height, and gender right now. 
@@ -28,6 +29,7 @@ const passwordReset = require("./schemas/passwordResetSchema");
 const path = require('path');
 const { ObjectId } = require('mongodb');
 const { TokenExpiredError } = require('jsonwebtoken');
+const { send } = require('process');
 
 const PORT = process.env.PORT || 5000;
 const app = express();
@@ -135,10 +137,10 @@ app.post('/api/register', async(req, res) => {
   await emailVerificationToken.save();
 
   // Sends a verification email to verify the email
-  sendEmail(newUser._id, newUser.email, emailVerificationToken.token);
+  sendVerificationEmail(newUser._id, newUser.email, emailVerificationToken.token);
 
   // DELETE WHEN DONE
-  res.redirect('/');
+  res.send("Please verify your email");
 
 });
 
@@ -169,54 +171,72 @@ app.get("/emailVerification/:userID/:uniqueEmailToken", async (req, res) => {
   console.log(`${checkUser.email} is now verified`);
 
   // DELETE WHEN DONE, supposed to redirect to login page
-  res.redirect('/');
+  res.status(200).json({
+      status: "Successful",
+      in: "/emailVerification/:userID/:uniqueEmailToken",
+      message: `Successfully verified ${checkUser.email}`
+  });
 });
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------------
 // NOT DONE YET, STILL WORKING
 // Takes in:
 //      email
-//      redirectURL
 app.post("/api/requestPasswordReset", async(req, res) => {
-    const {email, redirectURL} = req.body;
 
-    User
-        .find({email})
-        .then((data) => {
-            
-            // User Exists
-            if(data.length) {
+    // Checks if a user with the given email exists
+    const checkUser = await User.findOne({email: req.body.email});
+    if(!checkUser) return res.status(420).json({status: "Failed", in: "/api/requestPasswordReset", msg: "Email does not exist"});
 
-                // Checks if passed email is verified
-                if(!data[0].isVerified) {
-                    res.json({
-                        status: "FAILED",
-                        in: "/api/requestPasswordReset",
-                        message: "Email hasn't been verified yet. Check your email"
-                    });
+    // Creates a new password reset token
+    const passwordResetToken = new passwordReset({
+        userID: checkUser._id,
+        resetToken: crypto.randomBytes(32).toString('hex')
+    });
 
-                } else {
-                    sendPasswordResetEmail(data[0], redirectURL, res);
-                }
+    // Adds the password reset token to the passwordresets collection in mongodb
+    await passwordResetToken.save();
 
+    console.log(passwordResetToken.resetToken);
 
-            } else {
-                res.json({
-                    status: "FAILED",
-                    in: "/api/requestPasswordReset",
-                    message: "No account with the supplied email exists"
-                });
-            }
-        })
-        .catch((error) => {
-            console.log(error);
-            res.json({
-                status: "FAILED",
-                in: "/api/requestPasswordReset",
-                message: "An error occured while checking if user exists in /api/requestPasswordReset"
-            });
+    sendPasswordResetEmail(checkUser._id, checkUser.email, passwordResetToken.resetToken);
+
+    res.send(`If ${checkUser.email} is in our system, password reset link sent to email`);
+
+});
+
+// ------------------------------------------------------------------------------------------------------------------------------------------------------------
+// Takes in:
+//      newPassword
+app.post("/passwordReset/:userID/:passwordResetToken", async (req, res) => {
+    
+    // Checks if the user exists
+    const checkUser = await User.findOne({_id: req.params.userID});
+    if(!checkUser) return res.status(420).json({status: "Failed", in: "/passwordReset/:userID/:passwordResetToken", message: "User does not exist"});
+
+    // Checks if the password reset token exists
+    const checkPasswordResetToken = await passwordReset.findOne({userID: ObjectId(req.params.userID), resetToken: req.params.passwordResetToken});
+    if(!checkPasswordResetToken) return res.status(420).json({status: "Failed", in: "/passwordReset/:userID/:passwordResetToken", message: "Password reset token does not exist"});
+
+    // Hashes the new password and saves the user.
+    bcrypt.genSalt(10, (err, salt) => {
+        bcrypt.hash(req.body.newPassword, salt, (err, hash) => {
+          if (err) throw err;
+    
+          checkUser.password = hash;
+          checkUser.save();
         });
+    });
 
+    // Deletes the password reset token
+    await passwordReset.deleteOne({userID: req.params.userID, resetToken: req.params.passwordResetToken});
+
+    console.log("Password successfully reset");
+    res.status(200).json({
+        status: "Successful",
+        in: "/passwordReset/:userID/:passwordResetToken",
+        message: "Password successfully reset"
+    });
 });
 
 

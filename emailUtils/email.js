@@ -2,7 +2,7 @@ const res = require("express/lib/response");
 const nodemailer = require("nodemailer");
 require('dotenv').config();
 
-const sendEmail = (userID, toEmail, uniqueEmailToken) => {
+const sendVerificationEmail = (userID, toEmail, uniqueEmailToken) => {
     try {
         var Transport = nodemailer.createTransport({
             service: "gmail",
@@ -34,4 +34,4 @@ const sendEmail = (userID, toEmail, uniqueEmailToken) => {
     }
 }
 
-module.exports = sendEmail;
+module.exports = sendVerificationEmail;
