@@ -10,7 +10,7 @@ const sendVerificationEmail = (userID, toEmail, uniqueEmailToken) => {
 
     // Gets a new access token
     const accessToken = OAuth2_client.getAccessToken();
-    var bp = require("../frontend/src/components/Path.js");
+    var bp = require("../components/Path.js");
 
     try {
         var Transport = nodemailer.createTransport({
