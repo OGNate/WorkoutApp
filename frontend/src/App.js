@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter, Switch } from 'react-router-dom';
 import './App.css';
+import ActiveSessionPage from './pages/ActiveSessionPage';
 import ExercisePage from './pages/ExercisePage';
 import HistoryPage from './pages/HistoryPage';
 import HomePage from './pages/HomePage';
@@ -29,7 +30,7 @@ function App() {
         <PrivateRoute component={HistoryPage} path="/history" exact />
 
         <PrivateRoute component={WorkoutPage} path="/workout" exact>
-          <PrivateRoute component={ActiveWorkoutPage} path=":id" />
+          <PrivateRoute component={ActiveSessionPage} path=":id" />
         </PrivateRoute>
 
         <PrivateRoute component={ExercisePage} path="/exercises" exact />
