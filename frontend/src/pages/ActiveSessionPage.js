@@ -1,3 +1,4 @@
+import React from "react";
 import ActiveSession from "../components/ActiveSession";
 
 function ActiveSessionPage() {
