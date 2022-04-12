@@ -51,7 +51,7 @@ function createSession() {
     } else {
 
       var newId = res.sessionId;
-      window.location.href = "/workout/" + newId;
+      console.log(newId);
     }
 
   }).catch(function (error) {

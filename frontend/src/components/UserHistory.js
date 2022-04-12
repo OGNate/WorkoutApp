@@ -1,18 +1,20 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
+import { Card, ListGroup } from "react-bootstrap";
 import tokenStorage from '../tokenStorage';
+import ExerciseCard from "./ExerciseCard";
 
-function Profile() {
-
-  var bp = require("./Path.js");
+function UserHistory() {
 
   var _ud = localStorage.getItem('user_data');
   var ud = JSON.parse(_ud);
 
-  const [info, setInfo] = useState([]);
+  const [history, setHistory] = useState([]);
+
+  var bp = require("./Path.js");
 
   var obj = {
-    "userId": ud.userId,
+    "userID": ud.userId,
     "jwtToken": tokenStorage.retrieveToken()
   };
 
@@ -21,7 +23,7 @@ function Profile() {
   var config = {
     
     method: "POST",
-    url: bp.buildPath("api/userDetails"),
+    url: bp.buildPath("api/displayUserHistory"),
 
     headers: {
       "Content-Type": "application/json",
@@ -35,7 +37,7 @@ function Profile() {
     axios(config).then(function (response) {
 
     var res = response.data;
-    setInfo(res.user);
+    setHistory(res.results);
 
     }).catch(function (error) {
       console.log(error);
@@ -44,11 +46,15 @@ function Profile() {
   }, []);
 
   return (
-    <>
-      <h3>{info.firstName} {info.lastName}</h3>
-      <h5>Joined {info.createdAt}</h5>
-    </>
+    <Card style={{ width: '18rem' }}>
+      <ListGroup variant="flush">
+        {
+          history.map(exercise => (<ExerciseCard exercise={exercise}/>))
+        }
+        
+      </ListGroup>
+    </Card>
   );
 };
 
-export default Profile;
+export default UserHistory;

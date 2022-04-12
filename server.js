@@ -334,6 +334,39 @@ app.post('/api/login', async (req, res, next) => {
   });
 });
 
+//login API
+app.post('/api/userDetails', async (req, res, next) => {
+
+  //Incoming: userId, jwtToken
+  //Outgoing: user, jwtToken
+
+  User.findOne({
+    id: req.body.userId
+  }).then((user) => {
+
+    if (!user) {
+      return res.status(404).json({
+        error: "Unable to find user by ID."
+      });
+    }
+
+    try
+    {
+      const token = require("./createJWT.js");
+      newToken = token.createToken( user.firstName, user.lastName, user._id );
+    }
+    catch(e)
+    {
+      ret = {error:e.message};
+    }
+
+    return res.status(200).json({
+      user: user,
+      newToken: newToken
+    });
+  });
+});
+
 //addSession API
 app.post('/api/addSession', async (req, res, next) => {
 

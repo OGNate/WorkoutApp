@@ -21,7 +21,13 @@ const newUser = new Schema({
     email: {
         type: String,
         required: true
-    },  
+    },
+
+    goal: {
+        type: String,
+        default: "",
+        required: true
+    },
 
     isVerified: {
         type: Boolean,

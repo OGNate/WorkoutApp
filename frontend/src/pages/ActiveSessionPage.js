@@ -4,7 +4,10 @@ import ActiveSession from "../components/ActiveSession";
 function ActiveSessionPage() {
 
   return(
-    <ActiveSession />
+    <>
+      <h1>{this.props.sessionId}</h1>
+      <ActiveSession />
+    </>
   )
 }
 
