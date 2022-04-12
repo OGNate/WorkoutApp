@@ -1,10 +1,42 @@
 const nodemailer = require("nodemailer");
 require('dotenv').config();
 const crypto = require('crypto');
-const PasswordReset = require("../schemas/passwordResetSchema");
+const PasswordReset = require("../schemas/passwordResetToken");
+const mail = require("@sendgrid/mail");
+const res = require("express/lib/response");
 
-const sendPasswordResetEmail = ({_id, email}, redirectURL,res) => {
+const sendPasswordResetEmail = (userID, toEmail, passwordResetToken) => {
     
+    try {
+        var Transport = nodemailer.createTransport({
+            service: "gmail",
+            auth: {
+                user: process.env.USER,
+                pass: process.env.PASS
+            }
+        });
+
+        let mailOptions;
+        let sender = "Shreddit";
+
+        mailOptions = {
+            from: sender,
+            to: toEmail,
+            subject: "Shreddit Password reset",
+            html:  `Click <a href=${process.env.LOCAL_HOST}/passwordReset/${userID}/${passwordResetToken}>here</a> to reset your password.`
+        }
+
+        Transport.sendMail(mailOptions, function(error, response) {
+            if(error) console.log("Password Reset Email did not send.");
+            else {
+                console.log(`If ${toEmail} exists in our system, password reset email has been sent`);
+            }
+    
+        });
+    } catch(error) {
+        console.log(error);
+    }
+    /*
     // Creates a reset string
     const passwordResetString = crypto.randomBytes(32).toString('hex');
 
@@ -28,4 +60,9 @@ const sendPasswordResetEmail = ({_id, email}, redirectURL,res) => {
                 message: "Clearing existing password reset records failed"
             });
         })
+    */
+
+    
 }
+
+module.exports = sendPasswordResetEmail;
