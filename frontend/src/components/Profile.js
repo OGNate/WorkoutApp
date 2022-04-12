@@ -47,6 +47,7 @@ function Profile() {
     <>
       <h3>{info.firstName} {info.lastName}</h3>
       <h5>Joined {info.createdAt}</h5>
+      <h3>Goal: {info.goal}</h3>
     </>
   );
 };

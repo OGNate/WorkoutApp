@@ -340,6 +340,25 @@ app.post('/api/userDetails', async (req, res, next) => {
   //Incoming: userId, jwtToken
   //Outgoing: user, jwtToken
 
+  const jwtToken = req.body.jwtToken;
+
+  try {
+
+    if (token.isExpired(jwtToken)) {
+
+      var r = {
+        error:'The JWT is no longer valid', 
+        jwtToken: ''
+      };
+
+      res.status(200).json(r);
+      return;
+    }
+
+  } catch(e) {
+  console.log(e.message);
+  }
+
   User.findOne({
     id: req.body.userId
   }).then((user) => {
@@ -362,7 +381,7 @@ app.post('/api/userDetails', async (req, res, next) => {
 
     return res.status(200).json({
       user: user,
-      newToken: newToken
+      jwtToken: newToken
     });
   });
 });
