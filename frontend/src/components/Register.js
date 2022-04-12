@@ -26,7 +26,6 @@ function Register() {
 
     var js = JSON.stringify(obj);
 
-    /*
     var config = {
       
       method: "POST",
@@ -59,7 +58,6 @@ function Register() {
     }).catch(function (error) {
       console.log(error);
     });
-    */
 
     return (
       <Redirect to={{
