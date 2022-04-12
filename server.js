@@ -139,7 +139,7 @@ app.post('/api/register', async(req, res) => {
   // Sends a verification email to verify the email
   sendVerificationEmail(newUser._id, newUser.email, emailVerificationToken.token);
 
-  // DELETE WHEN DONE
+  
   res.send("Please verify your email");
 
 });
@@ -170,7 +170,6 @@ app.get("/emailVerification/:userID/:uniqueEmailToken", async (req, res) => {
   
   console.log(`${checkUser.email} is now verified`);
 
-  // DELETE WHEN DONE, supposed to redirect to login page
   res.status(200).json({
       status: "Successful",
       in: "/emailVerification/:userID/:uniqueEmailToken",
@@ -179,7 +178,7 @@ app.get("/emailVerification/:userID/:uniqueEmailToken", async (req, res) => {
 });
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------------
-// NOT DONE YET, STILL WORKING
+// Password Reset API that allows a user to reset their password
 // Takes in:
 //      email
 app.post("/api/requestPasswordReset", async(req, res) => {
