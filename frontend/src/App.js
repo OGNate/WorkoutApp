@@ -1,11 +1,11 @@
 import React from 'react';
 import { BrowserRouter, Switch } from 'react-router-dom';
 import './App.css';
-import LandingPage from './pages/LandingPage';
 import ExercisePage from './pages/ExercisePage';
 import HistoryPage from './pages/HistoryPage';
+import HomePage from './pages/HomePage';
+import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
-import HomePage from './pages/HomePage'
 import ProfilePage from './pages/ProfilePage';
 import RegisterPage from './pages/RegisterPage';
 import VerifyAccountPage from './pages/VerifyAccountPage';
@@ -27,7 +27,11 @@ function App() {
 
         <PrivateRoute component={HomePage} path="/home" exact />
         <PrivateRoute component={HistoryPage} path="/history" exact />
-        <PrivateRoute component={WorkoutPage} path="/workout" exact />
+
+        <PrivateRoute component={WorkoutPage} path="/workout" exact>
+          <PrivateRoute component={ActiveWorkoutPage} path=":id" />
+        </PrivateRoute>
+
         <PrivateRoute component={ExercisePage} path="/exercises" exact />
         <PrivateRoute component={ProfilePage} path="/profile" exact />
 
