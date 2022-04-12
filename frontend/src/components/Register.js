@@ -1,7 +1,7 @@
-import axios from "axios";
 import React, { useState } from "react";
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
+import { Redirect } from 'react-router';
 
 function Register() {
 
@@ -26,6 +26,7 @@ function Register() {
 
     var js = JSON.stringify(obj);
 
+    /*
     var config = {
       
       method: "POST",
@@ -49,16 +50,22 @@ function Register() {
 
         var jwt = require("jsonwebtoken");
 
-        var ud = jwt.decode(storage.retrieveToken(), { 
-          complete: true 
+        this.context.router.push({
+          pathname: '/verify-account',
+          state: {email: "thomashanson@gmail.com"}  
         });
-
-        window.location.href = "/verify-account";
       }
 
     }).catch(function (error) {
       console.log(error);
     });
+    */
+
+    return (
+      <Redirect to={{
+        pathname: '/verify-account',
+        state: { email: '123' }
+      }}/>);
   };
 
   return (

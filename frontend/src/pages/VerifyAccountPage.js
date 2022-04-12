@@ -1,5 +1,4 @@
 import React from 'react';
-
 import GlobalNavigation from '../components/GlobalNavigation';
 
 const VerifyAccountPage = () => {
@@ -8,7 +7,8 @@ const VerifyAccountPage = () => {
 
     <div>
       <GlobalNavigation />
-      <div>Waiting for account verification... Not implemented yet!</div>
+      <p>An email was sent to: </p>
+      <p>{this.props.location.state.email}</p>
     </div>
   );
 };
