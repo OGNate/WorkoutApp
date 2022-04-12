@@ -28,8 +28,7 @@ function App() {
         <PrivateRoute component={HomePage} path="/home" exact />
         <PrivateRoute component={HistoryPage} path="/history" exact />
 
-        <PrivateRoute component={WorkoutPage} path="/workout" exact>
-        </PrivateRoute>
+        <PrivateRoute component={WorkoutPage} path="/workout" exact />
 
         <PrivateRoute component={ExercisePage} path="/exercises" exact />
         <PrivateRoute component={ProfilePage} path="/profile" exact />
