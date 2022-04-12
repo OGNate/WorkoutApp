@@ -356,11 +356,11 @@ app.post('/api/userDetails', async (req, res, next) => {
     }
 
   } catch(e) {
-  console.log(e.message);
+    console.log(e.message);
   }
 
   User.findOne({
-    id: req.body.userId
+    _id: req.body.userId
   }).then((user) => {
 
     if (!user) {

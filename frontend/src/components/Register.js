@@ -47,19 +47,11 @@ function Register() {
         
       } else {
 
-        storage.storeToken(res);
         var jwt = require("jsonwebtoken");
 
         var ud = jwt.decode(storage.retrieveToken(), { 
           complete: true 
         });
-
-        var user = {
-          firstName: ud.payload.firstName, 
-          lastName: ud.payload.lastName
-        };
-
-        localStorage.setItem("user_data", JSON.stringify(user));
 
         window.location.href = "/verify-account";
       }
