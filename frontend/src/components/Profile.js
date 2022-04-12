@@ -1,11 +1,8 @@
 import axios from "axios";
-import React, { useState } from "react";
+import React from "react";
 import tokenStorage from '../tokenStorage';
 
 function Profile() {
-
-  const [exercises2, setExercises2] = useState();
-  const [response, setResponse] = useState("");
 
   var bp = require("./Path.js");
 
@@ -29,16 +26,12 @@ function Profile() {
 
   axios(config).then(function (response) {
 
-    var res = response.data;
-    setResponse(JSON.stringify(res));
-    setExercises2(res.results);
-
   }).catch(function (error) {
     console.log(error);
   });
 
   return (
-    <p>{response}</p>
+    <p>Hi</p>
   );
 };
 

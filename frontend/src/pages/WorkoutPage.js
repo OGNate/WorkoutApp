@@ -1,6 +1,6 @@
 import React from 'react';
-import Button from "react-bootstrap/Button";
 import GlobalNavigation from '../components/GlobalNavigation';
+import NewSession from "../components/NewSession";
 import Templates from '../components/Templates';
 
 const WorkoutPage = () => {
@@ -12,8 +12,7 @@ const WorkoutPage = () => {
       <GlobalNavigation />
 
       <h1>Start Workout</h1>
-
-      <Button>Start an Empty Workout</Button>
+      <NewSession />
       
       <div id="templates">
         <Templates />

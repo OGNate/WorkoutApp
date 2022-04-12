@@ -23,7 +23,7 @@ const sendPasswordResetEmail = (userID, toEmail, passwordResetToken) => {
             from: sender,
             to: toEmail,
             subject: "Shreddit Password reset",
-            html:  `Click <a href=${process.env.LOCAL_HOST}/passwordReset/${userID}/${passwordResetToken}>here</a> to reset your password.`
+            html:  `Click <a href=${bp.buildPath("passwordReset")}/${userID}/${passwordResetToken}>here</a> to reset your password.`
         }
 
         Transport.sendMail(mailOptions, function(error, response) {

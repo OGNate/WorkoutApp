@@ -53,7 +53,8 @@ function Login() {
 
         var user = {
           firstName: ud.payload.firstName, 
-          lastName: ud.payload.lastName
+          lastName: ud.payload.lastName,
+          userId: res.id
         };
 
         localStorage.setItem("user_data", JSON.stringify(user));

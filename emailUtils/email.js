@@ -3,6 +3,9 @@ const nodemailer = require("nodemailer");
 require('dotenv').config();
 
 const sendVerificationEmail = (userID, toEmail, uniqueEmailToken) => {
+    
+    var bp = require("../frontend/src/components/Path.js");
+
     try {
         var Transport = nodemailer.createTransport({
             service: "gmail",
@@ -19,7 +22,7 @@ const sendVerificationEmail = (userID, toEmail, uniqueEmailToken) => {
             from: sender,
             to: toEmail,
             subject: "Shreddit: Please Verify Email",
-            html:  `Click <a href=${process.env.LOCAL_HOST}/emailVerification/${userID}/${uniqueEmailToken}>here</a> to verify you email.`
+            html:  `Click <a href=${bp.buildPath("emailVerification")}/${userID}/${uniqueEmailToken}>here</a> to verify you email.`
         };
     
         Transport.sendMail(mailOptions, function(error, response) {

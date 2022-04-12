@@ -1,11 +1,12 @@
 import axios from "axios";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { Card, ListGroup } from "react-bootstrap";
 import tokenStorage from '../tokenStorage';
+import ExerciseCard from "./ExerciseCard";
 
 function Exercises() {
 
-  const [exercises2, setExercises2] = useState();
-  const [response, setResponse] = useState("");
+  const [exercises, setExercises] = useState([]);
 
   var bp = require("./Path.js");
 
@@ -27,18 +28,31 @@ function Exercises() {
     data: js,
   };
 
-  axios(config).then(function (response) {
+  useEffect(() => {
+      
+    axios(config).then(function (response) {
 
     var res = response.data;
-    setResponse(JSON.stringify(res));
-    setExercises2(res.results);
+    setExercises(res.results);
 
-  }).catch(function (error) {
-    console.log(error);
-  });
+    }).catch(function (error) {
+      console.log(error);
+    });
+
+  }, []);
 
   return (
-    <p>{response}</p>
+    <Card style={{ width: '18rem' }}>
+      <ListGroup variant="flush">
+
+        {
+          exercises
+          .sort((a, b) => a.name.localeCompare(b.name))
+          .map(exercise => (<ExerciseCard exercise={exercise}/>))
+        }
+        
+      </ListGroup>
+    </Card>
   );
 };
 

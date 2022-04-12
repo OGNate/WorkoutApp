@@ -384,7 +384,7 @@ app.post('/api/addSession', async (req, res, next) => {
       {
         console.log(e.message);
       }
-      return res.status(200).json({error: error, jwtToken: refreshedToken});
+      return res.status(200).json({error: error, sessionId: newWorkoutSession._id, jwtToken: refreshedToken});
     }   
   });
   }

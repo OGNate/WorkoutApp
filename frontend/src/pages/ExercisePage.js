@@ -11,8 +11,8 @@ const ExercisePage = () => {
       <GlobalNavigation />
 
       <h1>Exercises</h1>
-      <Exercises></Exercises>
-      
+      <Exercises />
+
     </div>
   );
 };

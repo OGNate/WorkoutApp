@@ -54,14 +54,9 @@ function Register() {
           complete: true 
         });
 
-        var userId = ud.userId;
-        var firstName = ud.firstName;
-        var lastName = ud.lastName;
-
-        var user = { 
-          firstName: firstName, 
-          lastName: lastName, 
-          id: userId 
+        var user = {
+          firstName: ud.payload.firstName, 
+          lastName: ud.payload.lastName
         };
 
         localStorage.setItem("user_data", JSON.stringify(user));

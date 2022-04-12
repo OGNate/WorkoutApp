@@ -17,6 +17,7 @@ function DisplayedName() {
 
   return(
    <div id="loggedInDiv">
+     <h1></h1>
     <button type="button" id="logoutButton" className="buttons" 
       onClick={doLogout}> Log Out </button>
    </div>
