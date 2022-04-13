@@ -52,7 +52,7 @@ function createSession(navigate) {
       console.log("Not sure that this would be possible")
       
     } else {
-      var newId = res.sessionId;
+      //var newId = res.sessionId;
     }
 
   }).catch(function (error) {

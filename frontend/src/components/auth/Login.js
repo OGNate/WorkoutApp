@@ -4,22 +4,19 @@ import axios from "axios";
 import React, { useState } from "react";
 import { Form } from 'react-bootstrap';
 import Button from 'react-bootstrap/Button';
-import { useForm } from "react-hook-form";
 import './Login.css';
 
 const eye = <FontAwesomeIcon icon={faEye} />;
 
 function Login() {
-
-  const { login, handleSubmit } = useForm();
-
+  
   const [passwordShown, setPasswordShown] = useState(false);
 
   const togglePasswordVisiblity = () => {
     setPasswordShown(!passwordShown);
   };
 
-  const [errorMessage, setErrorMessage] = useState("");
+  const [setErrorMessage] = useState("");
 
   var bp = require("../Path.js");
   var storage = require("../../tokenStorage.js");
@@ -109,7 +106,7 @@ function Login() {
         </Button>
         
         <p className="forgot-password text-right">
-            Forgot <a href="#">password?</a>
+            <a href="forgot-password">Forgot password?</a>
         </p>
       </Form>
     </>
