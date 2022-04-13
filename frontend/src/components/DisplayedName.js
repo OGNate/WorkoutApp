@@ -1,15 +1,10 @@
 import React from 'react';
+import Button from "react-bootstrap/Button";
 import tokenStorage from '../tokenStorage';
 
 function DisplayedName() {
-	
-  var _ud = localStorage.getItem('user_data');
-  var ud = JSON.parse(_ud);
 
-  //var firstName = ud.firstName;
-  //var lastName = ud.lastName;
-
-  const doLogout = event => {
+  const logout = event => {
     event.preventDefault();
     tokenStorage.removeToken();
     window.location.href = '/';
@@ -18,8 +13,8 @@ function DisplayedName() {
   return(
    <div id="loggedInDiv">
      <h1></h1>
-    <button type="button" id="logoutButton" className="buttons" 
-      onClick={doLogout}> Log Out </button>
+    <Button type="button" id="logoutButton" className="buttons" 
+      onClick={logout}> Log Out </Button>
    </div>
   );
 };

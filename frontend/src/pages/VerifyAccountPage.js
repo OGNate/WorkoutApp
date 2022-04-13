@@ -8,7 +8,6 @@ const VerifyAccountPage = () => {
     <div>
       <GlobalNavigation />
       <p>An email was sent to: </p>
-      <p>{this.props.location.state.email}</p>
     </div>
   );
 };

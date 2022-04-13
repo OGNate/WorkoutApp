@@ -1,11 +1,12 @@
 import React from 'react';
-import { ListGroup } from "react-bootstrap";
+import { Card, ListGroup } from "react-bootstrap";
 
 function ExerciseCard({ exercise }) {
   
     return (
         <ListGroup.Item>
-          {exercise.name} - {exercise.workoutType}
+          <Card.Title>{exercise.name}</Card.Title>
+          <Card.Subtitle className="mb-2 text-muted">{exercise.workoutType}</Card.Subtitle>
         </ListGroup.Item>
     )
 }

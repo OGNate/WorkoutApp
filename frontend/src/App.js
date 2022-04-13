@@ -1,6 +1,7 @@
 import React from 'react';
-import { BrowserRouter, Switch } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
 import './App.css';
+import ActiveSessionPage from "./pages/ActiveSessionPage";
 import ExercisePage from './pages/ExercisePage';
 import HistoryPage from './pages/HistoryPage';
 import HomePage from './pages/HomePage';
@@ -9,33 +10,43 @@ import LoginPage from './pages/LoginPage';
 import ProfilePage from './pages/ProfilePage';
 import RegisterPage from './pages/RegisterPage';
 import VerifyAccountPage from './pages/VerifyAccountPage';
-import WorkoutPage from './pages/WorkoutPage';
-import PrivateRoute from './routes/PrivateRoute';
-import PublicRoute from './routes/PublicRoute';
+import WorkoutPage from "./pages/WorkoutPage";
+import PrivateRoute from "./routes/PrivateRoute";
 
 function App() {
 
   return (
+    <>
+      <Routes>
 
-    <BrowserRouter>
-      <Switch>
+      <Route index element={<LandingPage />} />
 
-        <PublicRoute restricted={false} component={LandingPage} path="/" exact />
-        <PublicRoute restricted={true} component={LoginPage} path="/login" exact />
-        <PublicRoute restricted={true} component={RegisterPage} path="/register" exact />
-        <PublicRoute restricted={true} component={VerifyAccountPage} path="/verify-account" exact />
+      <Route path="login" element={<LoginPage />} />
+      <Route path="register" element={<RegisterPage />} />
 
-        <PrivateRoute component={HomePage} path="/home" exact />
-        <PrivateRoute component={HistoryPage} path="/history" exact />
+      <Route path="verify-account" element={<VerifyAccountPage />} />
 
-        <PrivateRoute component={WorkoutPage} path="/workout" exact />
+      <Route path="test" element={<VerifyAccountPage />}>
+        <Route path="new" element={<ActiveSessionPage />} />
+      </Route>
 
-        <PrivateRoute component={ExercisePage} path="/exercises" exact />
-        <PrivateRoute component={ProfilePage} path="/profile" exact />
+      <Route element={<PrivateRoute />}>
+        
+        <Route path="home" element={<HomePage />} />
+        <Route path="history" element={<HistoryPage />} />
 
-      </Switch>
-    </BrowserRouter>
-  );
+        <Route path="workout" element={<WorkoutPage />}>
+          <Route path=":sessionId" element={<ActiveSessionPage />} />
+        </Route>
+        
+        <Route path="exercises" element={<ExercisePage />} />
+        <Route path="profile" element={<ProfilePage />} />
+      
+      </Route>
+
+      </Routes>
+    </>
+  )
 }
 
 export default App;

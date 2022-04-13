@@ -1,0 +1,12 @@
+.passwordWrapper {
+  position: relative;
+  display: flex;
+}
+
+i {
+  position: absolute;
+}
+
+i:hover {
+  cursor: pointer;
+}

@@ -11,10 +11,9 @@ function Templates() {
   const handleShow = () => setShow(true);
 
   return (
+    
     <>
-      <h2>Templates</h2>
-
-      <h3>My Templates</h3>
+      <h3>Saved Workouts (0)</h3>
 
       <Button variant="primary" onClick={handleShow}>New Template</Button>
       

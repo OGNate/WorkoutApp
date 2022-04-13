@@ -9,7 +9,7 @@ function Profile() {
   var _ud = localStorage.getItem('user_data');
   var ud = JSON.parse(_ud);
 
-  const [info, setInfo] = useState([]);
+  const [userInfo, setUserInfo] = useState([]);
 
   var obj = {
     "userId": ud.userId,
@@ -18,7 +18,7 @@ function Profile() {
 
   var js = JSON.stringify(obj);
 
-  var config = {
+  var configUserDetails = {
     
     method: "POST",
     url: bp.buildPath("api/userDetails"),
@@ -30,13 +30,30 @@ function Profile() {
     data: js,
   };
 
+  const [userStats, setUserStats] = useState([]);
+
+  var configUserStats = {
+    
+    method: "POST",
+    url: bp.buildPath("api/displayUserStats"),
+
+    headers: {
+      "Content-Type": "application/json",
+    },
+
+    data: js,
+  };
+
   useEffect(() => {
       
-    axios(config).then(function (response) {
+    axios(configUserDetails).then(function (response) {
+      setUserInfo(response.data.user);
+    }).catch(function (error) {
+      console.log(error);
+    });
 
-    var res = response.data;
-    setInfo(res.user);
-
+    axios(configUserStats).then(function (response) {
+      setUserStats(response.data.userStats);
     }).catch(function (error) {
       console.log(error);
     });
@@ -45,9 +62,17 @@ function Profile() {
 
   return (
     <>
-      <h3>{info.firstName} {info.lastName}</h3>
-      <h5>Joined {info.createdAt}</h5>
-      <h3>Goal: {info.goal}</h3>
+      <h1>{userInfo._id}</h1>
+      <h3>{userInfo.firstName} {userInfo.lastName}</h3>
+      <h5>Joined {userInfo.createdAt}</h5>
+      <h3>Goal: {userInfo.goal}</h3>
+
+      <h3>Number of workouts: N/A</h3>
+      <h3>Time recorded: {userStats.totalTime}</h3>
+      <h3>Weight recorded: {userStats.totalWeight}</h3>
+
+      <h3>Total reps: N/A</h3>
+      <h3>Distance recorded: {userStats.totalDistance}</h3>
     </>
   );
 };

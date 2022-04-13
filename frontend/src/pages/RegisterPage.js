@@ -1,14 +1,14 @@
 import React from 'react';
-import Register from '../components/Register';
-
+import Container from "react-bootstrap/Container";
+import Register from '../components/auth/Register';
 
 const RegisterPage = () => {
 
   return (
 
-    <div>
+    <Container>
       <Register />
-    </div>
+    </Container>
   );
 };
 

@@ -1,12 +1,28 @@
 import React from "react";
-import ActiveSession from "../components/ActiveSession";
+import { Button, Card, Container } from "react-bootstrap";
+import { Link, useParams } from 'react-router-dom';
 
 function ActiveSessionPage() {
 
-  return(
+  const { sessionId } = useParams();
+
+  return (
     <>
-      <h1>{this.props.sessionId}</h1>
-      <ActiveSession />
+      <Container>
+        <Card>
+          
+          <h1>Session ID: {sessionId}</h1>
+          <h1>Session Name</h1>
+
+          <Button variant="secondary">Finish</Button>
+          <Button variant="primary">Finish</Button>
+
+          <h3>Timer</h3>
+          <h3>Notes</h3>
+        </Card>
+
+        <Link to="/workout">Back to Workout Page</Link>
+      </Container>
     </>
   )
 }

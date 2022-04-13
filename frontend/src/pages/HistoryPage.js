@@ -1,17 +1,18 @@
 import React from 'react';
+import Container from "react-bootstrap/Container";
 import GlobalNavigation from '../components/GlobalNavigation';
 
 const HistoryPage = () => {
 
   return (
 
-    <div>
+    <Container>
 
       <GlobalNavigation />
 
       <h1>History</h1>
       
-    </div>
+    </Container>
   );
 };
 

@@ -1,18 +1,22 @@
-import React from 'react';
-import { Redirect, Route } from 'react-router-dom';
-import { isLoggedIn } from '../tokenStorage';
+import React from "react";
+import {
+  Navigate,
+  Outlet
+} from 'react-router-dom';
+import { isLoggedIn } from "../tokenStorage";
 
-const PrivateRoute = ({component: Component, ...rest}) => {
-    return (
+const PrivateRoute = ({
+  
+  redirectPath = '/login',
+  children
 
-        // Show the component only when the user is logged in
-        // Otherwise, redirect the user to /signin page
-        <Route {...rest} render={props => (
-            isLoggedIn() ?
-                <Component {...props} />
-            : <Redirect to="/login" />
-        )} />
-    );
+}) => {
+  
+  if (!isLoggedIn()) {
+    return <Navigate to={redirectPath} replace />;
+  }
+
+  return children ? children : <Outlet />;
 };
 
 export default PrivateRoute;
