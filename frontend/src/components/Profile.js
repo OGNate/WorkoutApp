@@ -1,10 +1,12 @@
+import { faClock, faDumbbell, faMap } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import tokenStorage from '../tokenStorage';
 
 function Profile() {
 
-  var bp = require("./Path.js");
+  var bp = require("../utils/Path.js");
 
   var _ud = localStorage.getItem('user_data');
   var ud = JSON.parse(_ud);
@@ -17,32 +19,11 @@ function Profile() {
   };
 
   var js = JSON.stringify(obj);
-
-  var configUserDetails = {
-    
-    method: "POST",
-    url: bp.buildPath("api/userDetails"),
-
-    headers: {
-      "Content-Type": "application/json",
-    },
-
-    data: js,
-  };
+  var configUserDetails = bp.apiCall("api/userDetails", js);
 
   const [userStats, setUserStats] = useState([]);
 
-  var configUserStats = {
-    
-    method: "POST",
-    url: bp.buildPath("api/displayUserStats"),
-
-    headers: {
-      "Content-Type": "application/json",
-    },
-
-    data: js,
-  };
+  var configUserStats = bp.apiCall("api/displayUserStats", js);
 
   useEffect(() => {
       
@@ -62,17 +43,22 @@ function Profile() {
 
   return (
     <>
-      <h1>{userInfo._id}</h1>
+      <h3>{userInfo._id}</h3>
       <h3>{userInfo.firstName} {userInfo.lastName}</h3>
-      <h5>Joined {userInfo.createdAt}</h5>
       <h3>Goal: {userInfo.goal}</h3>
 
       <h3>Number of workouts: N/A</h3>
+
       <h3>Time recorded: {userStats.totalTime}</h3>
+      <FontAwesomeIcon icon={faClock} />
+
       <h3>Weight recorded: {userStats.totalWeight}</h3>
+      <FontAwesomeIcon icon={faDumbbell} />
 
       <h3>Total reps: N/A</h3>
+
       <h3>Distance recorded: {userStats.totalDistance}</h3>
+      <FontAwesomeIcon icon={faMap} />
     </>
   );
 };

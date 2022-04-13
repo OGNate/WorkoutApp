@@ -1,5 +1,20 @@
 const app_name = 'shreddit-ucf'
 
+exports.apiCall = function apiCall(endpoint, json) {
+  
+  return {
+      
+    method: "POST",
+    url: this.buildPath(endpoint),
+
+    headers: {
+      "Content-Type": "application/json",
+    },
+
+    data: json,
+  };;
+}
+
 exports.buildPath = function buildPath(route) {
 
   return process.env.NODE_ENV === 'production' ?

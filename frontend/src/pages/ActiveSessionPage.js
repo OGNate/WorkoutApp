@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Button, Card, Container, Modal } from "react-bootstrap";
 import { Link, useParams } from 'react-router-dom';
-import Excercises from "../components/Exercises";
+import Excercises from "../components/exercises/Exercises";
 
 function ActiveSessionPage() {
 
@@ -34,7 +34,7 @@ function ActiveSessionPage() {
             </Modal.Header>
 
             <Modal.Body>
-              <Excercises />
+              <Excercises inSession={true} />
             </Modal.Body>
 
             </Modal>

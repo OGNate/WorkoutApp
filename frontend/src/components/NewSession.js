@@ -15,7 +15,7 @@ function NewSession() {
 
 function createSession(navigate) {
 
-  var bp = require("./Path.js");
+  var bp = require("../utils/Path.js");
   var storage = require("../tokenStorage.js");
 
   var _ud = localStorage.getItem('user_data');
@@ -31,18 +31,7 @@ function createSession(navigate) {
   };
 
   var js = JSON.stringify(obj);
-
-  var config = {
-    
-    method: "POST",
-    url: bp.buildPath("api/addSession"),
-
-    headers: {
-      "Content-Type": "application/json",
-    },
-
-    data: js,
-  };
+  var config = bp.apiCall("api/addSession", js);
 
   axios(config).then(function (response) {
 

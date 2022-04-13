@@ -1,6 +1,6 @@
 import React from 'react';
 import Container from "react-bootstrap/Container";
-import Exercises from '../components/Exercises';
+import Exercises from '../components/exercises/Exercises';
 import GlobalNavigation from '../components/GlobalNavigation';
 
 const ExercisePage = () => {
@@ -12,7 +12,7 @@ const ExercisePage = () => {
       <GlobalNavigation />
 
       <h1>Exercises</h1>
-      <Exercises />
+      <Exercises inSession={false} />
 
     </Container>
   );

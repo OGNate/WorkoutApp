@@ -4,7 +4,7 @@ import Form from "react-bootstrap/Form";
 
 function Register() {
 
-  var bp = require("../Path.js");
+  var bp = require("../../utils/Path.js");
 
   var newFirstName, newLastName, newEmail, newPassword, newPassword2;
 
@@ -23,18 +23,7 @@ function Register() {
     };
 
     var js = JSON.stringify(obj);
-
-    var config = {
-      
-      method: "POST",
-      url: bp.buildPath("api/register"),
-
-      headers: {
-        "Content-Type": "application/json",
-      },
-
-      data: js,
-    };
+    var config = bp.apiCall("api/register", js);
 
     axios(config).then(function (response) {
 

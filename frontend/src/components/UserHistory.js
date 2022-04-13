@@ -11,7 +11,7 @@ function UserHistory() {
 
   const [history, setHistory] = useState([]);
 
-  var bp = require("./Path.js");
+  var bp = require("../utils/Path.js");
 
   var obj = {
     "userID": ud.userId,
@@ -19,18 +19,7 @@ function UserHistory() {
   };
 
   var js = JSON.stringify(obj);
-
-  var config = {
-    
-    method: "POST",
-    url: bp.buildPath("api/displayUserHistory"),
-
-    headers: {
-      "Content-Type": "application/json",
-    },
-
-    data: js,
-  };
+  var config = bp.apiCall("api/displayUserHistory", js);
 
   useEffect(() => {
       
