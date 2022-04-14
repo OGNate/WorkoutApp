@@ -1,19 +1,18 @@
 import axios from "axios";
 import { DateTime } from "luxon";
 import React from "react";
-import { Button } from "react-bootstrap";
-import { useNavigate } from "react-router-dom";
+import Button from "react-bootstrap/Button";
 
 function NewSession() {
 
-  const navigate = useNavigate();
-
   return (
-    <Button onClick={createSession(navigate)}>New Workout</Button>
+    <Button onClick={ createSession }>
+      New Workout
+    </Button>
   )
 }
 
-function createSession(navigate) {
+const createSession = () => {
 
   var bp = require("../utils/Path.js");
   var storage = require("../tokenStorage.js");
@@ -41,7 +40,9 @@ function createSession(navigate) {
       console.log("Not sure that this would be possible")
       
     } else {
-      //var newId = res.sessionId;
+      
+      var newId = res.sessionId;
+      window.location.href = "/workout/" + newId;
     }
 
   }).catch(function (error) {

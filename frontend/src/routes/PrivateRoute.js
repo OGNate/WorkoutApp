@@ -1,22 +1,19 @@
 import React from "react";
-import {
-  Navigate,
-  Outlet
-} from 'react-router-dom';
+import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { isLoggedIn } from "../tokenStorage";
 
 const PrivateRoute = ({
-  
   redirectPath = '/login',
   children
-
 }) => {
-  
-  if (!isLoggedIn()) {
-    return <Navigate to={redirectPath} replace />;
-  }
 
-  return children ? children : <Outlet />;
+  const location = useLocation();
+
+  return isLoggedIn() ? (
+    children ? children : <Outlet />
+  ) : (
+    <Navigate to={redirectPath} state={{from: location}} replace />
+  );
 };
 
 export default PrivateRoute;

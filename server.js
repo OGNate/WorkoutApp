@@ -59,7 +59,6 @@ if (process.env.NODE_ENV === 'production') {
 
 
 
-
 app.post('/api/register', async(req, res) => {
 
   //Incoming: firstName, lastName, email, password, password2
@@ -231,6 +230,7 @@ app.post("/passwordReset/:userID/:passwordResetToken", async (req, res) => {
     await passwordReset.deleteOne({userID: req.params.userID, resetToken: req.params.passwordResetToken});
 
     console.log("Password successfully reset");
+
     res.status(200).json({
         status: "Successful",
         in: "/passwordReset/:userID/:passwordResetToken",
@@ -341,23 +341,7 @@ app.post('/api/userDetails', async (req, res, next) => {
   //Outgoing: user, jwtToken
 
   const jwtToken = req.body.jwtToken;
-
-  try {
-
-    if (token.isExpired(jwtToken)) {
-
-      var r = {
-        error:'The JWT is no longer valid', 
-        jwtToken: ''
-      };
-
-      res.status(200).json(r);
-      return;
-    }
-
-  } catch(e) {
-    console.log(e.message);
-  }
+  checkTokenStatus(res, jwtToken);
 
   User.findOne({
     _id: req.body.userId
@@ -395,19 +379,8 @@ app.post('/api/addSession', async (req, res, next) => {
   const jwtToken = req.body.jwtToken;
   var error = "";
 
-  try
-      {
-        if( token.isExpired(jwtToken))
-        {
-          var r = {error:'The JWT is no longer valid', jwtToken: ''};
-          res.status(200).json(r);
-          return;
-        }
-      }
-      catch(e)
-      {
-        console.log(e.message);
-      }
+  checkTokenStatus(res, jwtToken);
+
   try
   {
   userSession.findOne({
@@ -427,15 +400,7 @@ app.post('/api/addSession', async (req, res, next) => {
       })
       newWorkoutSession.save();
 
-      var refreshedToken = null;
-      try
-      {
-        refreshedToken = token.refresh(jwtToken);
-      }
-      catch(e)
-      {
-        console.log(e.message);
-      }
+      var refreshedToken = refreshToken(res, jwtToken);
       return res.status(200).json({error: error, sessionId: newWorkoutSession._id, jwtToken: refreshedToken});
     }   
   });
@@ -455,19 +420,7 @@ app.post('/api/updateSession', async (req, res, next) => {
   const jwtToken = req.body.jwtToken;
   var error = '';
 
-  try
-  {
-    if( token.isExpired(jwtToken))
-    {
-      var r = {error:'The JWT is no longer valid', jwtToken: ''};
-      res.status(200).json(r);
-      return;
-    }
-  }
-  catch(e)
-  {
-    console.log(e.message);
-  }
+  checkTokenStatus(res, jwtToken);
 
   try
   {
@@ -484,15 +437,7 @@ app.post('/api/updateSession', async (req, res, next) => {
     error = e.toString();
   }
 
-  var refreshedToken = null;
-  try
-  {
-    refreshedToken = token.refresh(jwtToken);
-  }
-  catch(e)
-  {
-    console.log(e.message);
-  }
+  var refreshedToken = refreshToken(res, jwtToken);
   return res.status(200).json({error: error, jwtToken: refreshedToken});
 });
 
@@ -506,19 +451,7 @@ app.post('/api/displaySessions', async (req, res, next) => {
   var ret = [];
   var error = "";
 
-  try
-  {
-    if( token.isExpired(jwtToken))
-    {
-      var r = {error:'The JWT is no longer valid', jwtToken: ''};
-      res.status(200).json(r);
-      return;
-    }
-  }
-  catch(e)
-  {
-    console.log(e.message);
-  }
+  checkTokenStatus(res, jwtToken);
 
   try
   {
@@ -540,15 +473,7 @@ app.post('/api/displaySessions', async (req, res, next) => {
         ret.push( results[i].sessionName );
       }
 
-      var refreshedToken = null;
-      try
-      {
-        refreshedToken = token.refresh(jwtToken);
-      }
-      catch(e)
-      {
-        console.log(e.message);
-      }
+      var refreshedToken = refreshToken(res, jwtToken);
       return res.status(200).json({sessions: ret, error: error, jwtToken: refreshedToken});
     }
   });
@@ -568,19 +493,7 @@ app.post('/api/deleteSession', async (req, res, next) => {
   const jwtToken = req.body.jwtToken;
   var error = "";
 
-  try
-  {
-    if( token.isExpired(jwtToken))
-    {
-      var r = {error:'The JWT is no longer valid', jwtToken: ''};
-      res.status(200).json(r);
-      return;
-    }
-  }
-  catch(e)
-  {
-    console.log(e.message);
-  }
+  checkTokenStatus(res, jwtToken);
 
   try
   {
@@ -595,15 +508,7 @@ app.post('/api/deleteSession', async (req, res, next) => {
     error = e.toString();
   }
 
-  var refreshedToken = null;
-  try
-  {
-    refreshedToken = token.refresh(jwtToken);
-  }
-  catch(e)
-  {
-    console.log(e.message);
-  }
+  var refreshedToken = refreshToken(res, jwtToken);
   return res.status(200).json({error: error, jwtToken: refreshedToken});
 });
 
@@ -618,19 +523,7 @@ app.post('/api/searchWorkout', async (req, res, next) => {
   var ret = [];
   var _search = req.body.query.trim();
 
-  try
-  {
-    if( token.isExpired(jwtToken))
-    {
-      var r = {error:'The JWT is no longer valid', jwtToken: ''};
-      res.status(200).json(r);
-      return;
-    }
-  }
-  catch(e)
-  {
-    console.log(e.message);
-  }
+  checkTokenStatus(res, jwtToken);
 
   workoutFormat.find({
     name: { $regex: _search + '.*', $options: 'i' }
@@ -647,15 +540,7 @@ app.post('/api/searchWorkout', async (req, res, next) => {
         ret.push( results[i] );
       }
 
-      var refreshedToken = null;
-      try
-      {
-        refreshedToken = token.refresh(jwtToken);
-      }
-      catch(e)
-      {
-        console.log(e.message);
-      }
+      var refreshedToken = refreshToken(res, jwtToken);
       return res.status(200).json({results: ret, error: error, jwtToken: refreshedToken});
     }
   });
@@ -671,19 +556,7 @@ app.post('/api/updateWorkout', async (req, res, next) => {
   var error = '';
   var ret = [];
 
-  try
-  {
-    if( token.isExpired(jwtToken))
-    {
-      var r = {error:'The JWT is no longer valid', jwtToken: ''};
-      res.status(200).json(r);
-      return;
-    }
-  }
-  catch(e)
-  {
-    console.log(e.message);
-  }
+  checkTokenStatus(res, jwtToken);
 
   try
   {
@@ -705,15 +578,7 @@ app.post('/api/updateWorkout', async (req, res, next) => {
     error = e.toString();
   }
 
-  var refreshedToken = null;
-  try
-  {
-    refreshedToken = token.refresh(jwtToken);
-  }
-  catch(e)
-  {
-    console.log(e.message);
-  }
+  var refreshedToken = refreshToken(res, jwtToken);
   return res.status(200).json({error: error, jwtToken: refreshedToken});
 });
 
@@ -726,19 +591,7 @@ app.post('/api/addWorkout', async (req, res, next) => {
   const jwtToken = req.body.jwtToken;
   var error = "";
 
-  try
-  {
-    if( token.isExpired(jwtToken))
-    {
-      var r = {error:'The JWT is no longer valid', jwtToken: ''};
-      res.status(200).json(r);
-      return;
-    }
-  }
-  catch(e)
-  {
-    console.log(e.message);
-  }
+  checkTokenStatus(res, jwtToken);
 
   try
   {
@@ -775,15 +628,7 @@ app.post('/api/addWorkout', async (req, res, next) => {
       });
       newWorkoutSession.save();
 
-      var refreshedToken = null;
-      try
-      {
-        refreshedToken = token.refresh(jwtToken);
-      }
-      catch(e)
-      {
-        console.log(e.message);
-      }
+      var refreshedToken = refreshToken(res, jwtToken);
       return res.status(200).json({error: error, jwtToken: refreshedToken});
     }
   });
@@ -804,19 +649,7 @@ app.post('/api/displaySessionWorkouts', async (req, res, next) => {
   var error = "";
   var ret = [];
 
-  try
-  {
-    if( token.isExpired(jwtToken))
-    {
-      var r = {error:'The JWT is no longer valid', jwtToken: ''};
-      res.status(200).json(r);
-      return;
-    }
-  }
-  catch(e)
-  {
-    console.log(e.message);
-  }
+  checkTokenStatus(res, jwtToken);
 
   userSession.find({
     userID: ObjectId(req.body.userID),
@@ -840,15 +673,7 @@ app.post('/api/displaySessionWorkouts', async (req, res, next) => {
         })
       }
 
-      var refreshedToken = null;
-      try
-      {
-        refreshedToken = token.refresh(jwtToken);
-      }
-      catch(e)
-      {
-        console.log(e.message);
-      }
+      var refreshedToken = refreshToken(res, jwtToken);
       return res.status(200).json({workouts: ret, error: error, jwtToken: refreshedToken});
     }
   });
@@ -863,19 +688,7 @@ app.post('/api/deleteWorkout', async (req, res, next) => {
   const jwtToken = req.body.jwtToken;
   var error = "";
 
-  try
-  {
-    if( token.isExpired(jwtToken))
-    {
-      var r = {error:'The JWT is no longer valid', jwtToken: ''};
-      res.status(200).json(r);
-      return;
-    }
-  }
-  catch(e)
-  {
-    console.log(e.message);
-  }
+  checkTokenStatus(res, jwtToken);
 
   try
   {
@@ -904,15 +717,7 @@ app.post('/api/deleteWorkout', async (req, res, next) => {
     console.log(e.message);
   }
 
-  var refreshedToken = null;
-  try
-  {
-    refreshedToken = token.refresh(jwtToken);
-  }
-  catch(e)
-  {
-    console.log(e.message);
-  }
+  var refreshedToken = refreshToken(res, jwtToken);
   return res.status(200).json({error: error, jwtToken: refreshedToken});
 });
 
@@ -926,19 +731,7 @@ app.post('/api/displayAllWorkouts', async (req, res, next) => {
   var error = '';
   var ret = [];
 
-  try
-  {
-    if( token.isExpired(jwtToken))
-    {
-      var r = {error:'The JWT is no longer valid', jwtToken: ''};
-      res.status(200).json(r);
-      return;
-    }
-  }
-  catch(e)
-  {
-    console.log(e.message);
-  }
+  checkTokenStatus(res, jwtToken);
 
   workoutFormat.find({}).then((results) => {
 
@@ -953,15 +746,7 @@ app.post('/api/displayAllWorkouts', async (req, res, next) => {
         ret.push( results[i] );
       }
 
-      var refreshedToken = null;
-      try
-      {
-        refreshedToken = token.refresh(jwtToken);
-      }
-      catch(e)
-      {
-        console.log(e.message);
-      }
+      var refreshedToken = refreshToken(res, jwtToken);
       return res.status(200).json({results: ret, error: error, jwtToken: refreshedToken});
     }
   });
@@ -977,19 +762,7 @@ app.post('/api/displayAllBodyParts', async (req, res, next) => {
   var error = '';
   var ret = [];
 
-  try
-  {
-    if( token.isExpired(jwtToken))
-    {
-      var r = {error:'The JWT is no longer valid', jwtToken: ''};
-      res.status(200).json(r);
-      return;
-    }
-  }
-  catch(e)
-  {
-    console.log(e.message);
-  }
+  checkTokenStatus(res, jwtToken);
 
   workoutFormat.find({}).then((results) => {
 
@@ -1011,15 +784,7 @@ app.post('/api/displayAllBodyParts', async (req, res, next) => {
         }
       }
 
-      var refreshedToken = null;
-      try
-      {
-        refreshedToken = token.refresh(jwtToken);
-      }
-      catch(e)
-      {
-        console.log(e.message);
-      }
+      var refreshedToken = refreshToken(res, jwtToken);
       return res.status(200).json({results: ret, error: error, jwtToken: refreshedToken});
     }
   });
@@ -1035,19 +800,7 @@ app.post('/api/displayAllWorkoutTypes', async (req, res, next) => {
   var error = '';
   var ret = [];
 
-  try
-  {
-    if( token.isExpired(jwtToken))
-    {
-      var r = {error:'The JWT is no longer valid', jwtToken: ''};
-      res.status(200).json(r);
-      return;
-    }
-  }
-  catch(e)
-  {
-    console.log(e.message);
-  }
+  checkTokenStatus(res, jwtToken);
 
   workoutFormat.find({}).then((results) => {
 
@@ -1066,15 +819,7 @@ app.post('/api/displayAllWorkoutTypes', async (req, res, next) => {
         ret.push( results[i].workoutType );
       }
 
-      var refreshedToken = null;
-      try
-      {
-        refreshedToken = token.refresh(jwtToken);
-      }
-      catch(e)
-      {
-        console.log(e.message);
-      }
+      var refreshedToken = refreshToken(res, jwtToken);
       return res.status(200).json({results: ret, error: error, jwtToken: refreshedToken});
     }
   });
@@ -1090,19 +835,7 @@ app.post('/api/displayAllEquipment', async (req, res, next) => {
   var error = '';
   var ret = [];
 
-  try
-  {
-    if( token.isExpired(jwtToken))
-    {
-      var r = {error:'The JWT is no longer valid', jwtToken: ''};
-      res.status(200).json(r);
-      return;
-    }
-  }
-  catch(e)
-  {
-    console.log(e.message);
-  }
+  checkTokenStatus(res, jwtToken);
 
   workoutFormat.find({}).then((results) => {
 
@@ -1124,15 +857,7 @@ app.post('/api/displayAllEquipment', async (req, res, next) => {
         }
       }
 
-      var refreshedToken = null;
-      try
-      {
-        refreshedToken = token.refresh(jwtToken);
-      }
-      catch(e)
-      {
-        console.log(e.message);
-      }
+      var refreshedToken = refreshToken(res, jwtToken);
       return res.status(200).json({results: ret, error: error, jwtToken: refreshedToken});
     }
   });
@@ -1148,19 +873,7 @@ app.post('/api/searchByBodyPart', async (req, res, next) => {
   var error = '';
   var ret = [];
 
-  try
-  {
-    if( token.isExpired(jwtToken))
-    {
-      var r = {error:'The JWT is no longer valid', jwtToken: ''};
-      res.status(200).json(r);
-      return;
-    }
-  }
-  catch(e)
-  {
-    console.log(e.message);
-  }
+  checkTokenStatus(res, jwtToken);
 
   workoutFormat.find({
     bodyPart: req.body.bodyPart
@@ -1177,15 +890,7 @@ app.post('/api/searchByBodyPart', async (req, res, next) => {
         ret.push( results[i] );
       }
 
-      var refreshedToken = null;
-      try
-      {
-        refreshedToken = token.refresh(jwtToken);
-      }
-      catch(e)
-      {
-        console.log(e.message);
-      }
+      var refreshedToken = refreshToken(res, jwtToken);
       return res.status(200).json({results: ret, error: error, jwtToken: refreshedToken});
     }
   });
@@ -1201,19 +906,7 @@ app.post('/api/searchByWorkoutType', async (req, res, next) => {
   var error = '';
   var ret = [];
 
-  try
-  {
-    if( token.isExpired(jwtToken))
-    {
-      var r = {error:'The JWT is no longer valid', jwtToken: ''};
-      res.status(200).json(r);
-      return;
-    }
-  }
-  catch(e)
-  {
-    console.log(e.message);
-  }
+  checkTokenStatus(res, jwtToken);
 
   workoutFormat.find({
     workoutType: req.body.workoutType
@@ -1230,15 +923,7 @@ app.post('/api/searchByWorkoutType', async (req, res, next) => {
         ret.push( results[i] );
       }
 
-      var refreshedToken = null;
-      try
-      {
-        refreshedToken = token.refresh(jwtToken);
-      }
-      catch(e)
-      {
-        console.log(e.message);
-      }
+      var refreshedToken = refreshToken(res, jwtToken);
       return res.status(200).json({results: ret, error: error, jwtToken: refreshedToken});
     }
   });
@@ -1254,19 +939,7 @@ app.post('/api/searchByEquipment', async (req, res, next) => {
   var error = '';
   var ret = [];
 
-  try
-  {
-    if( token.isExpired(jwtToken))
-    {
-      var r = {error:'The JWT is no longer valid', jwtToken: ''};
-      res.status(200).json(r);
-      return;
-    }
-  }
-  catch(e)
-  {
-    console.log(e.message);
-  }
+  checkTokenStatus(res, jwtToken);
 
   workoutFormat.find({
     equipment: req.body.equipment
@@ -1283,15 +956,7 @@ app.post('/api/searchByEquipment', async (req, res, next) => {
         ret.push( results[i] );
       }
 
-      var refreshedToken = null;
-      try
-      {
-        refreshedToken = token.refresh(jwtToken);
-      }
-      catch(e)
-      {
-        console.log(e.message);
-      }
+      var refreshedToken = refreshToken(res, jwtToken);
       return res.status(200).json({results: ret, error: error, jwtToken: refreshedToken});
     }
   });
@@ -1307,19 +972,7 @@ app.post('/api/finishWorkout', async (req, res, next) => {
   const jwtToken = req.body.jwtToken;
   var error = '';
 
-  try
-  {
-    if( token.isExpired(jwtToken))
-    {
-      var r = {error:'The JWT is no longer valid', jwtToken: ''};
-      res.status(200).json(r);
-      return;
-    }
-  }
-  catch(e)
-  {
-    console.log(e.message);
-  }
+  checkTokenStatus(res, jwtToken);
 
   try
   {
@@ -1380,15 +1033,7 @@ app.post('/api/finishWorkout', async (req, res, next) => {
         }
       }
 
-      var refreshedToken = null;
-      try
-      {
-        refreshedToken = token.refresh(jwtToken);
-      }
-      catch(e)
-      {
-        console.log(e.message);
-      }
+      var refreshedToken = refreshToken(res, jwtToken);
       return res.status(200).json({sessionCompleted: sessionCompleted, error: error, jwtToken: refreshedToken});
     });
   });
@@ -1409,19 +1054,7 @@ app.post('/api/displayUserHistory', async (req, res, next) => {
   var ret = [];
   var error = "";
 
-  try
-  {
-    if( token.isExpired(jwtToken))
-    {
-      var r = {error:'The JWT is no longer valid', jwtToken: ''};
-      res.status(200).json(r);
-      return;
-    }
-  }
-  catch(e)
-  {
-    console.log(e.message);
-  }
+  checkTokenStatus(res, jwtToken);
 
   try
   {
@@ -1443,15 +1076,7 @@ app.post('/api/displayUserHistory', async (req, res, next) => {
         ret.push( results[i] );
       }
 
-      var refreshedToken = null;
-      try
-      {
-        refreshedToken = token.refresh(jwtToken);
-      }
-      catch(e)
-      {
-        console.log(e.message);
-      }
+      var refreshedToken = refreshToken(res, jwtToken);
       return res.status(200).json({userHistory: ret, error: error, jwtToken: refreshedToken});
     }
   });
@@ -1479,17 +1104,7 @@ app.post('/api/displayUserStats', async (req, res, next) => {
 	var error = "";
 	
 	// Checks to see if the given Java Web Token is expired, if so it returns an error message and exits.
-	try {
-		if(token.isExpired(jwtToken)) {
-			var r = {error: "The JWT is no longer valid", jwtToken: ""};
-			res.status(420).json(r);
-			return;
-		}
-	} 
-	catch(error) {
-		console.log(error.message);
-		return res.status(420).json({error: error.message});
-	}
+	checkTokenStatus(res, jwtToken);
 
 	try {
 
@@ -1507,17 +1122,7 @@ app.post('/api/displayUserStats', async (req, res, next) => {
 			}
 
 			// Creates a new JWT token
-			var refreshedToken = null;
-
-			try {
-
-				// Gets a refreshed JWT token
-				refreshedToken = token.refresh(jwtToken);
-			}
-			catch(error) {
-				console.log(error.message);
-				return res.status(420).json({error: error.message});
-			}
+			var refreshedToken = refreshToken(res, jwtToken);
 
 			// Returns a 200 status (meaning everything works). Returns a json of the users stats, the error message (should be nothing), and the refreshed JWT token.
 			return res.status(200).json({
@@ -1543,19 +1148,7 @@ app.post('/api/displayAllBodyParts', async (req, res, next) => {
   var error = '';
   var ret = [];
 
-  try
-  {
-    if( token.isExpired(jwtToken))
-    {
-      var r = {error:'The JWT is no longer valid', jwtToken: ''};
-      res.status(200).json(r);
-      return;
-    }
-  }
-  catch(e)
-  {
-    console.log(e.message);
-  }
+  checkTokenStatus(res, jwtToken);
 
   workoutFormat.find({}).then((results) => {
 
@@ -1580,15 +1173,7 @@ app.post('/api/displayAllBodyParts', async (req, res, next) => {
     }
   });
 
-  var refreshedToken = null;
-  try
-  {
-    refreshedToken = token.refresh(jwtToken);
-  }
-  catch(e)
-  {
-    console.log(e.message);
-  }
+  var refreshedToken = refreshToken(res, jwtToken);
 });
 
 //displayAllWorkoutTypes API
@@ -1601,19 +1186,7 @@ app.post('/api/displayAllWorkoutTypes', async (req, res, next) => {
   var error = '';
   var ret = [];
 
-  try
-  {
-    if( token.isExpired(jwtToken))
-    {
-      var r = {error:'The JWT is no longer valid', jwtToken: ''};
-      res.status(200).json(r);
-      return;
-    }
-  }
-  catch(e)
-  {
-    console.log(e.message);
-  }
+  checkTokenStatus(res, jwtToken);
 
   workoutFormat.find({}).then((results) => {
 
@@ -1635,15 +1208,7 @@ app.post('/api/displayAllWorkoutTypes', async (req, res, next) => {
     }
   });
 
-  var refreshedToken = null;
-  try
-  {
-    refreshedToken = token.refresh(jwtToken);
-  }
-  catch(e)
-  {
-    console.log(e.message);
-  }
+  var refreshedToken = refreshToken(res, jwtToken);
 });
 
 //displayAllEquipment API
@@ -1656,19 +1221,7 @@ app.post('/api/displayAllEquipment', async (req, res, next) => {
   var error = '';
   var ret = [];
 
-  try
-  {
-    if( token.isExpired(jwtToken))
-    {
-      var r = {error:'The JWT is no longer valid', jwtToken: ''};
-      res.status(200).json(r);
-      return;
-    }
-  }
-  catch(e)
-  {
-    console.log(e.message);
-  }
+  checkTokenStatus(res, jwtToken);
 
   workoutFormat.find({}).then((results) => {
 
@@ -1690,15 +1243,7 @@ app.post('/api/displayAllEquipment', async (req, res, next) => {
         }
       }
 
-      var refreshedToken = null;
-      try
-      {
-        refreshedToken = token.refresh(jwtToken);
-      }
-      catch(e)
-      {
-        console.log(e.message);
-      }
+      var refreshedToken = refreshToken(res, jwtToken);
       return res.status(200).json({results: ret, error: error, jwtToken: refreshedToken});
     }
   });
@@ -1714,19 +1259,7 @@ app.post('/api/searchByBodyPart', async (req, res, next) => {
   var error = '';
   var ret = [];
 
-  try
-  {
-    if( token.isExpired(jwtToken))
-    {
-      var r = {error:'The JWT is no longer valid', jwtToken: ''};
-      res.status(200).json(r);
-      return;
-    }
-  }
-  catch(e)
-  {
-    console.log(e.message);
-  }
+  checkTokenStatus(res, jwtToken);
 
   workoutFormat.find({
     bodyPart: req.body.bodyPart
@@ -1743,15 +1276,7 @@ app.post('/api/searchByBodyPart', async (req, res, next) => {
         ret.push( results[i] );
       }
 
-      var refreshedToken = null;
-      try
-      {
-        refreshedToken = token.refresh(jwtToken);
-      }
-      catch(e)
-      {
-        console.log(e.message);
-      }
+      var refreshedToken = refreshToken(res, jwtToken);
       return res.status(200).json({results: ret, error: error, jwtToken: refreshedToken});
     }
   });
@@ -1767,19 +1292,7 @@ app.post('/api/searchByWorkoutType', async (req, res, next) => {
   var error = '';
   var ret = [];
 
-  try
-  {
-    if( token.isExpired(jwtToken))
-    {
-      var r = {error:'The JWT is no longer valid', jwtToken: ''};
-      res.status(200).json(r);
-      return;
-    }
-  }
-  catch(e)
-  {
-    console.log(e.message);
-  }
+  checkTokenStatus(res, jwtToken);
 
   workoutFormat.find({
     workoutType: req.body.workoutType
@@ -1796,15 +1309,7 @@ app.post('/api/searchByWorkoutType', async (req, res, next) => {
         ret.push( results[i] );
       }
 
-      var refreshedToken = null;
-      try
-      {
-        refreshedToken = token.refresh(jwtToken);
-      }
-      catch(e)
-      {
-        console.log(e.message);
-      }
+      var refreshedToken = refreshToken(res, jwtToken);
       return res.status(200).json({results: ret, error: error, jwtToken: refreshedToken});
     }
   });
@@ -1820,19 +1325,7 @@ app.post('/api/searchByEquipment', async (req, res, next) => {
   var error = '';
   var ret = [];
 
-  try
-  {
-    if( token.isExpired(jwtToken))
-    {
-      var r = {error:'The JWT is no longer valid', jwtToken: ''};
-      res.status(200).json(r);
-      return;
-    }
-  }
-  catch(e)
-  {
-    console.log(e.message);
-  }
+  checkTokenStatus(res, jwtToken);
 
   workoutFormat.find({
     equipment: req.body.equipment
@@ -1849,18 +1342,54 @@ app.post('/api/searchByEquipment', async (req, res, next) => {
         ret.push( results[i] );
       }
 
-      var refreshedToken = null;
-      try
-      {
-        refreshedToken = token.refresh(jwtToken);
-      }
-      catch(e)
-      {
-        console.log(e.message);
-      }
+      var refreshedToken = refreshToken(res, jwtToken);
       return res.status(200).json({results: ret, error: error, jwtToken: refreshedToken});
     }
   });
+});
+
+// getAllWorkoutDetails API
+app.post('/api/getAllWorkoutDetails', async (req, res, next) => {
+
+  //Incoming: sessionID, jwtToken
+  //Outgoing: session, error, jwtToken
+
+  const jwtToken = req.body.jwtToken;
+  var error = '';
+
+  checkTokenStatus(res, jwtToken);
+
+  try
+  {
+    userSession.find({
+      _id: ObjectId(req.body.sessionID)
+
+    }).then((results) => {
+
+      if (!results) {
+
+        return res.status(404).json({
+          "error": "No results found by session ID"
+        });
+      }
+
+      var refreshedToken = refreshToken(res, jwtToken);
+
+      var lastSessionById = [];
+      
+      // There will only be one result by given session ID
+      for( var i=0; i<results.length; i++ )
+      {
+        lastSessionById = results[i];
+      }
+
+      return res.status(200).json({session: lastSessionById, error: error, jwtToken: refreshedToken});
+    });
+  }
+  catch (e)
+  {
+    console.log(e.message);
+  }
 });
 
 //finishWorkoutAndUpdateHistory API
@@ -1872,19 +1401,7 @@ app.post('/api/finishWorkoutAndUpdateHistory', async (req, res, next) => {
   const jwtToken = req.body.jwtToken;
   var error = '';
 
-  try
-  {
-    if( token.isExpired(jwtToken))
-    {
-      var r = {error:'The JWT is no longer valid', jwtToken: ''};
-      res.status(200).json(r);
-      return;
-    }
-  }
-  catch(e)
-  {
-    console.log(e.message);
-  }
+  checkTokenStatus(res, jwtToken);
 
   try
   {
@@ -1917,15 +1434,7 @@ app.post('/api/finishWorkoutAndUpdateHistory', async (req, res, next) => {
         }
       }
 
-      var refreshedToken = null;
-      try
-      {
-        refreshedToken = token.refresh(jwtToken);
-      }
-      catch(e)
-      {
-        console.log(e.message);
-      }
+      var refreshedToken = refreshToken(res, jwtToken);
       return res.status(200).json({sessionCompleted: sessionCompleted, error: error, jwtToken: refreshedToken});
     });
   });
@@ -1946,21 +1455,7 @@ app.post('/api/displayAllBodyParts', async (req, res, next) => {
   var error = '';
   var ret = [];
 
-  /*
-  try
-  {
-    if( token.isExpired(jwtToken))
-    {
-      var r = {error:'The JWT is no longer valid', jwtToken: ''};
-      res.status(200).json(r);
-      return;
-    }
-  }
-  catch(e)
-  {
-    console.log(e.message);
-  }
-  */
+  checkTokenStatus(res, jwtToken);
 
   workoutFormat.find({}).then((results) => {
 
@@ -1984,19 +1479,6 @@ app.post('/api/displayAllBodyParts', async (req, res, next) => {
       return res.status(200).json({results: ret, error: error/*, jwtToken: refreshedToken*/});
     }
   });
-
-  /*
-  var refreshedToken = null;
-  try
-  {
-    refreshedToken = token.refresh(jwtToken);
-  }
-  catch(e)
-  {
-    console.log(e.message);
-  }
-  */
-  //return res.status(200).json({results: ret, error: error, jwtToken: refreshedToken});
 });
 
 //displayAllWorkoutTypes API
@@ -2009,21 +1491,7 @@ app.post('/api/displayAllWorkoutTypes', async (req, res, next) => {
   var error = '';
   var ret = [];
 
-  /*
-  try
-  {
-    if( token.isExpired(jwtToken))
-    {
-      var r = {error:'The JWT is no longer valid', jwtToken: ''};
-      res.status(200).json(r);
-      return;
-    }
-  }
-  catch(e)
-  {
-    console.log(e.message);
-  }
-  */
+  checkTokenStatus(res, jwtToken);
 
   workoutFormat.find({}).then((results) => {
 
@@ -2044,19 +1512,6 @@ app.post('/api/displayAllWorkoutTypes', async (req, res, next) => {
       return res.status(200).json({results: ret, error: error/*, jwtToken: refreshedToken*/});
     }
   });
-
-  /*
-  var refreshedToken = null;
-  try
-  {
-    refreshedToken = token.refresh(jwtToken);
-  }
-  catch(e)
-  {
-    console.log(e.message);
-  }
-  */
-  //return res.status(200).json({results: ret, error: error/*, jwtToken: refreshedToken*/});
 });
 
 //displayAllEquipment API
@@ -2069,21 +1524,7 @@ app.post('/api/displayAllEquipment', async (req, res, next) => {
   var error = '';
   var ret = [];
 
-  /*
-  try
-  {
-    if( token.isExpired(jwtToken))
-    {
-      var r = {error:'The JWT is no longer valid', jwtToken: ''};
-      res.status(200).json(r);
-      return;
-    }
-  }
-  catch(e)
-  {
-    console.log(e.message);
-  }
-  */
+  checkTokenStatus(res, jwtToken);
 
   workoutFormat.find({}).then((results) => {
 
@@ -2105,17 +1546,6 @@ app.post('/api/displayAllEquipment', async (req, res, next) => {
         }
       }
 
-      /*
-      var refreshedToken = null;
-      try
-      {
-        refreshedToken = token.refresh(jwtToken);
-      }
-      catch(e)
-      {
-        console.log(e.message);
-      }
-      */
       return res.status(200).json({results: ret, error: error/*, jwtToken: refreshedToken*/});
     }
   });
@@ -2131,21 +1561,7 @@ app.post('/api/searchByBodyPart', async (req, res, next) => {
   var error = '';
   var ret = [];
 
-  /*
-  try
-  {
-    if( token.isExpired(jwtToken))
-    {
-      var r = {error:'The JWT is no longer valid', jwtToken: ''};
-      res.status(200).json(r);
-      return;
-    }
-  }
-  catch(e)
-  {
-    console.log(e.message);
-  }
-  */
+  checkTokenStatus(res, jwtToken);
 
   workoutFormat.find({
     bodyPart: req.body.bodyPart
@@ -2162,17 +1578,6 @@ app.post('/api/searchByBodyPart', async (req, res, next) => {
         ret.push( results[i] );
       }
 
-      /*
-      var refreshedToken = null;
-      try
-      {
-        refreshedToken = token.refresh(jwtToken);
-      }
-      catch(e)
-      {
-        console.log(e.message);
-      }
-      */
       return res.status(200).json({results: ret, error: error/*, jwtToken: refreshedToken*/});
     }
   });
@@ -2188,21 +1593,7 @@ app.post('/api/searchByWorkoutType', async (req, res, next) => {
   var error = '';
   var ret = [];
 
-  /*
-  try
-  {
-    if( token.isExpired(jwtToken))
-    {
-      var r = {error:'The JWT is no longer valid', jwtToken: ''};
-      res.status(200).json(r);
-      return;
-    }
-  }
-  catch(e)
-  {
-    console.log(e.message);
-  }
-  */
+  checkTokenStatus(res, jwtToken);
 
   workoutFormat.find({
     workoutType: req.body.workoutType
@@ -2219,17 +1610,6 @@ app.post('/api/searchByWorkoutType', async (req, res, next) => {
         ret.push( results[i] );
       }
 
-      /*
-      var refreshedToken = null;
-      try
-      {
-        refreshedToken = token.refresh(jwtToken);
-      }
-      catch(e)
-      {
-        console.log(e.message);
-      }
-      */
       return res.status(200).json({results: ret, error: error/*, jwtToken: refreshedToken*/});
     }
   });
@@ -2245,21 +1625,7 @@ app.post('/api/searchByEquipment', async (req, res, next) => {
   var error = '';
   var ret = [];
 
-  /*
-  try
-  {
-    if( token.isExpired(jwtToken))
-    {
-      var r = {error:'The JWT is no longer valid', jwtToken: ''};
-      res.status(200).json(r);
-      return;
-    }
-  }
-  catch(e)
-  {
-    console.log(e.message);
-  }
-  */
+  checkTokenStatus(res, jwtToken);
 
   workoutFormat.find({
     equipment: req.body.equipment
@@ -2276,17 +1642,6 @@ app.post('/api/searchByEquipment', async (req, res, next) => {
         ret.push( results[i] );
       }
 
-      /*
-      var refreshedToken = null;
-      try
-      {
-        refreshedToken = token.refresh(jwtToken);
-      }
-      catch(e)
-      {
-        console.log(e.message);
-      }
-      */
       return res.status(200).json({results: ret, error: error/*, jwtToken: refreshedToken*/});
     }
   });
@@ -2304,18 +1659,7 @@ app.post('/api/displayUserStats', async (req, res, next) => {
 	var ret = [];
 	var error = "";
 	
-	// Checks to see if the given Java Web Token is expired, if so it returns an error message and exits.
-	try {
-		if(token.isExpired(jwtToken)) {
-			var r = {error: "The JWT is no longer valid", jwtToken: ""};
-			res.status(420).json(r);
-			return;
-		}
-	} 
-	catch(error) {
-		console.log(error.message);
-		return res.status(420).json({error: error.message});
-	}
+  checkTokenStatus(res, jwtToken);
 
 	try {
 
@@ -2335,15 +1679,7 @@ app.post('/api/displayUserStats', async (req, res, next) => {
 			// Creates a new JWT token
 			var refreshedToken = null;
 
-			try {
-
-				// Gets a refreshed JWT token
-				refreshedToken = token.refresh(jwtToken);
-			}
-			catch(error) {
-				console.log(error.message);
-				return res.status(420).json({error: error.message});
-			}
+			var refreshedToken = refreshToken(res, jwtToken);
 
 			// Returns a 200 status (meaning everything works). Returns a json of the users stats, the error message (should be nothing), and the refreshed JWT token.
 			return res.status(200).json({
@@ -2359,6 +1695,38 @@ app.post('/api/displayUserStats', async (req, res, next) => {
 	}
 });
 
+function checkTokenStatus(res, jwtToken) {
+
+  try {
+
+		if(token.isExpired(jwtToken)) {
+			var r = {error: "The JWT is no longer valid", jwtToken: ""};
+			res.status(420).json(r);
+			return;
+		}
+
+	} catch(error) {
+		console.log(error.message);
+		return res.status(420).json({error: error.message});
+	}
+}
+
+function refreshToken(res, jwtToken) {
+
+  // Creates a new JWT token
+  var refreshedToken = null;
+
+  try {
+
+    // Gets a refreshed JWT token
+    refreshedToken = token.refresh(jwtToken);
+  } catch(error) {
+    console.log(error.message);
+    return res.status(420).json({error: error.message});
+  }
+
+  return refreshedToken;
+}
 
 app.use((req, res, next) => {
 

@@ -4,11 +4,11 @@ require('dotenv').config();
 
 const sendVerificationEmail = (userID, toEmail, uniqueEmailToken) => {
     
-    var bp = require("../frontend/src/components/Path.js");
+    var bp = require("../frontend/src/utils/Path.js");
 
     try {
         var Transport = nodemailer.createTransport({
-            service: 'gmail',
+            service: "gmail",
             auth: {
                 user: process.env.USER,
                 pass: process.env.PASS
@@ -25,15 +25,6 @@ const sendVerificationEmail = (userID, toEmail, uniqueEmailToken) => {
             html:  `Click <a href=${bp.buildPath("emailVerification")}/${userID}/${uniqueEmailToken}>here</a> to verify you email.`
         };
     
-        
-        Transport.verify(function(error, success) {
-            if(error) console.log(error);
-            else {
-                console.log("Server is ready");
-            }
-        })
-        
-
         Transport.sendMail(mailOptions, function(error, response) {
             if(error) {
                 console.log("Transport sendmail does not work");

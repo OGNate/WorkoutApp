@@ -4,8 +4,6 @@ import Form from "react-bootstrap/Form";
 
 function Register() {
 
-  var bp = require("../../utils/Path.js");
-
   var newFirstName, newLastName, newEmail, newPassword, newPassword2;
 
   const [setMessage] = useState("");
@@ -23,6 +21,7 @@ function Register() {
     };
 
     var js = JSON.stringify(obj);
+    var bp = require("../../utils/Path.js");
     var config = bp.apiCall("api/register", js);
 
     axios(config).then(function (response) {

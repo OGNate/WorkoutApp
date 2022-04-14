@@ -1,5 +1,5 @@
 import React from 'react';
-import { Route, Routes } from 'react-router-dom';
+import { Outlet, Route, Routes } from 'react-router-dom';
 import './App.css';
 import ActiveSessionPage from "./pages/ActiveSessionPage";
 import ExercisePage from './pages/ExercisePage';
@@ -9,7 +9,7 @@ import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
 import ProfilePage from './pages/ProfilePage';
 import RegisterPage from './pages/RegisterPage';
-import VerifyAccountPage from './pages/VerifyAccountPage';
+import VerifiedAccountPage from './pages/VerifiedAccountPage';
 import WorkoutPage from "./pages/WorkoutPage";
 import PrivateRoute from "./routes/PrivateRoute";
 
@@ -24,10 +24,12 @@ function App() {
       <Route path="login" element={<LoginPage />} />
       <Route path="register" element={<RegisterPage />} />
 
-      <Route path="verify-account" element={<VerifyAccountPage />} />
+      <Route path="emailVerification" element={<Outlet />}>
 
-      <Route path="test" element={<VerifyAccountPage />}>
-        <Route path="new" element={<ActiveSessionPage />} />
+          <Route path=":userID" element={<Outlet />}>
+            <Route path=":uniqueEmailToken" element={<VerifiedAccountPage />} />
+          </Route>
+
       </Route>
 
       <Route element={<PrivateRoute />}>
@@ -35,8 +37,9 @@ function App() {
         <Route path="home" element={<HomePage />} />
         <Route path="history" element={<HistoryPage />} />
 
-        <Route path="workout" element={<WorkoutPage />}>
+        <Route path="workout" element={<Outlet />}>
           <Route path=":sessionId" element={<ActiveSessionPage />} />
+          <Route index element={<WorkoutPage />} /> 
         </Route>
         
         <Route path="exercises" element={<ExercisePage />} />

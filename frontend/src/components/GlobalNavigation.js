@@ -20,6 +20,7 @@ function GlobalNavigation() {
           </Navbar.Brand>
           
           <Navbar.Collapse id='responsive-navbar-nav'>
+            
             <Nav>
               <Nav.Link href="/home">Home</Nav.Link>
               <Nav.Link href="/history">History</Nav.Link>
@@ -27,6 +28,7 @@ function GlobalNavigation() {
               <Nav.Link href="/exercises">Exercises</Nav.Link>
               <Nav.Link href="/profile">Profile</Nav.Link>
             </Nav>
+
           </Navbar.Collapse>
         </Container>
       </Navbar>

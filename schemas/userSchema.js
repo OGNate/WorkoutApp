@@ -3,6 +3,15 @@ const Schema = mongoose.Schema;
 
 // Creates a schematic for a new user being entered into the database
 const newUser = new Schema({
+
+    username: {
+        type: String,
+        minlength: 3,
+        maxlength: 20,
+        required: true,
+        trim: true,
+    },
+
     firstName: {
         type: String,
         required: true
@@ -27,6 +36,50 @@ const newUser = new Schema({
         type: String,
         default: "",
         required: false
+    },
+
+    avatar: {
+        exists: {
+            type: Boolean,
+            default: 'false',
+        },
+        imageLink: {
+            type: String,
+            trim: true,
+            default: 'null',
+        },
+        imageId: {
+            type: String,
+            trim: true,
+            default: 'null',
+        },
+    },
+
+    karmaPoints: {
+        postKarma: {
+          type: Number,
+          default: 0,
+        },
+        commentKarma: {
+          type: Number,
+          default: 0,
+        },
+      },
+      posts: [
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'Post',
+        },
+      ],
+      subscribedSubs: [
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'Subreddit',
+        },
+      ],
+      totalComments: {
+        type: Number,
+        default: 0,
     },
 
     isVerified: {

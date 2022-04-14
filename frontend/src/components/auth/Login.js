@@ -4,18 +4,25 @@ import axios from "axios";
 import React, { useState } from "react";
 import { Form } from 'react-bootstrap';
 import Button from 'react-bootstrap/Button';
+import { useLocation, useNavigate } from "react-router";
 import './Login.css';
 
 const eye = <FontAwesomeIcon icon={faEye} />;
 
 function Login() {
+
+  // Redirect after login
+  const navigate = useNavigate();
+  const location = useLocation();
   
+  // Password field shown/hidden
   const [passwordShown, setPasswordShown] = useState(false);
 
   const togglePasswordVisiblity = () => {
     setPasswordShown(!passwordShown);
   };
 
+  // Incorrect password or any other error
   const [setErrorMessage] = useState("");
 
   var bp = require("../../utils/Path.js");
@@ -60,7 +67,11 @@ function Login() {
 
         localStorage.setItem("user_data", JSON.stringify(user));
 
-        window.location.href = "/home";
+        if (location.state && location.state.from) {
+          navigate(location.state.from)
+        } else {
+          navigate("/home");
+        }
       }
 
     }).catch(function (error) {
