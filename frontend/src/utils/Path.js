@@ -1,10 +1,10 @@
 const app_name = 'shreddit-ucf'
 
-exports.apiCall = function apiCall(endpoint, json) {
+exports.apiCall = function apiCall(endpoint, json, method) {
   
   return {
       
-    method: "POST",
+    method: method ? method : "POST",
     url: this.buildPath(endpoint),
 
     headers: {
