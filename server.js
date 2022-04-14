@@ -126,7 +126,6 @@ app.post('/api/register', async(req, res) => {
     });
   });
 
-
   // Creates an email verification token
   const emailVerificationToken = new emailToken({
 	  userID: newUser._id,
@@ -137,10 +136,8 @@ app.post('/api/register', async(req, res) => {
 
   // Sends a verification email to verify the email
   sendVerificationEmail(newUser._id, newUser.email, emailVerificationToken.token);
-
   
   res.send("Please verify your email");
-
 });
 
 // -------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1717,9 +1714,9 @@ function refreshToken(res, jwtToken) {
   var refreshedToken = null;
 
   try {
-
     // Gets a refreshed JWT token
     refreshedToken = token.refresh(jwtToken);
+    
   } catch(error) {
     console.log(error.message);
     return res.status(420).json({error: error.message});

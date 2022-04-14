@@ -4,7 +4,7 @@ import Form from "react-bootstrap/Form";
 
 function Register() {
 
-  var newFirstName, newLastName, newEmail, newPassword, newPassword2;
+  var newFirstName, newLastName, newEmail, newUsername, newPassword, newPassword2;
 
   const [setMessage] = useState("");
 
@@ -16,6 +16,7 @@ function Register() {
       firstName: newFirstName.value,
       lastName: newLastName.value,
       email: newEmail.value,
+      username: newUsername.value,
       password: newPassword.value,
       password2: newPassword2.value,
     };
@@ -33,7 +34,7 @@ function Register() {
         
       } else {
 
-        window.location.href = "/verify-account";
+        window.location.href = "/verifyAccount";
       }
 
     }).catch(function (error) {
@@ -60,6 +61,11 @@ function Register() {
             <Form.Group className="mb-3">
                 <label>Email address</label>
                 <input type="email" className="form-control" placeholder="Enter email" ref={(c) => newEmail = c} />
+            </Form.Group>
+
+            <Form.Group className="mb-3">
+                <label>Username</label>
+                <input type="text" className="form-control" placeholder="Enter username" ref={(c) => newUsername = c} />
             </Form.Group>
 
             <Form.Group className="mb-3">
