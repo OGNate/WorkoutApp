@@ -69,6 +69,7 @@ app.post('/api/register', async(req, res) => {
   var firstNameArg = !isEmpty(req.body.firstName) ? req.body.firstName : "";
   var lastNameArg = !isEmpty(req.body.lastName) ? req.body.lastName : "";
   var emailArg = !isEmpty(req.body.email) ? req.body.email : "";
+  var usernameArg = !isEmpty(req.body.username) ? req.body.username : "";
   var passwordArg = !isEmpty(req.body.password) ? req.body.password : "";
   var password2Arg = !isEmpty(req.body.password2) ? req.body.password2 : "";
 
@@ -84,6 +85,10 @@ app.post('/api/register', async(req, res) => {
     errors.email = "Email field is required";
   } else if (!Validator.isEmail(emailArg)) {
     errors.email = "Email is invalid";
+  }
+
+  if (Validator.isEmpty(usernameArg)) {
+    errors.lastName = "Username field is required";
   }
 
   if (Validator.isEmpty(passwordArg)) {
@@ -113,6 +118,7 @@ app.post('/api/register', async(req, res) => {
     firstName: req.body.firstName,
     lastName: req.body.lastName,
     email: req.body.email,
+    username: req.body.username,
     password: req.body.password,
     isVerified: false,
   });
