@@ -9,10 +9,8 @@ const sendVerificationEmail = (userID, toEmail, uniqueEmailToken) => {
     try {
 
         const emailTransporter = nodemailer.createTransport({
-            host: 'smtp.mail.yahoo.com',
-            port: 465,
-            service:'yahoo',
-            secure: false,
+            service: 'gmail',
+            host: 'smtp.gmail.com',
             auth: {
                user: process.env.USER,
                pass: process.env.PASS
@@ -22,10 +20,9 @@ const sendVerificationEmail = (userID, toEmail, uniqueEmailToken) => {
         });
     
         var mailOptions;
-        let sender = "Shreddit";
     
         mailOptions = {
-            from: sender,
+            from: "shreddit.ucf@gmail.com",
             to: toEmail,
             subject: "Shreddit: Please Verify Email",
             html:  `Click <a href=${bp.buildPath("emailVerification")}/${userID}/${uniqueEmailToken}>here</a> to verify you email.`
@@ -35,7 +32,7 @@ const sendVerificationEmail = (userID, toEmail, uniqueEmailToken) => {
             if(error) {
                 console.log("Transport sendmail does not work");
             }
-            else console.log(`Email Verification sent to ${toEmail}`);
+            else console.log(`Email verification sent to ${toEmail}`);
         });    
 
     } catch(error) {
