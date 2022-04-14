@@ -7,12 +7,18 @@ const sendVerificationEmail = (userID, toEmail, uniqueEmailToken) => {
     var bp = require("../frontend/src/utils/Path.js");
 
     try {
-        var Transport = nodemailer.createTransport({
-            service: "gmail",
+
+        const emailTransporter = nodemailer.createTransport({
+            host: 'smtp.mail.yahoo.com',
+            port: 465,
+            service:'yahoo',
+            secure: false,
             auth: {
-                user: process.env.USER,
-                pass: process.env.PASS
-            }
+               user: process.env.USER,
+               pass: process.env.PASS
+            },
+            debug: false,
+            logger: true
         });
     
         var mailOptions;
@@ -25,7 +31,7 @@ const sendVerificationEmail = (userID, toEmail, uniqueEmailToken) => {
             html:  `Click <a href=${bp.buildPath("emailVerification")}/${userID}/${uniqueEmailToken}>here</a> to verify you email.`
         };
     
-        Transport.sendMail(mailOptions, function(error, response) {
+        emailTransporter.sendMail(mailOptions, function(error, response) {
             if(error) {
                 console.log("Transport sendmail does not work");
             }
