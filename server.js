@@ -160,7 +160,7 @@ app.get("/emailVerification/:userID/:uniqueEmailToken", async (req, res) => {
 
   // Changes isVerified classification for the user to true.
   checkUser.isVerified = true;
-  await checkUser.save();
+  checkUser.save();
 
   console.log("Step 2");
 
