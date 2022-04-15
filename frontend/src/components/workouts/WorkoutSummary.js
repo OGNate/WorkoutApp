@@ -7,26 +7,25 @@ function WorkoutSummary() {
 
   var bp = require("../../utils/Path.js");
 
-  var obj = {
-    "jwtToken": tokenStorage.retrieveToken()
-  };
+  // var obj = {
+  //   "jwtToken": tokenStorage.retrieveToken()
+  // };
 
-  var js = JSON.stringify(obj);
+  // var js = JSON.stringify(obj);
 
-  var config = bp.apiCall("api/finish", js);
+  // var config = bp.apiCall("api/finish", js);
 
-  useEffect(() => {
+  // useEffect(() => {
       
-    axios(config).then(function (response) {
+  //   axios(config).then(function (response) {
 
-      var res = response.data;
-      setExercises(res.results);
+  //     var res = response.data;
 
-    }).catch(function (error) {
-      console.log(error);
-    });
+  //   }).catch(function (error) {
+  //     console.log(error);
+  //   });
 
-  }, []);
+  // }, []);
 
   return (
     <h1>{sessionId}</h1>
