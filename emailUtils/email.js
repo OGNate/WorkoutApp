@@ -1,6 +1,7 @@
 const res = require("express/lib/response");
 const nodemailer = require("nodemailer");
 const handlebars = require('handlebars');
+var fs = require('fs');
 
 require('dotenv').config();
 
@@ -8,7 +9,7 @@ const sendVerificationEmail = (userID, firstName, toEmail, uniqueEmailToken) => 
     
     var bp = require("../frontend/src/utils/Path.js");
 
-    let html = readFile('./templates/verify-email.html', 'utf8');
+    var html = fs.readFileSync("./templates/verify-email",'utf8').toString();
     let template = handlebars.compile(html);
 
     var context = { 
