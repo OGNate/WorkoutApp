@@ -8,33 +8,36 @@ const VerifiedAccountPage = () => {
   const { userID, uniqueEmailToken } = useParams();
 
   var bp = require("../utils/Path.js");
-
   var config = bp.apiGetCall("api/emailVerification/" + userID + "/" + uniqueEmailToken);
 
-  axios(config).then(function (response) {
+  useEffect(() => {
 
-    var res = response.data;
+    axios(config).then(function (response) {
 
-    if (res.error) {
+      var res = response.data;
 
-      return (
-        <h1>Invalid user or email token!</h1>
-      );
-      
-    } else {
-      
-      return (
+      if (res.error) {
 
-        <div>
-          <GlobalNavigation />
-          <p>Account confirmed!</p>
-        </div>
-      );
-    }
+        return (
+          <h1>Invalid user or email token!</h1>
+        );
+        
+      } else {
+        
+        return (
+  
+          <div>
+            <GlobalNavigation />
+            <p>Account confirmed!</p>
+          </div>
+        );
+      }
+  
+      }).catch(function (error) {
+        console.log(error);
+      });
 
-  }).catch(function (error) {
-    console.log(error);
-  });
+  }, []);
 
   return (
     <p>Congrats, you're verified!</p>
