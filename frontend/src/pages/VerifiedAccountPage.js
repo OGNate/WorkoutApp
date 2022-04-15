@@ -1,7 +1,6 @@
 import axios from "axios";
 import React, { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import GlobalNavigation from '../components/GlobalNavigation';
 
 const VerifiedAccountPage = () => {
 
@@ -29,16 +28,7 @@ const VerifiedAccountPage = () => {
         );
         
       } else {
-
         console.log("4");
-        
-        return (
-  
-          <div>
-            <GlobalNavigation />
-            <p>Account confirmed!</p>
-          </div>
-        );
       }
   
       }).catch(function (error) {

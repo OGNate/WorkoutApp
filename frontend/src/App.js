@@ -27,11 +27,7 @@ function App() {
 
       <Route path="verifyAccount" element={<VerifyAccountPage />} />
 
-      <Route path="emailVerification" element={<Outlet />}>
-          <Route path=":userID" element={<Outlet />}>
-            <Route path=":uniqueEmailToken" element={<VerifiedAccountPage />} />
-          </Route>
-      </Route>
+      <Route path="emailVerification/:userID/:uniqueEmailToken" element={<VerifiedAccountPage />} />
 
       <Route element={<PrivateRoute />}>
         
