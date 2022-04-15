@@ -9,7 +9,7 @@ const VerifiedAccountPage = () => {
 
   var bp = require("../utils/Path.js");
 
-  var endpointUrl = `emailVerification/${userID}/${uniqueEmailToken}`;
+  var endpointUrl = `api/emailVerification/${userID}/${uniqueEmailToken}`;
 
   var config = bp.apiCall(endpointUrl, {}, "GET");
 

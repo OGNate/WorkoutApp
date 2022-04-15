@@ -148,7 +148,7 @@ app.post('/api/register', async(req, res) => {
 
 // -------------------------------------------------------------------------------------------------------------------------------------------------
 // Verifies the email of the registered user
-app.get("/emailVerification/:userID/:uniqueEmailToken", async (req, res) => {
+app.get("/api/emailVerification/:userID/:uniqueEmailToken", async (req, res) => {
 
   const checkUser = await User.findOne({_id: ObjectId(req.params.userID)});
   if(!checkUser) return res.status(420).json({error: "Error at checking userID in server.js email verification"});
