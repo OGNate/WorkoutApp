@@ -1,5 +1,5 @@
 import axios from "axios";
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import GlobalNavigation from '../components/GlobalNavigation';
 
