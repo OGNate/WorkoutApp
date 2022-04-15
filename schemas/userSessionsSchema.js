@@ -3,66 +3,59 @@ const Schema = mongoose.Schema;
 
 const userSessions = new Schema({
 
-    // Takes in the objectID of the user
+    // The user that started the workout
     userID: {
         type: mongoose.SchemaTypes.ObjectId,
         required: true
     },
-    
-    // The name for the session
-    sessionName: {
-        type: String,
-        required: true
+
+    session: {
+
+        // The name of the session (users can change)
+        name: {
+            type: String,
+            minlength: 3,
+            maxlength: 20,
+            required: true,
+            trim: true,
+        },
+
+        workouts : [{
+            
+            name: {
+                type: String,
+                required: true
+            },
+
+            weight: {
+                type: Number,
+                default: -1
+            },
+        
+            reps: {
+                type: Number,
+                default: -1
+            },
+        
+            sets: {
+                type: Number,
+                default: -1
+            },
+        
+            time: {
+                type: Number,
+                default: -1
+            },
+        
+            distance: {
+                type: Number,
+                default: -1
+            }
+        }]
     },
 
-    isEmpty: {
-        type: Boolean,
-        required: true
-    },
-
-    exerciseName: {
-        type: String,
-        default: ""
-    },
-
-    weight: {
-        type: Number,
-        default: -1
-    },
-
-    reps: {
-        type: Number,
-        default: -1
-    },
-
-    sets: {
-        type: Number,
-        default: -1
-    },
-
-    time: {
-        type: Number,
-        default: -1
-    },
-
-    distance: {
-        type: Number,
-        default: -1
-    },
-    
-    bodyPart: {
-        type: [String],
-        default: []
-    },
-
-    bodyPart: {
-        type: [String],
-        default: []
-    },
-
-    isCompleted: {
-        type: Boolean,
-        default: false
+    completedAt: {
+        type: Date
     }
 
 }, {timestamps: true}, {collection: "userSessions"});

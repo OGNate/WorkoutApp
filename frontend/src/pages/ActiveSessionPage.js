@@ -1,7 +1,7 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { Button, Card, Container, Modal } from "react-bootstrap";
-import { Link, useParams } from 'react-router-dom';
+import { Link, Outlet, useParams } from "react-router-dom";
 import Excercises from "../components/exercises/Exercises";
 import tokenStorage from '../tokenStorage';
 
@@ -82,6 +82,8 @@ function ActiveSessionPage() {
 
         <Link to="/workout">Back to Workout Page</Link>
       </Container>
+
+      <Outlet />
     </>
   )
 }

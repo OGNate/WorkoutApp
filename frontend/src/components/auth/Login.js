@@ -106,7 +106,7 @@ function Login() {
         </Button>
         
         <p className="forgot-password text-right">
-            <a href="forgot-password">Forgot password?</a>
+          <a href="forgot-password">Forgot password?</a>
         </p>
       </Form>
     </>

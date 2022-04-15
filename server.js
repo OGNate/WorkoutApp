@@ -9,6 +9,8 @@ var token = require('./createJWT.js');
 const crypto = require('crypto');
 const sendVerificationEmail = require('./emailUtils/email.js');
 const sendPasswordResetEmail = require('./emailUtils/sendPasswordReset.js');
+const cloudinary = require('cloudinary').v2;
+
 require('dotenv').config();
 
 // Imports all the mongoose schemas from the "schemas" folder
@@ -141,7 +143,7 @@ app.post('/api/register', async(req, res) => {
   await emailVerificationToken.save();
 
   // Sends a verification email to verify the email
-  sendVerificationEmail(newUser._id, newUser.email, emailVerificationToken.token);
+  sendVerificationEmail(newUser._id, newUser.firstName, newUser.email, emailVerificationToken.token);
   
   res.send("Please verify your email");
 });
@@ -1730,6 +1732,14 @@ function refreshToken(res, jwtToken) {
 
   return refreshedToken;
 }
+
+// CLOUDINARY API
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+  secure: true
+});
 
 app.use((req, res, next) => {
 

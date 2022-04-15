@@ -28,11 +28,8 @@ const replySchema = new Schema({
   pointsCount: {
     type: Number,
     default: 1,
-  },
-
-  createdAt: { type: Date, default: Date.now },
-  updatedAt: { type: Date, default: Date.now },
-});
+  }
+}, {timestamps: true});
 
 const commentSchema = new mongoose.Schema({
   commentedBy: {
@@ -57,10 +54,8 @@ const commentSchema = new mongoose.Schema({
   pointsCount: {
     type: Number,
     default: 1,
-  },
-  createdAt: { type: Date, default: Date.now },
-  updatedAt: { type: Date, default: Date.now },
-});
+  }
+}, {timestamps: true});
 
 const postSchema = new mongoose.Schema({
 
@@ -141,17 +136,7 @@ const postSchema = new mongoose.Schema({
   commentCount: {
     type: Number,
     default: 0,
-  },
-
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
-
-  updatedAt: {
-    type: Date,
-    default: Date.now,
-  },
-});
+  }
+}, {timestamps: true});
 
 module.exports = mongoose.model('posts', postSchema);

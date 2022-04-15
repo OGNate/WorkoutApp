@@ -14,8 +14,8 @@ function NewSession() {
 
 const createSession = () => {
 
-  var bp = require("../utils/Path.js");
-  var storage = require("../tokenStorage.js");
+  var bp = require("../../utils/Path.js");
+  var storage = require("../../tokenStorage.js");
 
   var _ud = localStorage.getItem('user_data');
   var ud = JSON.parse(_ud);

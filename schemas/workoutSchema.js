@@ -3,6 +3,11 @@ const Schema = mongoose.Schema;
 
 const workoutsFormat = new Schema({
 
+    workoutID: {
+        type: mongoose.SchemaTypes.ObjectId,
+        required: true,
+    },
+
     name: {
         type: String,
         required: false,

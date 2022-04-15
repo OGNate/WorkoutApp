@@ -1,10 +1,20 @@
 const res = require("express/lib/response");
 const nodemailer = require("nodemailer");
+const handlebars = require('handlebars');
+
 require('dotenv').config();
 
-const sendVerificationEmail = (userID, toEmail, uniqueEmailToken) => {
+const sendVerificationEmail = (userID, firstName, toEmail, uniqueEmailToken) => {
     
     var bp = require("../frontend/src/utils/Path.js");
+
+    let html = await readFile('/path/to/file', 'utf8');
+    let template = handlebars.compile(html);
+
+    var context = { 
+        "name" : firstName, 
+        "action_url" : `${bp.buildPath("emailVerification")}/${userID}/${uniqueEmailToken}`
+    };
 
     try {
 
@@ -25,7 +35,7 @@ const sendVerificationEmail = (userID, toEmail, uniqueEmailToken) => {
             from: "shreddit.ucf@gmail.com",
             to: toEmail,
             subject: "Shreddit: Please Verify Email",
-            html:  `Click <a href=${bp.buildPath("emailVerification")}/${userID}/${uniqueEmailToken}>here</a> to verify you email.`
+            html: template(context)
         };
     
         emailTransporter.sendMail(mailOptions, function(error, response) {

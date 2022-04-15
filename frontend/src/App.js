@@ -12,6 +12,7 @@ import RegisterPage from './pages/RegisterPage';
 import VerifiedAccountPage from './pages/VerifiedAccountPage';
 import VerifyAccountPage from './pages/VerifyAccountPage';
 import WorkoutPage from "./pages/WorkoutPage";
+import WorkoutSummaryPage from "./pages/WorkoutSummaryPage";
 import PrivateRoute from "./routes/PrivateRoute";
 
 function App() {
@@ -35,8 +36,11 @@ function App() {
         <Route path="history" element={<HistoryPage />} />
 
         <Route path="workout" element={<Outlet />}>
+
           <Route path=":sessionId" element={<ActiveSessionPage />} />
-          <Route index element={<WorkoutPage />} /> 
+          <Route path=":sessionId/finish" element={<WorkoutSummaryPage />} />
+
+          <Route index element={<WorkoutPage />} />
         </Route>
         
         <Route path="exercises" element={<ExercisePage />} />

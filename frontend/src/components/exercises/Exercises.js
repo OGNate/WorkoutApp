@@ -1,13 +1,11 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { Card, Dropdown, ListGroup } from "react-bootstrap";
+import { Card, ListGroup } from "react-bootstrap";
 import tokenStorage from '../../tokenStorage';
 import ExerciseCard from "./ExerciseCard";
+import DropdownTest from "./filter/DropdownTest";
 
 function Exercises({inSession}) {
-
-  const [bodyPartFilter, setBodyPartFilter] = useState('');
-  const [equipmentFilter, setEquipmentFilter] = useState('');
 
   const [exercises, setExercises] = useState([]);
   const [bodyParts, setBodyParts] = useState([]);
@@ -24,24 +22,6 @@ function Exercises({inSession}) {
   var allWorkoutsConfig = bp.apiCall("api/displayAllWorkouts", js);
   var allBodyPartsConfig = bp.apiCall("api/displayAllBodyParts", js);
   var allEquipmentConfig = bp.apiCall("api/displayAllEquipment", js);
-
-  const exercisesToShow = exercises
-    .sort((a, b) => a.name.localeCompare(b.name))
-    .filter((exercise) => {
-
-        if (bodyPartFilter) {
-          return exercise.bodyType === bodyPartFilter;
-        }
-
-        if (equipmentFilter) {
-          return exercise.equipment === equipmentFilter;
-        }
-
-      return true;
-    })
-    .map((item, i) => {
-        return <li key={i}>{item.name}</li>;
-  });
 
   useEffect(() => {
       
@@ -74,25 +54,46 @@ function Exercises({inSession}) {
 
   }, []);
 
+  const [bodyPartFilter, setBodyPartFilter] = useState('');
+  const [equipmentFilter, setEquipmentFilter] = useState('');
+  const [exerciseFilter, setExerciseFilter] = useState('');
+
+  const exercisesToShow = exercises
+    .sort((a, b) => a.name.localeCompare(b.name))
+    .filter((exercise) => {
+
+      var shouldShow = true;
+
+        if (bodyPartFilter) {
+          var bodyParts = exercise.bodyPart;
+          shouldShow = bodyParts.includes(bodyPartFilter);
+        }
+
+        if (equipmentFilter) {
+          var equipmentTypes = exercise.equipment;
+          shouldShow = shouldShow && equipmentTypes.includes(equipmentFilter);
+        }
+
+      return shouldShow;
+      
+    }).map((exercise) => {
+        return <ExerciseCard exercise={exercise} session={inSession} />
+  });
+
+
   return (
 
     <>
-      <Dropdown items={['Tea', 'Juice']} />
-      
-      <div>
-        <Dropdown items={bodyParts} setSelected={setBodyPartFilter} />
-        <Dropdown items={equipment} setSelected={setEquipmentFilter} />
-        <ol>{exercisesToShow}</ol>
-      </div>
+      <DropdownTest name="Body Part" items={bodyParts} setSelected={setBodyPartFilter} />
+      <DropdownTest name="Equipment Type" items={equipment} setSelected={setEquipmentFilter} />
+
+      <input type="text" placeholder="Search" ref={(c) => setExerciseFilter(c) } />
 
       <Card style={{ width: '18rem' }}>
-
         <ListGroup variant="flush">
-
           {
-            exercises.map(exercise => (<ExerciseCard exercise={exercise} session={inSession} />))
+            exercisesToShow
           }
-          
         </ListGroup>
       </Card>
     </>
