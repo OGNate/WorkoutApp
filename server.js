@@ -151,22 +151,30 @@ app.post('/api/register', async(req, res) => {
 app.get("/emailVerification/:userID/:uniqueEmailToken", async (req, res) => {
 
   const checkUser = await User.findOne({_id: req.params.userID});
-  if(!checkUser) return res.status(420).json({error: "Error at checking userID in server.js email verificaiton"});
+  if(!checkUser) return res.status(420).json({error: "Error at checking userID in server.js email verification"});
 
   const checkEmailToken = await emailToken.findOne({userID: req.params.userID, token: req.params.uniqueEmailToken});
   if(!checkEmailToken) return res.status(420).json({error: "emailToken does not exist"});
+
+  console.log("Step 1");
 
   // Changes isVerified classification for the user to true.
   checkUser.isVerified = true;
   await checkUser.save();
 
+  console.log("Step 2");
+
   // Deletes the email token from emailToken collection
   await emailToken.deleteOne({userID: ObjectId(req.params.userID), token: req.params.uniqueEmailToken});
+
+  console.log("Step 3");
 
   // Creates a stat history for the new user
   const newStat = new userStats({
     userID: req.params.userID
   });
+
+  console.log("Step 4");
 
   await newStat.save();
   
