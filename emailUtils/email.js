@@ -9,13 +9,13 @@ const sendVerificationEmail = (userID, firstName, toEmail, uniqueEmailToken) => 
     
     var bp = require("../frontend/src/utils/Path.js");
 
-    var html = fs.readFileSync("./templates/verify-email.html", 'utf8').toString();
-    let template = handlebars.compile(html);
+    // var html = fs.readFileSync("./templates/verify-email.html", 'utf8').toString();
+    // let template = handlebars.compile(html);
 
-    var context = { 
-        "name" : firstName, 
-        "action_url" : `${bp.buildPath("emailVerification")}/${userID}/${uniqueEmailToken}`
-    };
+    // var context = { 
+    //     "name" : firstName, 
+    //     "action_url" : `${bp.buildPath("emailVerification")}/${userID}/${uniqueEmailToken}`
+    // };
 
     try {
 
@@ -36,7 +36,8 @@ const sendVerificationEmail = (userID, firstName, toEmail, uniqueEmailToken) => 
             from: "shreddit.ucf@gmail.com",
             to: toEmail,
             subject: "Shreddit: Please Verify Email",
-            html: await readFile("./templates/verify-email.com", "utf8") //template(context)
+            html:  `Click <a href=${bp.buildPath("emailVerification")}/${userID}/${uniqueEmailToken}>here</a> to verify your email.`
+            //html: await readFile("./templates/verify-email.com", "utf8") //template(context)
         };
     
         emailTransporter.sendMail(mailOptions, function(error, response) {
