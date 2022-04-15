@@ -11,7 +11,7 @@ exports.apiCall = function apiCall(endpoint, json, method) {
       "Content-Type": "application/json",
     },
 
-    ...(data && {data: json})
+    data: json
   };
 
   console.log(call);
