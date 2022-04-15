@@ -2,7 +2,7 @@ const app_name = 'shreddit-ucf'
 
 exports.apiCall = function apiCall(endpoint, json, method) {
   
-  return {
+  var call = {
       
     method: method ? method : "POST",
     url: this.buildPath(endpoint),
@@ -12,7 +12,11 @@ exports.apiCall = function apiCall(endpoint, json, method) {
     },
 
     data: json,
-  };;
+  };
+
+  console.log(call);
+
+  return call;
 }
 
 exports.buildPath = function buildPath(route) {
