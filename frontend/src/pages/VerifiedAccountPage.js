@@ -9,9 +9,7 @@ const VerifiedAccountPage = () => {
 
   var bp = require("../utils/Path.js");
 
-  var endpointUrl = `api/emailVerification/${userID}/${uniqueEmailToken}`;
-
-  var config = bp.apiCall(endpointUrl, {}, "GET");
+  var config = bp.apiCall("api/emailVerification/" + userID + "/" uniqueEmailToken, {}, "GET");
 
   axios(config).then(function (response) {
 
