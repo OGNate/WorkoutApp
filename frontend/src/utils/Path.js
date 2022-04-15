@@ -22,13 +22,8 @@ exports.apiCall = function apiCall(endpoint, json, method) {
 exports.apiGetCall = function apiGetCall(endpoint) {
   
   var call = {
-      
     method: "GET",
-    url: this.buildPath(endpoint),
-
-    headers: {
-      "Content-Type": "application/json",
-    }
+    url: this.buildPath(endpoint)
   };
 
   console.log(call);
