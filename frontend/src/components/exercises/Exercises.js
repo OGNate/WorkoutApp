@@ -47,8 +47,8 @@ function Exercises({inSession}) {
       
     axios(allWorkoutsConfig).then(function (response) {
 
-    var res = response.data;
-    setExercises(res.results);
+      var res = response.data;
+      setExercises(res.results);
 
     }).catch(function (error) {
       console.log(error);
@@ -59,18 +59,18 @@ function Exercises({inSession}) {
       var res = response.data;
       setBodyParts(res.results);
   
-      }).catch(function (error) {
-        console.log(error);
-      });
+    }).catch(function (error) {
+      console.log(error);
+    });
 
-      axios(allEquipmentConfig).then(function (response) {
+    axios(allEquipmentConfig).then(function (response) {
 
-        var res = response.data;
-        setEquipment(res.results);
-    
-        }).catch(function (error) {
-          console.log(error);
-        });
+      var res = response.data;
+      setEquipment(res.results);
+  
+    }).catch(function (error) {
+      console.log(error);
+    });
 
   }, []);
 

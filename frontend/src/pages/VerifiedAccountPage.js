@@ -14,15 +14,23 @@ const VerifiedAccountPage = () => {
 
     axios(config).then(function (response) {
 
+      console.log("1");
+
       var res = response.data;
 
+      console.log("2");
+
       if (res.error) {
+
+        console.log("3");
 
         return (
           <h1>Invalid user or email token!</h1>
         );
         
       } else {
+
+        console.log("4");
         
         return (
   
