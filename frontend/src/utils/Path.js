@@ -19,7 +19,7 @@ exports.apiCall = function apiCall(endpoint, json, method) {
   return call;
 }
 
-exports.apiGetCall = function apiCall(endpoint) {
+exports.apiGetCall = function apiGetCall(endpoint) {
   
   var call = {
       
