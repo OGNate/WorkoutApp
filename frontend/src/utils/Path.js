@@ -19,6 +19,25 @@ exports.apiCall = function apiCall(endpoint, json, method) {
   return call;
 }
 
+exports.apiGetCall = function apiCall(endpoint) {
+  
+  var call = {
+      
+    method: "GET",
+    url: this.buildPath(endpoint),
+
+    headers: {
+      "Content-Type": "application/json",
+    },
+
+    ...(data && {data: json})
+  };
+
+  console.log(call);
+
+  return call;
+}
+
 exports.buildPath = function buildPath(route) {
 
   return process.env.NODE_ENV === 'production' ?
