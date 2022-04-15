@@ -150,7 +150,7 @@ app.post('/api/register', async(req, res) => {
 // Verifies the email of the registered user
 app.get("/emailVerification/:userID/:uniqueEmailToken", async (req, res) => {
 
-  const checkUser = await User.findOne({_id: req.params.userID});
+  const checkUser = await User.findOne({_id: ObjectId(req.params.userID)});
   if(!checkUser) return res.status(420).json({error: "Error at checking userID in server.js email verification"});
 
   const checkEmailToken = await emailToken.findOne({userID: req.params.userID, token: req.params.uniqueEmailToken});
@@ -160,7 +160,7 @@ app.get("/emailVerification/:userID/:uniqueEmailToken", async (req, res) => {
 
   // Changes isVerified classification for the user to true.
   checkUser.isVerified = true;
-  checkUser.save();
+  await checkUser.save();
 
   console.log("Step 2");
 
