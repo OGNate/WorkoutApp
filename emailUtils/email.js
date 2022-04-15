@@ -8,7 +8,7 @@ const sendVerificationEmail = (userID, firstName, toEmail, uniqueEmailToken) => 
     
     var bp = require("../frontend/src/utils/Path.js");
 
-    let html = await readFile('/path/to/file', 'utf8');
+    let html = await readFile('./templates/verify-email.html', 'utf8');
     let template = handlebars.compile(html);
 
     var context = { 
