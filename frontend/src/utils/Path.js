@@ -28,9 +28,7 @@ exports.apiGetCall = function apiCall(endpoint) {
 
     headers: {
       "Content-Type": "application/json",
-    },
-
-    ...(data && {data: json})
+    }
   };
 
   console.log(call);
