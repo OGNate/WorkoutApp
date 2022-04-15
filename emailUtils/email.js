@@ -36,7 +36,7 @@ const sendVerificationEmail = (userID, firstName, toEmail, uniqueEmailToken) => 
             from: "shreddit.ucf@gmail.com",
             to: toEmail,
             subject: "Shreddit: Please Verify Email",
-            html: template(context)
+            html: await readFile("./templates/verify-email.com", "utf8") //template(context)
         };
     
         emailTransporter.sendMail(mailOptions, function(error, response) {
