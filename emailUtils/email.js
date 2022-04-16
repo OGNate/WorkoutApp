@@ -3,7 +3,7 @@ const nodemailer = require("nodemailer");
 
 require('dotenv').config();
 
-const sendVerificationEmail = (userID, firstName, toEmail, uniqueEmailToken) => {
+const sendVerificationEmail = (userID, toEmail, uniqueEmailToken) => {
     
     var bp = require("../frontend/src/utils/Path.js");
 
