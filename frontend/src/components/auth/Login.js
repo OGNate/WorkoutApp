@@ -109,6 +109,10 @@ function Login() {
           <a href="forgot-password">Forgot password?</a>
         </p>
       </Form>
+
+      <p className="no-account text-right">
+          No account? <a href="register">Register</a>
+        </p>
     </>
   )
 };
