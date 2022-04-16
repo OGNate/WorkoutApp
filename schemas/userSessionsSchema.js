@@ -15,7 +15,7 @@ const userSessions = new Schema({
         name: {
             type: String,
             minlength: 3,
-            maxlength: 20,
+            maxlength: 50,
             required: true,
             trim: true,
         },
@@ -23,8 +23,7 @@ const userSessions = new Schema({
         workouts : [{
             
             name: {
-                type: String,
-                required: true
+                type: String
             },
 
             weight: {
@@ -50,6 +49,12 @@ const userSessions = new Schema({
             distance: {
                 type: Number,
                 default: -1
+            },
+
+            isCompleted: {
+                type: Boolean,
+                default: false,
+                required: true
             }
         }]
     },

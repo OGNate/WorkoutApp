@@ -18,7 +18,6 @@ const User = require("./schemas/userSchema");
 const userSession = require("./schemas/userSessionsSchema");
 const workoutFormat = require("./schemas/workoutSchema");
 const userStats = require("./schemas/statSchema")
-const userHistory = require("./schemas/historySchema")
 const emailToken = require("./schemas/emailToken");
 const passwordReset = require("./schemas/passwordResetToken");
 
@@ -244,26 +243,6 @@ app.post("/passwordReset/:userID/:passwordResetToken", async (req, res) => {
 });
 
 
-// TESTING ONLY, DELETE WHEN DONE
-// Used to insert all our excercises into the database for easy recall later
-app.post('/Test', async (req, res, next) => {
-
-	const newWorkout = new workoutFormat({
-		name: req.body.name,
-		bodyPart: req.body.bodyPart,
-		equipment: req.body.equipment,
-		workoutType: req.body.workoutType,
-		hasReps: req.body.hasReps,
-		hasWeight: req.body.hasWeight,
-		hasTime: req.body.hasTime,
-		hasDistance: req.body.hasDistance
-	});
-
-	newUserHistory.save();
-	return res.status(200).json({msg: "Successfully added user history to database"});
-});
-
-
 //login API
 app.post('/api/login', async (req, res, next) => {
 
@@ -389,20 +368,29 @@ app.post('/api/addSession', async (req, res, next) => {
   try
   {
   userSession.findOne({
+
     userID: ObjectId(req.body.userID),
-    sessionName: req.body.sessionName
+    "session.name": req.body.sessionName
+
   }).then((session) => {
 
     if (session) {
       return res.status(404).json({
         error: "Session name already exists. Try another one."
       });
+
     } else {
+
       const newWorkoutSession = new userSession({
+        
         userID: ObjectId(req.body.userID),
-        sessionName: req.body.sessionName,
-        isEmpty: true
+
+        session: {
+          name: req.body.sessionName
+        }
+
       })
+
       newWorkoutSession.save();
 
       var refreshedToken = refreshToken(res, jwtToken);
@@ -590,7 +578,7 @@ app.post('/api/updateWorkout', async (req, res, next) => {
 //addWorkout API
 app.post('/api/addWorkout', async (req, res, next) => {
 
-  //Incoming: userID, sessionName, exerciseName, reps, weight, time, distance, sets, bodyPart, jwtToken
+  //Incoming: userID, sessionId, workoutName, jwtToken
   //Outgoing: error, jwtToken
 
   const jwtToken = req.body.jwtToken;
@@ -598,48 +586,71 @@ app.post('/api/addWorkout', async (req, res, next) => {
 
   checkTokenStatus(res, jwtToken);
 
-  try
-  {
+  try {
   userSession.findOne({
     userID: ObjectId(req.body.userID),
-    sessionName: req.body.sessionName,
+    sessionId: req.body.sessionId,
   }).then((session) => {
 
     if (!session) {
       return res.status(404).json({
         error: "Session doesn't exist."
       });
-    } 
-
-    else {
-      userSession.deleteMany({
-        userID: ObjectId(req.body.userID),
-        sessionName: req.body.sessionName,
-        isEmpty: true
-      }).then((result) => {
-      });
-
-      const newWorkoutSession = new userSession({
-        userID: ObjectId(req.body.userID),
-        sessionName: req.body.sessionName,
-        exerciseName: req.body.exerciseName,
-        reps: req.body.reps,
-        weight: req.body.weight,
-        time: req.body.time,
-        distance: req.body.distance,
-        sets: req.body.sets,
-        bodyPart: req.body.bodyPart,
-        isEmpty: false
-      });
-      newWorkoutSession.save();
-
-      var refreshedToken = refreshToken(res, jwtToken);
-      return res.status(200).json({error: error, jwtToken: refreshedToken});
     }
+
+    var foundWorkout = null;
+
+    // Search through existing workouts (not user-defined)
+    workoutFormat.findOne({
+
+      name: req.body.workoutName
+
+    }).then((globalWorkout) => {
+
+      if (!globalWorkout) {
+
+        // If no workout is found by name, search through user's custom workouts
+        foundWorkout = User.findOne({
+
+          userID: ObjectId(req.body.userID),
+
+          // name is a field without workouts array
+          "workouts.name": workoutName
+
+        }).then((userWorkout) => {
+
+          // Cannot find in global or user's workouts
+          if (!userWorkout) {
+            console.log("Did not find workout");
+
+          // Workout was found in user's database
+          } else {
+            console.log("Found workout in user!");
+          }
+        });
+
+      } else {
+
+        // Workout was found in the global database
+        foundWorkout = globalWorkout;
+      }
+
+      var addedWorkout = {
+        name: foundWorkout.name,
+        weight: foundWorkout.hasWeight ? 0 : -1,
+        reps: foundWorkout.hasReps ? 0 : -1,
+        sets: foundWorkout.hasSets ? 0 : -1,
+        time: foundWorkout.hasTime ? 0 : -1,
+        distance: foundWorkout.hasDistance ? 0 : -1
+      };
+    });
+
+
+
+    var refreshedToken = refreshToken(res, jwtToken);
+    return res.status(200).json({jwtToken: refreshedToken});
   });
-  }
-  catch (e)
-  {
+  } catch (e) {
     error = e.toString();
   }
 });
@@ -988,20 +999,6 @@ app.post('/api/finishWorkout', async (req, res, next) => {
   }, {
     new: true}).then((result) => {
 
-    //Create new user history entry
-    const newUserHistory = new userHistory({
-      userID: req.body.userID,
-      sessionName: req.body.sessionName,
-      workoutName: req.body.exerciseName,
-      weight: req.body.weight,
-      reps: req.body.reps,
-      sets: req.body.sets,
-      distance: req.body.distance,
-      time: req.body.time,
-      completedAt: result.updatedAt
-    });
-    newUserHistory.save();
-
     //Update Stats
     var totalWeight = (req.body.weight != -1) ? req.body.weight : 0;
     var totalReps = (req.body.reps != -1) ? req.body.reps : 0;
@@ -1044,49 +1041,6 @@ app.post('/api/finishWorkout', async (req, res, next) => {
   });
   }
   catch (e)
-  {
-    console.log(e.message);
-  }
-});
-
-//displayUserHistory API
-app.post('/api/displayUserHistory', async (req, res, next) => {
-
-  //Incoming: userID, jwtToken
-  //Outgoing: userHistory[], error, jwtToken
-
-  const jwtToken = req.body.jwtToken;
-  var ret = [];
-  var error = "";
-
-  checkTokenStatus(res, jwtToken);
-
-  try
-  {
-  userHistory.find({
-    userID: ObjectId(req.body.userID),
-  }).then((results) => {
-
-    if (!results.length) {
-      return res.status(404).json({
-        error: "No user history found for this user."
-      });
-
-    } else {
-      for( var i=0; i<results.length; i++ )
-      {
-        if (ret.includes(results[i])) {
-          continue;
-        }
-        ret.push( results[i] );
-      }
-
-      var refreshedToken = refreshToken(res, jwtToken);
-      return res.status(200).json({userHistory: ret, error: error, jwtToken: refreshedToken});
-    }
-  });
-  }
-  catch (e) 
   {
     console.log(e.message);
   }
