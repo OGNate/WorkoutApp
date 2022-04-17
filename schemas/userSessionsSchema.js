@@ -9,58 +9,59 @@ const userSessions = new Schema({
         required: true
     },
 
-    session: {
-
-        // The name of the session (users can change)
-        name: {
-            type: String,
+    sessionName: {
+        type: String,
             minlength: 3,
             maxlength: 50,
             required: true,
-            trim: true,
+            trim: true
+    },
+
+    workouts: [{
+            
+        name: {
+            type: String
         },
 
-        workouts : [{
-            
-            name: {
-                type: String
-            },
+        weight: {
+            type: Number,
+            default: -1
+        },
+    
+        reps: {
+            type: Number,
+            default: -1
+        },
+    
+        sets: {
+            type: Number,
+            default: -1
+        },
+    
+        time: {
+            type: Number,
+            default: -1
+        },
+    
+        distance: {
+            type: Number,
+            default: -1
+        },
 
-            weight: {
-                type: Number,
-                default: -1
-            },
-        
-            reps: {
-                type: Number,
-                default: -1
-            },
-        
-            sets: {
-                type: Number,
-                default: -1
-            },
-        
-            time: {
-                type: Number,
-                default: -1
-            },
-        
-            distance: {
-                type: Number,
-                default: -1
-            },
-
-            isCompleted: {
-                type: Boolean,
-                default: false,
-                required: true
-            }
-        }]
-    },
+        isCompleted: {
+            type: Boolean,
+            default: false,
+            required: true
+        }
+    }],
 
     completedAt: {
         type: Date
+    },
+
+    sessionCompleted: {
+        type: Boolean,
+        default: false
     }
 
 }, {timestamps: true}, {collection: "userSessions"});
