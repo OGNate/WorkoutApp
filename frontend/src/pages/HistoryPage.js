@@ -1,8 +1,8 @@
 import axios from "axios";
 import { default as React, useEffect, useState } from 'react';
 import Container from "react-bootstrap/Container";
-import tokenStorage from '../../tokenStorage';
 import GlobalNavigation from '../components/GlobalNavigation';
+import tokenStorage from '../tokenStorage';
 
 const HistoryPage = () => {
 
