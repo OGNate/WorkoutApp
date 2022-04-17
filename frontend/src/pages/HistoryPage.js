@@ -14,7 +14,7 @@ const HistoryPage = () => {
   var bp = require("../utils/Path.js");
 
   var obj = {
-    "userID": ud._id,
+    "userID": userId,
     "jwtToken": tokenStorage.retrieveToken()
   };
 
