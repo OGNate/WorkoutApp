@@ -970,7 +970,7 @@ app.post('/api/searchByEquipment', async (req, res, next) => {
 //Also updates userStats
 app.post('/api/finishWorkout', async (req, res, next) => {
 
-  //Incoming: sessionId, workoutId, weight, reps, sets, time, distance
+  //Incoming: sessionId, workoutId, weight, reps, sets, time, distance, jwtToken
   //Outgoing: sessionCompleted, error, jwtToken
 
   const jwtToken = req.body.jwtToken;
@@ -1035,6 +1035,49 @@ app.post('/api/finishWorkout', async (req, res, next) => {
       var refreshedToken = refreshToken(res, jwtToken);
       return res.status(200).json({sessionCompleted: sessionCompleted, error: error, jwtToken: refreshedToken});
     });
+  });
+  }
+  catch (e)
+  {
+    console.log(e.message);
+  }
+});
+
+//finishSession API
+app.post('/api/finishSession', async (req, res, next) => {
+
+  //Incoming: sessionId, userID, jwtToken
+  //Outgoing: error, jwtToken
+
+  const jwtToken = req.body.jwtToken;
+  var error = '';
+
+  checkTokenStatus(res, jwtToken);
+
+  try
+  {
+  userSession.findOneAndUpdate({
+    _id: ObjectId(req.body.sessionId),
+    userID: ObjectId(req.body.userID)
+  },[
+    { 
+      '$set':
+      {
+        'completedAt': '$updatedAt',
+        'sessionCompleted': true
+      }
+    }
+  ]).then((result) => {
+
+    if (!result) {
+      return res.status(404).json({
+        error: "Session not found."
+      });
+    } 
+
+    var refreshedToken = refreshToken(res, jwtToken);
+    return res.status(200).json({error: error, jwtToken: refreshedToken});
+
   });
   }
   catch (e)
