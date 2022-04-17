@@ -11,7 +11,7 @@ const HistoryPage = () => {
 
   const [sessions, setSessions] = useState([]);
 
-  var bp = require("../../utils/Path.js");
+  var bp = require("../utils/Path.js");
 
   var obj = {
     "userID": ud._id,
