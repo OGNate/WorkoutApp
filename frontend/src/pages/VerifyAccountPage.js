@@ -1,13 +1,13 @@
 import React from 'react';
 import GlobalNavigation from '../components/GlobalNavigation';
 
-const VerifyAccountPage = () => {
+const VerifyAccountPage = (props) => {
 
   return (
 
     <div>
       <GlobalNavigation />
-      <p>An email was sent to: </p>
+      <p>An email was sent to: {props.match.params.emailAddress}</p>
     </div>
   );
 };
