@@ -447,6 +447,7 @@ app.post('/api/displaySessions', async (req, res, next) => {
   {
   userSession.find({
     userID: ObjectId(req.body.userID),
+    sessionCompleted: true
   }).then((results) => {
 
     if (!results.length) {

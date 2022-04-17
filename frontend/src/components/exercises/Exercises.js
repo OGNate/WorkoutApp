@@ -74,11 +74,11 @@ function Exercises({inSession}) {
           shouldShow = shouldShow && equipmentTypes.includes(equipmentFilter);
         }
 
-      return shouldShow;
+        return shouldShow;
       
     }).map((exercise) => {
-        return <ExerciseCard exercise={exercise} session={inSession} />
-  });
+      return <ExerciseCard exercise={exercise} session={inSession} />
+    });
 
 
   return (
@@ -88,6 +88,8 @@ function Exercises({inSession}) {
       <DropdownTest name="Equipment Type" items={equipment} setSelected={setEquipmentFilter} />
 
       <input type="text" placeholder="Search" ref={(c) => setExerciseFilter(c) } />
+
+      <p>Results: {exercisesToShow.length} ({(exercises.length - exercisesToShow.length)} filtered)</p>
 
       <Card style={{ width: '18rem' }}>
         <ListGroup variant="flush">

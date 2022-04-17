@@ -35,7 +35,8 @@ function UserHistory() {
   }, []);
 
   return (
-    <Card style={{ width: '18rem' }}>
+    
+    <Card style={{ cursor: "pointer" }}>
       <ListGroup variant="flush">
         {
           history.map(exercise => (<ExerciseCard exercise={exercise}/>))

@@ -1,7 +1,9 @@
 import axios from "axios";
 import { default as React, useEffect, useState } from 'react';
+import { Card, ListGroup } from "react-bootstrap";
 import Container from "react-bootstrap/Container";
 import GlobalNavigation from '../components/GlobalNavigation';
+import WorkoutCard from "../components/workouts/WorkoutCard";
 import tokenStorage from '../tokenStorage';
 
 const HistoryPage = () => {
@@ -14,26 +16,31 @@ const HistoryPage = () => {
   var bp = require("../utils/Path.js");
 
   var obj = {
-    "userID": userId,
+    "userID": ud.userId,
     "jwtToken": tokenStorage.retrieveToken()
   };
 
   var js = JSON.stringify(obj);
 
-  var config = bp.apiCall("/api/displaySessions", js);
+  var config = bp.apiCall("api/displaySessions", js);
 
   useEffect(() => {
       
     axios(config).then(function (response) {
 
       var res = response.data;
-      setSessions(res.results);
+      setSessions(res.sessions);
 
     }).catch(function (error) {
       console.log(error);
     });
 
   }, []);
+
+  sessions.map((session) => {
+    console.log(session);
+    return <WorkoutCard session={session} />
+  });
 
   return (
 
@@ -43,7 +50,13 @@ const HistoryPage = () => {
 
       <h1>History</h1>
 
-      <p>{sessions}</p>
+      <Card style={{ width: '18rem' }}>
+        <ListGroup variant="flush">
+          {
+            sessions.map((session) => <WorkoutCard session={session} />)
+          }
+        </ListGroup>
+      </Card>
       
     </Container>
   );

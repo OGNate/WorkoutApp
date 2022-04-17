@@ -5,6 +5,22 @@ import { Link, Outlet, useParams } from "react-router-dom";
 import Excercises from "../components/exercises/Exercises";
 import tokenStorage from '../tokenStorage';
 
+function finishWorkout() {
+
+  const { sessionId } = useParams();
+  const [sessionDetails, setSessionDetails] = useState([]);
+
+  var obj = {
+    "sessionID": sessionId,
+    "jwtToken": tokenStorage.retrieveToken()
+  };
+
+  var bp = require("../utils/Path.js");
+  var js = JSON.stringify(obj);
+
+  //var config = bp.apiCall("api/finishWorkout", js);
+}
+
 function ActiveSessionPage() {
 
   const { sessionId } = useParams();
@@ -48,18 +64,6 @@ function ActiveSessionPage() {
           <Button variant="secondary">Cancel</Button>
 
           <Button variant="primary">Finish</Button>
-
-          <Modal show={show} onHide={handleClose}>
-
-            <Modal.Header closeButton>
-              <Modal.Title>Finish Workout?</Modal.Title>
-            </Modal.Header>
-
-            <Modal.Body>
-              <p>Text</p>
-            </Modal.Body>
-
-          </Modal>
 
           <p>Timer</p>
           <p>Notes</p>
