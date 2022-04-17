@@ -318,7 +318,7 @@ app.post('/api/login', async (req, res, next) => {
   });
 });
 
-//login API
+//userDetails API
 app.post('/api/userDetails', async (req, res, next) => {
 
   //Incoming: userId, jwtToken
@@ -370,7 +370,7 @@ app.post('/api/addSession', async (req, res, next) => {
   userSession.findOne({
 
     userID: ObjectId(req.body.userID),
-    "session.name": req.body.sessionName
+    sessionName: req.body.sessionName
 
   }).then((session) => {
 
@@ -382,12 +382,9 @@ app.post('/api/addSession', async (req, res, next) => {
     } else {
 
       const newWorkoutSession = new userSession({
-        
-        userID: ObjectId(req.body.userID),
 
-        session: {
-          name: req.body.sessionName
-        }
+        userID: ObjectId(req.body.userID),
+        sessionName: req.body.sessionName
 
       })
 
@@ -400,14 +397,14 @@ app.post('/api/addSession', async (req, res, next) => {
   }
   catch (e) 
   {
-    error = e.toString();
+    console.log(e.message);
   }
 });
 
 //updateSession API
 app.post('/api/updateSession', async (req, res, next) => {
 
-  //Incoming: userID, oldName, newName, jwtToken
+  //Incoming: userID, sessionId, newName, jwtToken
   //Outgoing: error, jwtToken
 
   const jwtToken = req.body.jwtToken;
@@ -419,7 +416,7 @@ app.post('/api/updateSession', async (req, res, next) => {
   {
   userSession.updateMany({
     userID: ObjectId(req.body.userID),
-    sessionName: req.body.oldName
+    _id: ObjectId(req.body.sessionId)
   }, {
     sessionName: req.body.newName
   }).then((result) => {
@@ -460,10 +457,10 @@ app.post('/api/displaySessions', async (req, res, next) => {
     } else {
       for( var i=0; i<results.length; i++ )
       {
-        if (ret.includes(results[i].sessionName)) {
+        if (ret.includes(results[i])) {
           continue;
         }
-        ret.push( results[i].sessionName );
+        ret.push( results[i] );
       }
 
       var refreshedToken = refreshToken(res, jwtToken);
@@ -480,7 +477,7 @@ app.post('/api/displaySessions', async (req, res, next) => {
 //deleteSession API
 app.post('/api/deleteSession', async (req, res, next) => {
 
-  //Incoming: userID, sessionName, jwtToken
+  //Incoming: userID, sessionId, jwtToken
   //Outgoing: error, jwtToken
 
   const jwtToken = req.body.jwtToken;
@@ -490,15 +487,15 @@ app.post('/api/deleteSession', async (req, res, next) => {
 
   try
   {
-  userSession.deleteMany({
+  userSession.deleteOne({
     userID: ObjectId(req.body.userID),
-    sessionName: req.body.sessionName
+    _id: ObjectId(req.body.sessionId)
   }).then((result) => {
   });
   }
   catch (e)
   {
-    error = e.toString();
+    console.log(e.message);
   }
 
   var refreshedToken = refreshToken(res, jwtToken);
@@ -542,7 +539,7 @@ app.post('/api/searchWorkout', async (req, res, next) => {
 //updateWorkout API
 app.post('/api/updateWorkout', async (req, res, next) => {
 
-  //Incoming: sessionID, exerciseName, reps, weight, time, distance, sets, bodyPart, jwtToken
+  //Incoming: workoutId, reps, weight, time, distance, sets, jwtToken
   //Outgoing: error, jwtToken
 
   const jwtToken = req.body.jwtToken;
@@ -553,22 +550,23 @@ app.post('/api/updateWorkout', async (req, res, next) => {
 
   try
   {
-  userSession.updateOne({
-    _id: ObjectId(req.body.sessionID)
-  }, {
-    exerciseName: req.body.exerciseName,
-    reps: req.body.reps,
-    weight: req.body.weight,
-    time: req.body.time,
-    distance: req.body.distance,
-    bodyPart: req.body.bodyPart,
-    sets: req.body.sets,
-  }).then((result) => {
-  });
+    userSession.updateOne({
+      'workouts._id': ObjectId(req.body.workoutId)
+    },
+    {
+      '$set': {
+      'workouts.$.weight': req.body.weight,
+      'workouts.$.reps': req.body.reps,
+      'workouts.$.time': req.body.time,
+      'workouts.$.distance': req.body.distance,
+      'workouts.$.sets': req.body.sets,
+      }
+      }).then((result) => {
+      });
   }
   catch (e)
   {
-    error = e.toString();
+    console.log(e.message);
   }
 
   var refreshedToken = refreshToken(res, jwtToken);
@@ -615,7 +613,7 @@ app.post('/api/addWorkout', async (req, res, next) => {
           userID: ObjectId(req.body.userID),
 
           // name is a field without workouts array
-          "workouts.name": workoutName
+          "workoutName": req.body.workoutName
 
         }).then((userWorkout) => {
 
@@ -635,30 +633,36 @@ app.post('/api/addWorkout', async (req, res, next) => {
         foundWorkout = globalWorkout;
       }
 
-      var addedWorkout = {
+      userSession.updateOne({
+        _id: ObjectId(req.body.sessionId)
+      },
+      {
+        $push: {
+        workouts: {
         name: foundWorkout.name,
         weight: foundWorkout.hasWeight ? 0 : -1,
         reps: foundWorkout.hasReps ? 0 : -1,
-        sets: foundWorkout.hasSets ? 0 : -1,
+        sets: 0,
         time: foundWorkout.hasTime ? 0 : -1,
         distance: foundWorkout.hasDistance ? 0 : -1
-      };
+        }
+        }
+        }).then((result) => {
+        });
     });
-
-
 
     var refreshedToken = refreshToken(res, jwtToken);
     return res.status(200).json({jwtToken: refreshedToken});
   });
   } catch (e) {
-    error = e.toString();
+    console.log(e.message);
   }
 });
 
 //displaySessionWorkouts API
 app.post('/api/displaySessionWorkouts', async (req, res, next) => {
 
-  //Incoming: userID, sessionName, jwtToken
+  //Incoming: sessionId, jwtToken
   //Outgoing: workouts[], error, jwtToken
 
   const jwtToken = req.body.jwtToken;
@@ -667,27 +671,18 @@ app.post('/api/displaySessionWorkouts', async (req, res, next) => {
 
   checkTokenStatus(res, jwtToken);
 
-  userSession.find({
-    userID: ObjectId(req.body.userID),
-    sessionName: req.body.sessionName
-  }).then((results) => {
+  userSession.findOne({
+    _id: ObjectId(req.body.sessionId)
+  }).then((session) => {
 
-    if (!results.length) {
+    if (!session) {
       return res.status(404).json({
         error: "No sessions matched the description. Please try again."
       });
 
     } else {
-      for( var i=0; i<results.length; i++ )
-      {
-        ret.push( results[i] );
-      }
 
-      if (ret[0].isEmpty == true) {
-        return res.status(200).json({
-          error: "The session is empty."
-        })
-      }
+      ret = session.workouts
 
       var refreshedToken = refreshToken(res, jwtToken);
       return res.status(200).json({workouts: ret, error: error, jwtToken: refreshedToken});
@@ -698,7 +693,7 @@ app.post('/api/displaySessionWorkouts', async (req, res, next) => {
 //deleteWorkout API
 app.post('/api/deleteWorkout', async (req, res, next) => {
 
-  //Incoming: sessionID, sessionName, userID
+  //Incoming: workoutId, sessionId, jwtToken
   //Outgoing: error
 
   const jwtToken = req.body.jwtToken;
@@ -708,24 +703,15 @@ app.post('/api/deleteWorkout', async (req, res, next) => {
 
   try
   {
-  userSession.findOneAndDelete({
-    _id: ObjectId(req.body.sessionID)
-  }).then((session) => {
-
-  userSession.findOne({
-    userID: ObjectId(req.body.userID),
-    sessionName: req.body.sessionName
-  }).then((session) => {
-
-    if(!session) {
-      const newWorkoutSession = new userSession({
-        userID: ObjectId(req.body.userID),
-        sessionName: req.body.sessionName,
-        isEmpty: true
-      });
-      newWorkoutSession.save();
+  userSession.findOneAndUpdate({
+    _id: ObjectId(req.body.sessionId)
+  }, {
+    $pull: {
+      workouts: {
+        _id: ObjectId(req.body.workoutId)
+      }
     }
-  });
+  }).then((workout) => {
   });
   }
   catch (e)
@@ -979,10 +965,11 @@ app.post('/api/searchByEquipment', async (req, res, next) => {
 });
 
 //finishWorkout API
-//Also updates userStats and userHistory
+//If session is completed, also updates session
+//Also updates userStats
 app.post('/api/finishWorkout', async (req, res, next) => {
 
-  //Incoming: userID, sessionID, sessionName, exerciseName, weight, reps, sets, time, distance
+  //Incoming: sessionId, workoutId, weight, reps, sets, time, distance
   //Outgoing: sessionCompleted, error, jwtToken
 
   const jwtToken = req.body.jwtToken;
@@ -993,9 +980,9 @@ app.post('/api/finishWorkout', async (req, res, next) => {
   try
   {
   userSession.findOneAndUpdate({
-    _id: ObjectId(req.body.sessionID)
+    'workouts._id': ObjectId(req.body.workoutId)
   }, {
-    isCompleted: true
+    'workouts.$.isCompleted': true
   }, {
     new: true}).then((result) => {
 
@@ -1021,18 +1008,27 @@ app.post('/api/finishWorkout', async (req, res, next) => {
 
     //Check to see if session is finished
     userSession.find({
-      userID: ObjectId(req.body.userID),
-      sessionName: req.body.sessionName
+    _id: ObjectId(req.body.sessionId),
+    'workouts.isCompleted': false
     }).then((results) => {
 
-      var sessionCompleted = true;
-      for (var i=0; i<results.length; i++)
+      var sessionCompleted = false
+      if(!results.length)
       {
-        if(results[i].isCompleted == false)
-        {
-          sessionCompleted = false;
-          break;
-        }
+        sessionCompleted = true
+        userSession.findOneAndUpdate({
+          _id: req.body.sessionId
+        }, 
+        [
+          { 
+            '$set':
+            {
+              'completedAt': '$updatedAt',
+              'sessionCompleted': true
+            }
+          }
+        ]).then((result) => {
+        });
       }
 
       var refreshedToken = refreshToken(res, jwtToken);
@@ -1041,6 +1037,67 @@ app.post('/api/finishWorkout', async (req, res, next) => {
   });
   }
   catch (e)
+  {
+    console.log(e.message);
+  }
+});
+
+//displayUserHistory API
+app.post('/api/displayUserHistory', async (req, res, next) => {
+
+  //Incoming: userID, jwtToken
+  //Outgoing: userHistory[], error, jwtToken
+
+  const jwtToken = req.body.jwtToken;
+  var ret = [];
+  var error = "";
+
+  try
+  {
+    if( token.isExpired(jwtToken))
+    {
+      var r = {error:'The JWT is no longer valid', jwtToken: ''};
+      res.status(200).json(r);
+      return;
+    }
+  }
+  catch(e)
+  {
+    console.log(e.message);
+  }
+
+  try
+  {
+  userSession.find({
+    userID: ObjectId(req.body.userID),
+    sessionCompleted: true
+  }).then((sessions) => {
+
+    if (!sessions.length) {
+      return res.status(404).json({
+        error: "No user history found for this user."
+      });
+
+    } else {
+      for( var i=0; i<sessions.length; i++ )
+      {
+        ret.push( sessions[i] );
+      }
+
+      var refreshedToken = null;
+      try
+      {
+        refreshedToken = token.refresh(jwtToken);
+      }
+      catch(e)
+      {
+        console.log(e.message);
+      }
+      return res.status(200).json({userHistory: ret, error: error, jwtToken: refreshedToken});
+    }
+  });
+  }
+  catch (e) 
   {
     console.log(e.message);
   }
@@ -1097,216 +1154,6 @@ app.post('/api/displayUserStats', async (req, res, next) => {
 	}
 });
 
-//displayAllBodyParts API
-app.post('/api/displayAllBodyParts', async (req, res, next) => {
-
-  //Incoming: jwtToken
-  //Outgoing: results[], error, jwtToken
-
-  const jwtToken = req.body.jwtToken;
-  var error = '';
-  var ret = [];
-
-  checkTokenStatus(res, jwtToken);
-
-  workoutFormat.find({}).then((results) => {
-
-    if (!results) {
-      return res.status(404).json({
-        error: "Workout database is empty!"
-      });
-
-    } else {
-      for( var i=0; i<results.length; i++ )
-      {
-        for( var j=0; j<results[i].bodyPart.length; j++)
-        {
-          if (ret.includes(results[i].bodyPart[j]))
-          {
-            continue;
-          }
-          ret.push( results[i].bodyPart[j] );
-        }
-      }
-      return res.status(200).json({results: ret, error: error, jwtToken: refreshedToken});
-    }
-  });
-
-  var refreshedToken = refreshToken(res, jwtToken);
-});
-
-//displayAllWorkoutTypes API
-app.post('/api/displayAllWorkoutTypes', async (req, res, next) => {
-
-  //Incoming: jwtToken
-  //Outgoing: results[], error, jwtToken
-
-  const jwtToken = req.body.jwtToken;
-  var error = '';
-  var ret = [];
-
-  checkTokenStatus(res, jwtToken);
-
-  workoutFormat.find({}).then((results) => {
-
-    if (!results) {
-      return res.status(404).json({
-        error: "Workout database is empty!"
-      });
-
-    } else {
-      for( var i=0; i<results.length; i++ )
-      {
-        if (ret.includes(results[i].workoutType))
-        {
-          continue;
-        }
-        ret.push( results[i].workoutType );
-      }
-      return res.status(200).json({results: ret, error: error, jwtToken: refreshedToken});
-    }
-  });
-
-  var refreshedToken = refreshToken(res, jwtToken);
-});
-
-//displayAllEquipment API
-app.post('/api/displayAllEquipment', async (req, res, next) => {
-
-  //Incoming: jwtToken
-  //Outgoing: results[], error, jwtToken
-
-  const jwtToken = req.body.jwtToken;
-  var error = '';
-  var ret = [];
-
-  checkTokenStatus(res, jwtToken);
-
-  workoutFormat.find({}).then((results) => {
-
-    if (!results) {
-      return res.status(404).json({
-        error: "Workout database is empty!"
-      });
-
-    } else {
-      for( var i=0; i<results.length; i++ )
-      {
-        for( var j=0; j<results[i].equipment.length; j++)
-        {
-          if (ret.includes(results[i].equipment[j]))
-          {
-            continue;
-          }
-          ret.push( results[i].equipment[j] );
-        }
-      }
-
-      var refreshedToken = refreshToken(res, jwtToken);
-      return res.status(200).json({results: ret, error: error, jwtToken: refreshedToken});
-    }
-  });
-});
-
-//searchByBodyPart API
-app.post('/api/searchByBodyPart', async (req, res, next) => {
-
-  //Incoming: bodyPart, jwtToken
-  //Outgoing: results[], error, jwtToken
-
-  const jwtToken = req.body.jwtToken;
-  var error = '';
-  var ret = [];
-
-  checkTokenStatus(res, jwtToken);
-
-  workoutFormat.find({
-    bodyPart: req.body.bodyPart
-  }).then((results) => {
-
-    if (!results) {
-      return res.status(404).json({
-        error: "No workout found for body part!"
-      });
-
-    } else {
-      for( var i=0; i<results.length; i++ )
-      {
-        ret.push( results[i] );
-      }
-
-      var refreshedToken = refreshToken(res, jwtToken);
-      return res.status(200).json({results: ret, error: error, jwtToken: refreshedToken});
-    }
-  });
-});
-
-//searchByWorkoutType API
-app.post('/api/searchByWorkoutType', async (req, res, next) => {
-
-  //Incoming: workoutType, jwtToken
-  //Outgoing: results[], error, jwtToken
-
-  const jwtToken = req.body.jwtToken;
-  var error = '';
-  var ret = [];
-
-  checkTokenStatus(res, jwtToken);
-
-  workoutFormat.find({
-    workoutType: req.body.workoutType
-  }).then((results) => {
-
-    if (!results) {
-      return res.status(404).json({
-        error: "No workout found for body part!"
-      });
-
-    } else {
-      for( var i=0; i<results.length; i++ )
-      {
-        ret.push( results[i] );
-      }
-
-      var refreshedToken = refreshToken(res, jwtToken);
-      return res.status(200).json({results: ret, error: error, jwtToken: refreshedToken});
-    }
-  });
-});
-
-//searchByEquipment API
-app.post('/api/searchByEquipment', async (req, res, next) => {
-
-  //Incoming: equipment, jwtToken
-  //Outgoing: results[], error, jwtToken
-
-  const jwtToken = req.body.jwtToken;
-  var error = '';
-  var ret = [];
-
-  checkTokenStatus(res, jwtToken);
-
-  workoutFormat.find({
-    equipment: req.body.equipment
-  }).then((results) => {
-
-    if (!results) {
-      return res.status(404).json({
-        error: "No workout found for body part!"
-      });
-
-    } else {
-      for( var i=0; i<results.length; i++ )
-      {
-        ret.push( results[i] );
-      }
-
-      var refreshedToken = refreshToken(res, jwtToken);
-      return res.status(200).json({results: ret, error: error, jwtToken: refreshedToken});
-    }
-  });
-});
-
 // getAllWorkoutDetails API
 app.post('/api/getAllWorkoutDetails', async (req, res, next) => {
 
@@ -1349,309 +1196,6 @@ app.post('/api/getAllWorkoutDetails', async (req, res, next) => {
   {
     console.log(e.message);
   }
-});
-
-//finishWorkoutAndUpdateHistory API
-app.post('/api/finishWorkoutAndUpdateHistory', async (req, res, next) => {
-
-  //Incoming: userID, sessionID, sessionName
-  //Outgoing: sessionCompleted, error, jwtToken
-
-  const jwtToken = req.body.jwtToken;
-  var error = '';
-
-  checkTokenStatus(res, jwtToken);
-
-  try
-  {
-  userSession.updateOne({
-    _id: ObjectId(req.body.sessionID)
-  }, {
-    isCompleted: true
-  }).then((result) => {
-
-    userStats.updateOne({
-      userId: req.body.userID
-    }, {
-      
-    }).then((update_result) => {
-      
-    });
-
-    userSession.find({
-      userID: ObjectId(req.body.userID),
-      sessionName: req.body.sessionName
-    }).then((results) => {
-
-      var sessionCompleted = true;
-      for (var i=0; i<results.length; i++)
-      {
-        if(results[i].isCompleted == false)
-        {
-          sessionCompleted = false;
-          break;
-        }
-      }
-
-      var refreshedToken = refreshToken(res, jwtToken);
-      return res.status(200).json({sessionCompleted: sessionCompleted, error: error, jwtToken: refreshedToken});
-    });
-  });
-  }
-  catch (e)
-  {
-    console.log(e.message);
-  }
-});
-
-//displayAllBodyParts API
-app.post('/api/displayAllBodyParts', async (req, res, next) => {
-
-  //Incoming: jwtToken
-  //Outgoing: results[], error, jwtToken
-
-  const jwtToken = req.body.jwtToken;
-  var error = '';
-  var ret = [];
-
-  checkTokenStatus(res, jwtToken);
-
-  workoutFormat.find({}).then((results) => {
-
-    if (!results) {
-      return res.status(404).json({
-        error: "Workout database is empty!"
-      });
-
-    } else {
-      for( var i=0; i<results.length; i++ )
-      {
-        for( var j=0; j<results[i].bodyPart.length; j++)
-        {
-          if (ret.includes(results[i].bodyPart[j]))
-          {
-            continue;
-          }
-          ret.push( results[i].bodyPart[j] );
-        }
-      }
-      return res.status(200).json({results: ret, error: error/*, jwtToken: refreshedToken*/});
-    }
-  });
-});
-
-//displayAllWorkoutTypes API
-app.post('/api/displayAllWorkoutTypes', async (req, res, next) => {
-
-  //Incoming: jwtToken
-  //Outgoing: results[], error, jwtToken
-
-  const jwtToken = req.body.jwtToken;
-  var error = '';
-  var ret = [];
-
-  checkTokenStatus(res, jwtToken);
-
-  workoutFormat.find({}).then((results) => {
-
-    if (!results) {
-      return res.status(404).json({
-        error: "Workout database is empty!"
-      });
-
-    } else {
-      for( var i=0; i<results.length; i++ )
-      {
-        if (ret.includes(results[i].workoutType))
-        {
-          continue;
-        }
-        ret.push( results[i].workoutType );
-      }
-      return res.status(200).json({results: ret, error: error/*, jwtToken: refreshedToken*/});
-    }
-  });
-});
-
-//displayAllEquipment API
-app.post('/api/displayAllEquipment', async (req, res, next) => {
-
-  //Incoming: jwtToken
-  //Outgoing: results[], error, jwtToken
-
-  const jwtToken = req.body.jwtToken;
-  var error = '';
-  var ret = [];
-
-  checkTokenStatus(res, jwtToken);
-
-  workoutFormat.find({}).then((results) => {
-
-    if (!results) {
-      return res.status(404).json({
-        error: "Workout database is empty!"
-      });
-
-    } else {
-      for( var i=0; i<results.length; i++ )
-      {
-        for( var j=0; j<results[i].equipment.length; j++)
-        {
-          if (ret.includes(results[i].equipment[j]))
-          {
-            continue;
-          }
-          ret.push( results[i].equipment[j] );
-        }
-      }
-
-      return res.status(200).json({results: ret, error: error/*, jwtToken: refreshedToken*/});
-    }
-  });
-});
-
-//searchByBodyPart API
-app.post('/api/searchByBodyPart', async (req, res, next) => {
-
-  //Incoming: bodyPart, jwtToken
-  //Outgoing: results[], error, jwtToken
-
-  const jwtToken = req.body.jwtToken;
-  var error = '';
-  var ret = [];
-
-  checkTokenStatus(res, jwtToken);
-
-  workoutFormat.find({
-    bodyPart: req.body.bodyPart
-  }).then((results) => {
-
-    if (!results) {
-      return res.status(404).json({
-        error: "No workout found for body part!"
-      });
-
-    } else {
-      for( var i=0; i<results.length; i++ )
-      {
-        ret.push( results[i] );
-      }
-
-      return res.status(200).json({results: ret, error: error/*, jwtToken: refreshedToken*/});
-    }
-  });
-});
-
-//searchByWorkoutType API
-app.post('/api/searchByWorkoutType', async (req, res, next) => {
-
-  //Incoming: workoutType, jwtToken
-  //Outgoing: results[], error, jwtToken
-
-  const jwtToken = req.body.jwtToken;
-  var error = '';
-  var ret = [];
-
-  checkTokenStatus(res, jwtToken);
-
-  workoutFormat.find({
-    workoutType: req.body.workoutType
-  }).then((results) => {
-
-    if (!results) {
-      return res.status(404).json({
-        error: "No workout found for body part!"
-      });
-
-    } else {
-      for( var i=0; i<results.length; i++ )
-      {
-        ret.push( results[i] );
-      }
-
-      return res.status(200).json({results: ret, error: error/*, jwtToken: refreshedToken*/});
-    }
-  });
-});
-
-//searchByEquipment API
-app.post('/api/searchByEquipment', async (req, res, next) => {
-
-  //Incoming: equipment, jwtToken
-  //Outgoing: results[], error, jwtToken
-
-  const jwtToken = req.body.jwtToken;
-  var error = '';
-  var ret = [];
-
-  checkTokenStatus(res, jwtToken);
-
-  workoutFormat.find({
-    equipment: req.body.equipment
-  }).then((results) => {
-
-    if (!results) {
-      return res.status(404).json({
-        error: "No workout found for body part!"
-      });
-
-    } else {
-      for( var i=0; i<results.length; i++ )
-      {
-        ret.push( results[i] );
-      }
-
-      return res.status(200).json({results: ret, error: error/*, jwtToken: refreshedToken*/});
-    }
-  });
-});
-
-// -----------------------------------------------------------------------------------------------------------------------------------
-// JSON Params:
-//		jwtToken: A given Java Web Token (JWT) passed onto the json.
-//		userID: A userID passed on to identify which user we will be displaying the stats of.
-// Returns:
-//		Returns a json of the user's stats, and empty error message, and a refreshed JWT token.
-//
-app.post('/api/displayUserStats', async (req, res, next) => {
-	const jwtToken = req.body.jwtToken;
-	var ret = [];
-	var error = "";
-	
-  checkTokenStatus(res, jwtToken);
-
-	try {
-
-		// Finds the stats for the given userID
-		userStats.find({userID: ObjectId(req.body.userID)}).then((result) => {
-			
-			// If there are no stats in with the given userID, return a error message
-			if (!result) {
-				return res.status(420).json({error: "Stats for given user do not exist, check userID again"});
-			}
-
-			// If there are more than one user with the same userID, an error will be thrown.
-			if (result.length != 1) {
-				return res.status(420).json({error: "Multiple users with the same userID"});
-			}
-
-			// Creates a new JWT token
-			var refreshedToken = null;
-
-			var refreshedToken = refreshToken(res, jwtToken);
-
-			// Returns a 200 status (meaning everything works). Returns a json of the users stats, the error message (should be nothing), and the refreshed JWT token.
-			return res.status(200).json({
-				userStat: result,
-				error: error,
-				jwtToken: refreshedToken
-			});
-		});
-	}
-	catch(error) {
-		console.log(error.message);
-		return res.status(420).json({error: error.message});
-	}
 });
 
 function checkTokenStatus(res, jwtToken) {
