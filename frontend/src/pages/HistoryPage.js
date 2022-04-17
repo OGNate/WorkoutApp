@@ -20,7 +20,7 @@ const HistoryPage = () => {
 
   var js = JSON.stringify(obj);
 
-  var config = bp.apiCall("/api/displaySession", js);
+  var config = bp.apiCall("/api/displaySessions", js);
 
   useEffect(() => {
       
