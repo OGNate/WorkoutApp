@@ -111,10 +111,10 @@ function Login() {
       </Form>
 
       <p className="no-account text-right">
-          No account? <a href="register">Register</a>
-        </p>
+        No account? <a href="register">Register</a>
+      </p>
     </>
-  )
+  );
 };
 
 export default Login;

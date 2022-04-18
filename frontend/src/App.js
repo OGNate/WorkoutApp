@@ -7,6 +7,7 @@ import HistoryPage from './pages/HistoryPage';
 import HomePage from './pages/HomePage';
 import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
+import PasswordResetPage from './pages/PasswordResetPage';
 import ProfilePage from './pages/ProfilePage';
 import RegisterPage from './pages/RegisterPage';
 import VerifiedAccountPage from './pages/VerifiedAccountPage';
@@ -27,6 +28,7 @@ function App() {
       <Route path="register" element={<RegisterPage />} />
 
       <Route path="verifyAccount" element={<VerifyAccountPage />} />
+      <Route path="reset-password" element={<PasswordResetPage /> } />
 
       <Route path="emailVerification/:userID/:uniqueEmailToken" element={<VerifiedAccountPage />} />
 
