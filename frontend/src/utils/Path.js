@@ -19,7 +19,7 @@ exports.apiCall = function apiCall(endpoint, json, method) {
   return call;
 }
 
-exports.buildBackendPath = function buildPath(route) {
+exports.buildPath = function buildPath(route) {
 
   return process.env.NODE_ENV === 'production' ?
     'https://' + app_name +  '.herokuapp.com/' + route :
