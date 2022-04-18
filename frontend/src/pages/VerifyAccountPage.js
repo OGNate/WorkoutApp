@@ -7,7 +7,7 @@ const VerifyAccountPage = (props) => {
 
     <div>
       <GlobalNavigation />
-      <p>An email was sent to: {props.match.params.emailAddress}</p>
+      <p>An email was sent to:</p>
     </div>
   );
 };
