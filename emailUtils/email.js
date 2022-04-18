@@ -36,9 +36,9 @@ const sendVerificationEmail = (userID, firstName, toEmail, uniqueEmailToken) => 
         });
     
         mailOptions = {
-            from: "shreddit.ucf@gmail.com",
+            from: "Shreddit Team",
             to: toEmail,
-            subject: "Shreddit: Please Verify Email",
+            subject: "Shreddit: Verify your account",
             html: htmlToSend
         };
     

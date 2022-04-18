@@ -201,7 +201,7 @@ app.post("/api/requestPasswordReset", async(req, res) => {
 
     console.log(passwordResetToken.resetToken);
 
-    sendPasswordResetEmail(checkUser._id, checkUser.email, passwordResetToken.resetToken);
+    sendPasswordResetEmail(checkUser._id, checkUser.firstName, checkUser.email, passwordResetToken.resetToken);
 
     res.send(`If ${checkUser.email} is in our system, password reset link sent to email`);
 
