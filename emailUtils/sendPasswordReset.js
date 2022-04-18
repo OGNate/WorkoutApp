@@ -26,7 +26,7 @@ const sendPasswordResetEmail = (userID, firstName, toEmail, passwordResetToken) 
         });
     
         var mailOptions;
-        var actionUrl = bp.buildPath("passwordReset") + "/" + userID + "/" + passwordResetToken;
+        var actionUrl = bp.buildPath("resetPassword") + "/" + userID + "/" + passwordResetToken;
 
         const template = handlebars.compile(templateSrc);
 

@@ -18,7 +18,7 @@ function NewPasswordPage() {
 
   var bp = require("../utils/Path.js");
 
-  var newPassword, newPassword2;
+  var newPW, confirmNewPW;
 
   const attemptResetPassword = async (event) => {
     
@@ -27,7 +27,7 @@ function NewPasswordPage() {
     var obj = {
       userID: userID,
       passwordResetToken: passwordResetToken,
-      newPassword: newPassword
+      newPassword: newPW
     };
 
     var js = JSON.stringify(obj);
@@ -59,12 +59,12 @@ function NewPasswordPage() {
 
         <Form.Group className="mb-3">
           <label>Password</label>
-          <input type="password" className="form-control" placeholder="Enter new password" ref={(c) => newPassword = c} />
+          <input type="password" className="form-control" placeholder="Enter new password" ref={(c) => newPW = c} />
         </Form.Group>
 
         <Form.Group className="mb-3">
           <label>Confirm Password</label>
-          <input type="password" className="form-control" placeholder="Confirm new password"ref={(c) => newPassword2 = c} />
+          <input type="password" className="form-control" placeholder="Confirm new password"ref={(c) => confirmNewPW = c} />
         </Form.Group>
 
         <Button variant="primary" type="submit" className="btn btn-primary btn-block">
