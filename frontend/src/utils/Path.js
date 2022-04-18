@@ -1,3 +1,5 @@
+import axios from "axios";
+
 const app_name = 'shreddit-ucf'
 
 exports.apiCall = function apiCall(endpoint, json, method) {
