@@ -1,5 +1,3 @@
-import axios from "axios";
-
 const app_name = 'shreddit-ucf'
 
 exports.apiCall = function apiCall(endpoint, json, method) {
@@ -24,12 +22,13 @@ exports.apiCall = function apiCall(endpoint, json, method) {
 exports.apiGetCall = function apiGetCall(endpoint) {
   
   var call = {
-    method: "GET"
+    method: "GET",
+    url: this.buildPath(endpoint)
   };
 
   console.log(call);
 
-  axios.get(this.buildPath(endpoint), call);
+  return call;
 }
 
 exports.buildPath = function buildPath(route) {
