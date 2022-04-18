@@ -28,7 +28,7 @@ const sendVerificationEmail = (userID, firstName, toEmail, uniqueEmailToken) => 
         var mailOptions;
         var actionUrl = bp.buildPath("emailVerification") + "/" + userID + "/" + uniqueEmailToken;
 
-        const template = handlebars.compile(emailTemplateSource);
+        const template = handlebars.compile(templateSrc);
 
         const htmlToSend = template({
             name: firstName,
