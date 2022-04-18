@@ -142,7 +142,7 @@ app.post('/api/register', async(req, res) => {
   await emailVerificationToken.save();
 
   // Sends a verification email to verify the email
-  sendVerificationEmail(newUser._id, newUser.email, emailVerificationToken.token);
+  sendVerificationEmail(newUser._id, newUser.firstName, newUser.email, emailVerificationToken.token);
   
   res.send("Please verify your email");
 });

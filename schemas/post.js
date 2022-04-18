@@ -66,32 +66,9 @@ const postSchema = new mongoose.Schema({
     trim: true,
   },
 
-  postType: {
-    type: String,
-    required: true,
-  },
-
   textSubmission: {
     type: String,
     trim: true,
-  },
-
-  linkSubmission: {
-    type: String,
-    trim: true,
-  },
-
-  imageSubmission: {
-
-    imageLink: {
-      type: String,
-      trim: true,
-    },
-
-    imageId: {
-      type: String,
-      trim: true,
-    },
   },
 
   author: {
@@ -114,21 +91,6 @@ const postSchema = new mongoose.Schema({
   pointsCount: {
     type: Number,
     default: 1,
-  },
-
-  voteRatio: {
-    type: Number,
-    default: 0,
-  },
-
-  hotAlgo: {
-    type: Number,
-    default: Date.now,
-  },
-
-  controversialAlgo: {
-    type: Number,
-    default: 0,
   },
 
   comments: [commentSchema],
