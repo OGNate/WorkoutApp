@@ -1,5 +1,3 @@
-import { faClock, faDumbbell, faMap } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import tokenStorage from '../tokenStorage';
@@ -26,7 +24,16 @@ function Profile() {
   var configUserStats = bp.apiCall("api/displayUserStats", js);
 
   useEffect(() => {
-      
+    let stats = {
+      totalWeight: 1000,
+      totalReps: 1000,
+      totalSets: 250,
+      totalDistance: 50,
+      totalTime: 3628,
+    };
+    stats = {...stats, totalTime: convertHMS(stats.totalTime)}
+    setUserStats(stats);
+
     axios(configUserDetails).then(function (response) {
       setUserInfo(response.data.user);
     }).catch(function (error) {
@@ -34,31 +41,59 @@ function Profile() {
     });
 
     axios(configUserStats).then(function (response) {
-      setUserStats(response.data.userStats);
+      let stats = {...response.data.userStats, totalTime: convertHMS(response.data.userStats.totalTime)}
+      setUserStats(stats);
+      console.log(response.data);
     }).catch(function (error) {
       console.log(error);
     });
 
   }, []);
 
+  function convertHMS(value) {
+    const sec = parseInt(value, 10); // convert value to number if it's string
+    let hours = Math.floor(sec / 3600); // get hours
+    let minutes = Math.floor((sec - (hours * 3600)) / 60); // get minutes
+    let seconds = sec - (hours * 3600) - (minutes * 60); //  get seconds
+    // add 0 if value < 10; Example: 2 => 02
+    if (hours < 10) { hours = "0" + hours; }
+    if (minutes < 10) { minutes = "0" + minutes; }
+    if (seconds < 10) { seconds = "0" + seconds; }
+    return hours + ':' + minutes + ':' + seconds; // Return is HH : MM : SS
+  }
+
   return (
     <>
-      <h3>{userInfo._id}</h3>
-      <h3>{userInfo.firstName} {userInfo.lastName}</h3>
-      <h3>Goal: {userInfo.goal}</h3>
+      <h3>Hello, {userInfo.firstName} {userInfo.lastName}.</h3>
+      <h4>Goal: {userInfo.goal}</h4>
 
-      <h3>Number of workouts: N/A</h3>
+      <table>
+        <tr>
+          <th>Stat</th>
+          <th>Value</th>
+        </tr>
 
-      <h3>Time recorded: {userStats.totalTime}</h3>
-      <FontAwesomeIcon icon={faClock} />
-
-      <h3>Weight recorded: {userStats.totalWeight}</h3>
-      <FontAwesomeIcon icon={faDumbbell} />
-
-      <h3>Total reps: N/A</h3>
-
-      <h3>Distance recorded: {userStats.totalDistance}</h3>
-      <FontAwesomeIcon icon={faMap} />
+        <tr>
+          <td>Total Weight</td>
+          <td>{userStats.totalWeight} lbs</td>
+        </tr>
+        <tr>
+          <td>Total Reps</td>
+          <td>{userStats.totalReps}</td>
+        </tr>
+        <tr>
+          <td>Total Sets</td>
+          <td>{userStats.totalSets}</td>
+        </tr>
+        <tr>
+          <td>Total Distance</td>
+          <td>{userStats.totalDistance} miles</td>
+        </tr>
+        <tr>
+          <td>Total Time</td>
+          <td>{userStats.totalTime}</td>
+        </tr>
+      </table>
     </>
   );
 };

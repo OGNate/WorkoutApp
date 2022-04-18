@@ -1,6 +1,7 @@
 import axios from "axios";
 import React, { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
+import GlobalNavigation from '../components/GlobalNavigation';
 
 const VerifiedAccountPage = () => {
 
@@ -38,7 +39,11 @@ const VerifiedAccountPage = () => {
   }, []);
 
   return (
-    <p>Congrats, you're verified!</p>
+    <>
+      <GlobalNavigation />
+
+      <p>Congrats, you're verified!</p>
+    </>
   );
 };
 
