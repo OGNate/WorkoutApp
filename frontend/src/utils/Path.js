@@ -5,7 +5,7 @@ exports.apiCall = function apiCall(endpoint, json, method) {
   var call = {
       
     method: method ? method : "POST",
-    url: this.buildBackendPath(endpoint),
+    url: this.buildPath(endpoint),
 
     headers: {
       "Content-Type": "application/json",
