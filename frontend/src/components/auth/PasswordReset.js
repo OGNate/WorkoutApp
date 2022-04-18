@@ -31,7 +31,7 @@ function PasswordReset() {
 
     axios(config).then(function (response) {
 
-      var res = response.data.ret;
+      var res = response.data;
 
       if (res.error) {
 
