@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { Form } from 'react-bootstrap';
 import Button from 'react-bootstrap/Button';
 import { useLocation, useNavigate } from "react-router";
-import { useParams } from "react-router-dom";
+import { Outlet, useParams } from "react-router-dom";
 
 function NewPasswordPage() {
 
@@ -71,6 +71,8 @@ function NewPasswordPage() {
           Submit
         </Button>
       </Form>
+
+      <Outlet />
     </>
   );
 }
