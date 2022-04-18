@@ -28,7 +28,7 @@ function App() {
       <Route path="register" element={<RegisterPage />} />
 
       <Route path="verifyAccount" element={<VerifyAccountPage />} />
-      <Route path="reset-password" element={<PasswordResetPage /> } />
+      <Route path="forgot-password" element={<PasswordResetPage /> } />
 
       <Route path="emailVerification/:userID/:uniqueEmailToken" element={<VerifiedAccountPage />} />
 
