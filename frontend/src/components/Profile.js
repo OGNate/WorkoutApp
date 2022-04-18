@@ -23,18 +23,7 @@ function Profile() {
 
   var configUserStats = bp.apiCall("api/displayUserStats", js);
 
-  useEffect(() => {
-    let stats = {
-      totalWeight: 1000,
-      totalReps: 1000,
-      totalSets: 250,
-      totalDistance: 50,
-      totalTime: 3628,
-    };
-    stats = {...stats, totalTime: convertHMS(stats.totalTime)}
-    setUserStats(stats);
-
-    axios(configUserDetails).then(function (response) {
+  axios(configUserDetails).then(function (response) {
       setUserInfo(response.data.user);
     }).catch(function (error) {
       console.log(error);
