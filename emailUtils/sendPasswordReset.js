@@ -1,9 +1,10 @@
-const nodemailer = require("nodemailer");
-require('dotenv').config();
-const crypto = require('crypto');
-const PasswordReset = require("../schemas/passwordResetToken");
-const mail = require("@sendgrid/mail");
 const res = require("express/lib/response");
+const nodemailer = require("nodemailer");
+const handlebars = require("handlebars")
+const fs = require("fs")
+const path = require("path")
+
+require('dotenv').config();
 
 const sendPasswordResetEmail = (userID, firstName, toEmail, passwordResetToken) => {
     
