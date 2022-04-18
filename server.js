@@ -151,10 +151,10 @@ app.post('/api/register', async(req, res) => {
 // Verifies the email of the registered user
 app.post("/api/emailVerification", async (req, res) => {
 
-  const checkUser = await User.findOne({_id: ObjectId(req.params.userID)});
+  const checkUser = await User.findOne({_id: ObjectId(req.body.userID)});
   if(!checkUser) return res.status(420).json({error: "Error at checking userID in server.js email verification"});
 
-  const checkEmailToken = await emailToken.findOne({userID: req.params.userID, token: req.params.uniqueEmailToken});
+  const checkEmailToken = await emailToken.findOne({userID: req.body.userID, token: req.body.uniqueEmailToken});
   if(!checkEmailToken) return res.status(420).json({error: "emailToken does not exist"});
 
   // Changes isVerified classification for the user to true.
@@ -162,11 +162,11 @@ app.post("/api/emailVerification", async (req, res) => {
   await checkUser.save();
 
   // Deletes the email token from emailToken collection
-  emailToken.deleteOne({userID: ObjectId(req.params.userID), token: req.params.uniqueEmailToken});
+  emailToken.deleteOne({userID: ObjectId(req.body.userID), token: req.body.uniqueEmailToken});
 
   // Creates a stat history for the new user
   const newStat = new userStats({
-    userID: req.params.userID
+    userID: req.body.userID
   });
 
   await newStat.save();
