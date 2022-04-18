@@ -38,7 +38,7 @@ function PasswordReset() {
         setErrorMessage(res.error);
         
       } else {
-        navigate("/reset-password");
+        navigate("/resetPassword");
       }
     });
   }

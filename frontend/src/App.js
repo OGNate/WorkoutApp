@@ -7,6 +7,7 @@ import HistoryPage from './pages/HistoryPage';
 import HomePage from './pages/HomePage';
 import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
+import NewPasswordPage from "./pages/NewPasswordPage";
 import PasswordResetPage from './pages/PasswordResetPage';
 import ProfilePage from './pages/ProfilePage';
 import RegisterPage from './pages/RegisterPage';
@@ -27,10 +28,15 @@ function App() {
       <Route path="login" element={<LoginPage />} />
       <Route path="register" element={<RegisterPage />} />
 
-      <Route path="verifyAccount" element={<VerifyAccountPage />} />
-      <Route path="forgot-password" element={<PasswordResetPage /> } />
+      <Route path="verifyAccount" element={<Outlet />}>
+        <Route path=":userID/:uniqueEmailToken" element={<VerifiedAccountPage />} />
+        <Route index element={<VerifyAccountPage />} />
+      </Route>
 
-      <Route path="emailVerification/:userID/:uniqueEmailToken" element={<VerifiedAccountPage />} />
+      <Route path="forgotPassword" element={<Outlet />}>
+        <Route path=":userID/:passwordResetToken" element={<NewPasswordPage />} />
+        <Route index element={<PasswordResetPage />} />
+      </Route>
 
       <Route element={<PrivateRoute />}>
         
@@ -38,10 +44,8 @@ function App() {
         <Route path="history" element={<HistoryPage />} />
 
         <Route path="workout" element={<Outlet />}>
-
           <Route path=":sessionId" element={<ActiveSessionPage />} />
           <Route path=":sessionId/summary" element={<WorkoutSummaryPage />} />
-
           <Route index element={<WorkoutPage />} />
         </Route>
         

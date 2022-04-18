@@ -210,14 +210,14 @@ app.post("/api/requestPasswordReset", async(req, res) => {
 // ------------------------------------------------------------------------------------------------------------------------------------------------------------
 // Takes in:
 //      newPassword
-app.post("/passwordReset/:userID/:passwordResetToken", async (req, res) => {
+app.post("/api/passwordReset", async (req, res) => {
     
     // Checks if the user exists
     const checkUser = await User.findOne({_id: req.params.userID});
     if(!checkUser) return res.status(420).json({status: "Failed", in: "/passwordReset/:userID/:passwordResetToken", message: "User does not exist"});
 
     // Checks if the password reset token exists
-    const checkPasswordResetToken = await passwordReset.findOne({userID: ObjectId(req.params.userID), resetToken: req.params.passwordResetToken});
+    const checkPasswordResetToken = await passwordReset.findOne({userID: ObjectId(req.body.userID), resetToken: req.body.passwordResetToken});
     if(!checkPasswordResetToken) return res.status(420).json({status: "Failed", in: "/passwordReset/:userID/:passwordResetToken", message: "Password reset token does not exist"});
 
     // Hashes the new password and saves the user.
@@ -231,7 +231,7 @@ app.post("/passwordReset/:userID/:passwordResetToken", async (req, res) => {
     });
 
     // Deletes the password reset token
-    await passwordReset.deleteOne({userID: req.params.userID, resetToken: req.params.passwordResetToken});
+    await passwordReset.deleteOne({userID: req.body.userID, resetToken: req.body.passwordResetToken});
 
     console.log("Password successfully reset");
 

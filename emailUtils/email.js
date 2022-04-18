@@ -26,7 +26,7 @@ const sendVerificationEmail = (userID, firstName, toEmail, uniqueEmailToken) => 
         });
     
         var mailOptions;
-        var actionUrl = bp.buildPath("emailVerification") + "/" + userID + "/" + uniqueEmailToken;
+        var actionUrl = bp.buildPath("verifyAccount") + "/" + userID + "/" + uniqueEmailToken;
 
         const template = handlebars.compile(templateSrc);
 
