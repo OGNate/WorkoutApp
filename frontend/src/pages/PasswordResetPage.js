@@ -13,4 +13,4 @@ function PasswordResetPage() {
   );
 }
 
-export default PasswordResetPage();
+export default PasswordResetPage;
