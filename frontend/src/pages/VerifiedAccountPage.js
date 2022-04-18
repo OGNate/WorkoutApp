@@ -7,7 +7,13 @@ const VerifiedAccountPage = () => {
   const { userID, uniqueEmailToken } = useParams();
 
   var bp = require("../utils/Path.js");
-  var config = bp.apiGetCall("api/emailVerification/" + userID + "/" + uniqueEmailToken);
+
+  var obj = {
+    userID: userID,
+    uniqueEmailToken: uniqueEmailToken
+  };
+
+  var config = bp.apiCall("api/emailVerification/" + userID + "/" + uniqueEmailToken, obj);
 
   useEffect(() => {
 
