@@ -13,7 +13,7 @@ const VerifiedAccountPage = () => {
     uniqueEmailToken: uniqueEmailToken
   };
 
-  var config = bp.apiCall("api/emailVerification/" + userID + "/" + uniqueEmailToken, obj);
+  var config = bp.apiCall("api/emailVerification", obj);
 
   useEffect(() => {
 
