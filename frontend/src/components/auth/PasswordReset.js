@@ -1,7 +1,8 @@
 import axios from "axios";
-import { useState } from "react";
+import React, { useState } from "react";
+import { Form } from 'react-bootstrap';
+import Button from 'react-bootstrap/Button';
 import { useLocation, useNavigate } from "react-router";
-import './Login.css';
 
 function PasswordReset() {
 
@@ -51,7 +52,7 @@ function PasswordReset() {
 
         <Form.Group className="mb-3">
           <label>Email address</label>
-          <input type="email" className="form-control" placeholder="Enter email" ref={(c) => loginEmail = c} />
+          <input type="email" className="form-control" placeholder="Enter email" ref={(c) => recoveryEmail = c} />
         </Form.Group>
 
         <Button variant="primary" type="submit" className="btn btn-primary btn-block">
