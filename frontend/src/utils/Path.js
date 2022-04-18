@@ -22,13 +22,12 @@ exports.apiCall = function apiCall(endpoint, json, method) {
 exports.apiGetCall = function apiGetCall(endpoint) {
   
   var call = {
-    method: "GET",
-    url: this.buildPath(endpoint)
+    method: "GET"
   };
 
   console.log(call);
 
-  return call;
+  axios.get(this.buildPath(endpoint), call);
 }
 
 exports.buildPath = function buildPath(route) {

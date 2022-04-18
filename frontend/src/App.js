@@ -38,7 +38,7 @@ function App() {
         <Route path="workout" element={<Outlet />}>
 
           <Route path=":sessionId" element={<ActiveSessionPage />} />
-          <Route path=":sessionId/finish" element={<WorkoutSummaryPage />} />
+          <Route path=":sessionId/summary" element={<WorkoutSummaryPage />} />
 
           <Route index element={<WorkoutPage />} />
         </Route>

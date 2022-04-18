@@ -1,24 +1,29 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { Button, Card, Container, Modal } from "react-bootstrap";
-import { Link, Outlet, useParams } from "react-router-dom";
+import { Outlet, useParams } from "react-router-dom";
 import Excercises from "../components/exercises/Exercises";
 import tokenStorage from '../tokenStorage';
 
-function finishWorkout() {
-
-  const { sessionId } = useParams();
-  const [sessionDetails, setSessionDetails] = useState([]);
+function finishSession(sessionId) {
 
   var obj = {
-    "sessionID": sessionId,
+    "sessionId": sessionId,
     "jwtToken": tokenStorage.retrieveToken()
   };
 
   var bp = require("../utils/Path.js");
   var js = JSON.stringify(obj);
 
-  //var config = bp.apiCall("api/finishWorkout", js);
+  var finishWorkoutConfig = bp.apiCall("api/finishSession", js);
+
+  axios(finishWorkoutConfig).then(function () {
+
+    window.location.href = "/workout/" + sessionId + "/summary";
+
+  }).catch(function (error) {
+    console.log(error);
+  });
 }
 
 function ActiveSessionPage() {
@@ -63,7 +68,12 @@ function ActiveSessionPage() {
 
           <Button variant="secondary">Cancel</Button>
 
-          <Button variant="primary">Finish</Button>
+          <Button 
+            variant="primary"
+            onClick={() => finishSession(sessionId)}
+          >
+              Finish
+          </Button>
 
           <p>Timer</p>
           <p>Notes</p>
@@ -83,8 +93,6 @@ function ActiveSessionPage() {
             </Modal>
 
         </Card>
-
-        <Link to="/workout">Back to Workout Page</Link>
       </Container>
 
       <Outlet />

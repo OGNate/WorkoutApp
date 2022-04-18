@@ -1046,7 +1046,7 @@ app.post('/api/finishWorkout', async (req, res, next) => {
 //finishSession API
 app.post('/api/finishSession', async (req, res, next) => {
 
-  //Incoming: sessionId, userID, jwtToken
+  //Incoming: sessionId, jwtToken
   //Outgoing: error, jwtToken
 
   const jwtToken = req.body.jwtToken;
@@ -1057,8 +1057,7 @@ app.post('/api/finishSession', async (req, res, next) => {
   try
   {
   userSession.findOneAndUpdate({
-    _id: ObjectId(req.body.sessionId),
-    userID: ObjectId(req.body.userID)
+    _id: ObjectId(req.body.sessionId)
   },[
     { 
       '$set':
@@ -1225,15 +1224,9 @@ app.post('/api/getAllWorkoutDetails', async (req, res, next) => {
 
       var refreshedToken = refreshToken(res, jwtToken);
 
-      var lastSessionById = [];
-      
-      // There will only be one result by given session ID
-      for( var i=0; i<results.length; i++ )
-      {
-        lastSessionById = results[i];
-      }
+      console.log(results);
 
-      return res.status(200).json({session: lastSessionById, error: error, jwtToken: refreshedToken});
+      return res.status(200).json({session: results, error: error, jwtToken: refreshedToken});
     });
   }
   catch (e)

@@ -65,13 +65,23 @@ function Exercises({inSession}) {
       var shouldShow = true;
 
         if (bodyPartFilter) {
+
           var bodyParts = exercise.bodyPart;
           shouldShow = bodyParts.includes(bodyPartFilter);
+
+          if (!shouldShow) {
+            // The body part will get filtered - uncheck box
+          }
         }
 
         if (equipmentFilter) {
+
           var equipmentTypes = exercise.equipment;
           shouldShow = shouldShow && equipmentTypes.includes(equipmentFilter);
+
+          if (!shouldShow) {
+            // The equipment type will get filtered - uncheck box
+          }
         }
 
         return shouldShow;
@@ -84,20 +94,17 @@ function Exercises({inSession}) {
   return (
 
     <>
-      <DropdownTest name="Body Part" items={bodyParts} setSelected={setBodyPartFilter} />
-      <DropdownTest name="Equipment Type" items={equipment} setSelected={setEquipmentFilter} />
-
-      <input type="text" placeholder="Search" ref={(c) => setExerciseFilter(c) } />
+      <div style={{display: 'inline-block'}}>
+        <DropdownTest name="Body Part" items={bodyParts} setSelected={setBodyPartFilter} />
+        <DropdownTest name="Equipment Type" items={equipment} setSelected={setEquipmentFilter} />
+        <input type="text" placeholder="Search" ref={(c) => setExerciseFilter(c) } />
+      </div>
 
       <p>Results: {exercisesToShow.length} ({(exercises.length - exercisesToShow.length)} filtered)</p>
 
-      <Card style={{ width: '18rem' }}>
-        <ListGroup variant="flush">
-          {
-            exercisesToShow
-          }
-        </ListGroup>
-      </Card>
+        <Card>
+          <ListGroup variant="flush">{exercisesToShow}</ListGroup>
+        </Card>
     </>
   );
 };
