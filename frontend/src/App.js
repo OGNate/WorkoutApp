@@ -33,7 +33,7 @@ function App() {
         <Route index element={<VerifyAccountPage />} />
       </Route>
 
-      <Route path="forgotPassword" element={<Outlet />}>
+      <Route path="resetPassword" element={<Outlet />}>
         <Route path=":userID/:passwordResetToken" element={<NewPasswordPage />} />
         <Route index element={<PasswordResetPage />} />
       </Route>
