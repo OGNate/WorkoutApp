@@ -5,6 +5,30 @@ import { Outlet, useParams } from "react-router-dom";
 import Excercises from "../components/exercises/Exercises";
 import tokenStorage from '../tokenStorage';
 
+function addToSession(userID, sessionId, exercises) {
+
+  exercises.forEach(exercise => {
+
+    var obj = {
+      "userID": userID,
+      "sessionId": sessionId,
+      "workoutName": exercise.name,
+      "jwtToken": tokenStorage.retrieveToken()
+    };
+
+    var bp = require("../utils/Path.js");
+    var js = JSON.stringify(obj);
+
+    var finishWorkoutConfig = bp.apiCall("api/finishSession", js);
+
+    axios(finishWorkoutConfig).then(function () {
+
+    }).catch(function (error) {
+      console.log(error);
+    });
+  });
+}
+
 function finishSession(sessionId) {
 
   var obj = {
@@ -87,7 +111,7 @@ function ActiveSessionPage() {
             </Modal.Header>
 
             <Modal.Body>
-              <Excercises inSession={true} />
+              <Excercises onNextAction={addToSession} />
             </Modal.Body>
 
             </Modal>

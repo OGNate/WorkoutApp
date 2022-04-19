@@ -1,11 +1,10 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { Card, ListGroup } from "react-bootstrap";
 import tokenStorage from '../../tokenStorage';
-import ExerciseCard from "./ExerciseCard";
+import CheckboxContainer from "../CheckboxContainer";
 import DropdownTest from "./filter/DropdownTest";
 
-function Exercises({inSession}) {
+const Exercises = (props) => {
 
   const [exercises, setExercises] = useState([]);
   const [bodyParts, setBodyParts] = useState([]);
@@ -87,12 +86,10 @@ function Exercises({inSession}) {
         return shouldShow;
       
     }).map((exercise) => {
-      return <ExerciseCard exercise={exercise} session={inSession} />
+      return exercise;
     });
 
-
   return (
-
     <>
       <div style={{display: 'inline-block'}}>
         <DropdownTest name="Body Part" items={bodyParts} setSelected={setBodyPartFilter} />
@@ -102,9 +99,7 @@ function Exercises({inSession}) {
 
       <p>Results: {exercisesToShow.length} ({(exercises.length - exercisesToShow.length)} filtered)</p>
 
-        <Card>
-          <ListGroup variant="flush">{exercisesToShow}</ListGroup>
-        </Card>
+      <CheckboxContainer exercises={exercisesToShow} onNextAction={props.onNextAction} />
     </>
   );
 };

@@ -14,8 +14,6 @@ exports.apiCall = function apiCall(endpoint, json, method) {
     data: json
   };
 
-  console.log(call);
-
   return call;
 }
 

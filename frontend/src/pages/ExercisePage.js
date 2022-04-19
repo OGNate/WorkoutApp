@@ -3,6 +3,10 @@ import Container from "react-bootstrap/Container";
 import Exercises from '../components/exercises/Exercises';
 import GlobalNavigation from '../components/GlobalNavigation';
 
+function helloWorld(params) {
+  console.log("Hello " + params);
+}
+
 const ExercisePage = () => {
 
   return (
@@ -12,7 +16,7 @@ const ExercisePage = () => {
       <GlobalNavigation />
 
       <h1>Exercises</h1>
-      <Exercises inSession={false} />
+      <Exercises onNextAction={helloWorld} />
 
     </Container>
   );
