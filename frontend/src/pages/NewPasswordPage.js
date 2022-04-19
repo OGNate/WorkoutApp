@@ -25,9 +25,9 @@ function NewPasswordPage() {
     event.preventDefault();
   
     var js = JSON.stringify({
-      userID: userID,
-      passwordResetToken: passwordResetToken,
-      newPassword: newPW
+      "userID": userID,
+      "passwordResetToken": passwordResetToken,
+      "newPassword": newPW
     });
 
     var config = bp.apiCall("api/passwordReset", js);
