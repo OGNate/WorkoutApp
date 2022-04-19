@@ -89,19 +89,19 @@ app.post('/api/register', async(req, res) => {
   }
 
   if (Validator.isEmpty(usernameArg)) {
-    errors.lastName = "Username field is required";
+    errors.userName = "Username field is required";
   }
 
   if (Validator.isEmpty(passwordArg)) {
     errors.password = "Password field is required";
   }
-
-  if (Validator.isEmpty(password2Arg)) {
-    errors.password = "Confirm password field is required";
-  }
-
+  
   if (!Validator.equals(passwordArg, password2Arg)) {
     errors.password2 = "Passwords do not match";
+  }
+
+  if (Validator.isEmpty(password2Arg)) {
+    errors.password2 = "Confirm password field is required";
   }
 
   if (!Validator.isLength(passwordArg, { min: 8 })) {

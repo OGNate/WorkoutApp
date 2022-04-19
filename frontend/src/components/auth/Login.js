@@ -14,7 +14,7 @@ function Login() {
   // Redirect after login
   const navigate = useNavigate();
   const location = useLocation();
-  
+
   // Password field shown/hidden
   const [passwordShown, setPasswordShown] = useState(false);
 
@@ -23,7 +23,7 @@ function Login() {
   };
 
   // Incorrect password or any other error
-  const [setErrorMessage] = useState("");
+  const [errors, setErrors] = useState({});
 
   var bp = require("../../utils/Path.js");
   var storage = require("../../tokenStorage.js");
@@ -31,7 +31,7 @@ function Login() {
   var loginEmail, loginPassword;
 
   const attemptLogin = async (event) => {
-    
+
     event.preventDefault();
 
     var obj = {
@@ -43,39 +43,32 @@ function Login() {
     var config = bp.apiCall("api/login", js);
 
     axios(config).then(function (response) {
-
       var res = response.data.ret;
 
-      if (res.error) {
+      storage.storeToken(res);
+      var jwt = require("jsonwebtoken");
 
-        setErrorMessage(res.error);
-        
+      var ud = jwt.decode(storage.retrieveToken(), {
+        complete: true
+      });
+
+      var user = {
+        firstName: ud.payload.firstName,
+        lastName: ud.payload.lastName,
+        userId: res.id
+      };
+
+      localStorage.setItem("user_data", JSON.stringify(user));
+
+      if (location.state && location.state.from) {
+        navigate(location.state.from)
       } else {
-
-        storage.storeToken(res);
-        var jwt = require("jsonwebtoken");
-
-        var ud = jwt.decode(storage.retrieveToken(), { 
-          complete: true 
-        });
-
-        var user = {
-          firstName: ud.payload.firstName, 
-          lastName: ud.payload.lastName,
-          userId: res.id
-        };
-
-        localStorage.setItem("user_data", JSON.stringify(user));
-
-        if (location.state && location.state.from) {
-          navigate(location.state.from)
-        } else {
-          navigate("/home");
-        }
+        navigate("/home");
       }
 
     }).catch(function (error) {
-      console.log(error);
+      console.log(error.response.data);
+      setErrors(error.response.data);
     });
   };
 
@@ -89,6 +82,7 @@ function Login() {
         <Form.Group className="mb-3">
           <label>Email address</label>
           <input type="email" className="form-control" placeholder="Enter email" ref={(c) => loginEmail = c} />
+          <span className="text-danger" style={{ fontSize: '9px' }}> {errors.email}</span>
         </Form.Group>
 
         <div className="passwordWrapper">
@@ -96,15 +90,20 @@ function Login() {
           <Form.Group className="mb-3">
             <label>Password</label>
             <input type={passwordShown ? "text" : "password"} className="form-control" placeholder="Enter password" ref={(c) => loginPassword = c} />
+            <span className="text-danger" style={{ fontSize: '9px' }}> {errors.password}</span>
           </Form.Group>
 
           <i onClick={togglePasswordVisiblity}>{eye}</i>
         </div>
 
+        <div className="d-block mb-2">
+          <span className="text-danger" style={{ fontSize: '9px' }}> {errors.error}</span>
+        </div>
+
         <Button variant="primary" type="submit" className="btn btn-primary btn-block">
           Submit
         </Button>
-        
+
         <p className="forgot-password text-right">
           <a href="resetPassword">Forgot password?</a>
         </p>

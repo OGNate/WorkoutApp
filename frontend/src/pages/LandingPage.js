@@ -5,16 +5,19 @@ function LandingPage() {
 
   return (
     <>
-    <Container>
-    <Link to="/login">
-        <Button>Login</Button>
-      </Link>
+      <Container>
+        <div className="App">
+          <nav className="navbar navbar-expand-lg navbar-light fixed-top">
+              <div className="d-flex">
+                <Link className="p-2 navbar-brand" to={"/login"}>Shreddit</Link>
+                <Link className="p-2 nav-link" to={"/login"}>Sign in</Link>
+                <Link className="p-2 ms-auto nav-link" to={"/register"}>Register</Link>
+            </div>
+          </nav>
 
-      <Link to="/register">
-        <Button>Register</Button>
-      </Link>
-    </Container>
-   </>
+        </div>
+      </Container>
+    </>
   );
 };
 
