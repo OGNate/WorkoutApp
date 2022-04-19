@@ -23,14 +23,13 @@ function NewPasswordPage() {
   const attemptResetPassword = async (event) => {
     
     event.preventDefault();
-
-    var obj = {};
-
-    obj.userID = userID,
-    obj.passwordResetToken = passwordResetToken;
-    obj.newPassword = newPW;
   
-    var js = JSON.stringify(obj);
+    var js = JSON.stringify({
+      userID: userID,
+      passwordResetToken: passwordResetToken,
+      newPassword: newPW
+    });
+
     var config = bp.apiCall("api/passwordReset", js);
 
     axios(config).then(function (response) {
