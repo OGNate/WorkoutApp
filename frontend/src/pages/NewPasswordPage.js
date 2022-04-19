@@ -24,12 +24,12 @@ function NewPasswordPage() {
     
     event.preventDefault();
 
-    var obj = {
-      userID: userID,
-      passwordResetToken: passwordResetToken,
-      newPassword: newPW
-    };
+    var obj = {};
 
+    obj.userID = userID,
+    obj.passwordResetToken = passwordResetToken;
+    obj.newPassword = newPW;
+  
     var js = JSON.stringify(obj);
     var config = bp.apiCall("api/passwordReset", js);
 
