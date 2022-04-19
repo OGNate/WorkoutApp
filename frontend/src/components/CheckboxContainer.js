@@ -33,7 +33,7 @@ class CheckboxContainer extends React.Component {
       <React.Fragment>
 
         <Button
-          onClick={() => this.onNextAction}
+          onClick={() => onNextAction}
         >
           Add to Session
         </Button>
